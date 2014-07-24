@@ -17,8 +17,14 @@ Each DB had two instances installed, each of which on a separate vagrant environ
 3. Reload local package DB
 
     `$ sudo apt-get update`
-
+on
 4. Install Mongo:
 
     `sudo apt-get install mongodb-org`
+
+5. Fire it up!
+
+    `$ sudo service mongod start`
+
+    Or you can also "stop" and "restart" with the same syntax
 
