@@ -1,0 +1,45 @@
+---
+# This role deploys the mongod processes and sets up the replication set.
+
+- name: create data directory for mongodb
+  sudo: yes
+  file: path={{ mongodb_datadir_prefix }}/mongo-{{ inventory_hostname }} state=directory owner=mongod group=mongod
+  delegate_to: '{{ item }}'
+  with_items: groups.replication_servers
+
+  
+- name: Create the mongodb startup file
+  sudo: yes
+  template: src=mongod.j2 dest=/etc/init.d/mongod-{{ inventory_hostname }} mode=0655
+  delegate_to: '{{ item }}'
+  with_items: groups.replication_servers
+
+
+- name: Create the mongodb configuration file
+  sudo: yes
+  template: src=mongod.conf.j2 dest=/etc/mongod-${inventory_hostname}.conf
+  delegate_to: '{{ item }}'
+  with_items: groups.replication_servers
+
+- name: Copy the keyfile for authentication
+  sudo: yes
+  copy: src=secret dest={{ mongodb_datadir_prefix }}/secret owner=mongod group=mongod mode=0400
+
+
+- name: Start the mongodb service
+  sudo: yes
+  command: creates=/var/lock/subsys/mongod-${inventory_hostname} /etc/init.d/mongod-${inventory_hostname} start
+  delegate_to: '{{ item }}'
+  with_items: groups.replication_servers
+
+- name: Create the file to initialize the mongod replica set
+  sudo: yes
+  template: src=repset_init.j2 dest=/tmp/repset_init.js
+
+- name: Pause for a while
+  sudo: yes
+  pause: seconds=20
+
+- name: Initialize the replication set
+  sudo: yes
+  shell: /usr/bin/mongo --port "{{ mongod_port }}" /tmp/repset_init.js 
