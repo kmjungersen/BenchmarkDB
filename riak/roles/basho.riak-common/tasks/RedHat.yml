@@ -1,0 +1,12 @@
+---
+- name: fetch yum repository
+  get_url: url=http://mirror.pnl.gov/epel/6/i386/epel-release-6-8.noarch.rpm dest=/tmp
+
+- name: configure the epel repository
+  yum: name=/tmp/epel-release-6-8.noarch.rpm
+
+- name: configure the basho repository
+  yum: name=http://yum.basho.com/gpg/basho-release-6-1.noarch.rpm
+
+- name: install libselinux-python
+  yum: name=libselinux-python state=present
