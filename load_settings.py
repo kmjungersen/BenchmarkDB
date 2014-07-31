@@ -10,7 +10,7 @@ class LocalSettings():
 
     """
 
-    def __init__(self, config_file='znc_settings.conf'):
+    def __init__(self, config_file='db_settings.conf'):
 
         settings = self.load_settings(config_file)
 
@@ -39,7 +39,7 @@ class LocalSettings():
         config.read(config_file_path)
 
         section_list = [
-            'MONGO_CONFIG',
+            'MONGO CONFIG',
         ]
 
         for section in section_list:
@@ -52,3 +52,5 @@ class LocalSettings():
 
         return config_settings
 
+if __name__ == '__main__':
+    LocalSettings()
