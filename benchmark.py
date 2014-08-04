@@ -14,10 +14,10 @@ class BenchmarkDatabase():
 
         pass
 
-    def write(self, data):
+    def write(self, collection, index, data):
 
         pass
 
-    def read(self, data):
+    def read(self, collection, index):
 
         pass
