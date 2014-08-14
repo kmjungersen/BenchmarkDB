@@ -1,6 +1,8 @@
 # mongo.conf
 smallfiles=true
 
+journal=true
+
 #where to log
 logpath=/var/log/mongodb/mongod.log
 
@@ -11,7 +13,7 @@ logappend=true
 
 port = {{ mongod_port }}
 
-dbpath={{ mongodb_datadir_prefix }}mongo
+dbpath={{ mongodb_datadir_prefix }}/mongo
 keyFile={{ mongodb_datadir_prefix }}/secret
 
 # location of pidfile
@@ -22,4 +24,4 @@ pidfilepath = /var/run/mongod.pid
 #mms-interval = <seconds>
 
 # Replication Options
-replSet={{ inventory_hostname }}
+replSet= "rs1"

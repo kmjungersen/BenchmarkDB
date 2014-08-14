@@ -2,13 +2,13 @@
 # This role deploys the mongod processes and sets up the replication set.
 
 - name: create data directory for mongodb
-  file: path={{ mongodb_datadir_prefix }}/db state=directory owner=mongod group=mongod
+  file: path={{ mongodb_datadir_prefix }} state=directory owner=mongod group=mongod
   
 - name: Create the mongodb startup file
   template: src=mongod.j2 dest=/etc/init.d/mongod mode=0655
 
 - name: Create the mongodb configuration file
-  template: src=mongod.conf.j2 dest=/etc/mongod.conf
+  template: src=mongod.conf.j2 dest={{ config_path }}
 
 - name: Copy the keyfile for authentication
   copy: src=secret dest={{ mongodb_datadir_prefix }}secret owner=mongod group=mongod mode=0400
@@ -16,20 +16,21 @@
 - name: Experiment foo
   shell: pkill mongo
 
-- name: Repair DB
-  sudo: yes
-  shell: mongod --repair
+#- name: Remove lock file
+#  shell: rm {{ mongodb_datadir_prefix }}/mongod.lock
+
+#- name: Repair DB
+#  shell: mongod --repair
 
 - name: Start the mongodb service
-  service:
-    name: mongod
-    state: started
+  sudo: yes
+  shell: mongod --fork --logpath /var/log/mongodb.log --replSet rs0 --journal --smallfiles
 
 - name: Create the file to initialize the mongod replica set
   template: src=repset_init.j2 dest=/tmp/repset_init.js
 
 - name: Pause for a while
-  pause: seconds=20
+  pause: seconds=5
 
 - name: Initialize the replication set
-  shell: /usr/bin/mongo --port "{{ mongod_port }}" /tmp/repset_init.js 
+  shell: mongo /tmp/repset_init.js

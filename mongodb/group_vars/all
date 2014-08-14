@@ -10,7 +10,7 @@ mongos_port: 8888
 mongoc_port: 7777
 
 # The directory prefix where the database files would be stored
-mongodb_datadir_prefix: /data/
+mongodb_datadir_prefix: /data/db
 
 # The interface where the mongodb process should listen on.
 # Defaults to the first interface. Change this to:
@@ -23,3 +23,5 @@ iface: '{{ ansible_default_ipv4.interface }}'
 
 # The password for admin user
 mongo_admin_pass: 123456
+
+config_path: /etc/mongod.conf

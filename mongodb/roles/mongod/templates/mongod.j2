@@ -15,7 +15,7 @@ export LC_ALL="C"
 
 # NOTE: if you change any OPTIONS here, you get what you pay for:
 # this script assumes all options are in the config file.
-CONFIGFILE="/etc/mongod.conf"
+CONFIGFILE="/etc/mongod-{{ inventory_hostname }}.conf"
 OPTIONS=" -f $CONFIGFILE"
 SYSCONFIG="/etc/sysconfig/mongod"
 
@@ -46,8 +46,7 @@ fi
 start()
 {
   echo -n $"Starting mongod: "
-  # ndaemon --user "$MONGO_USER" $NUMACTL $mongod $OPTIONS
-  echo | mongod &
+  $mongod $OPTIONS
   RETVAL=$?
   echo
   [ $RETVAL -eq 0 ] && touch /var/lock/subsys/mongod
