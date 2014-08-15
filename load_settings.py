@@ -14,10 +14,10 @@ class LocalSettings():
 
         settings = self.load_settings(config_file)
 
-        self.mongo_ip_1 = settings['mongo_ip_1']
-        self.mongo_ip_2 = settings['mongo_ip_2']
-        self.mongo_ip_3 = settings['mongo_ip_3']
-        self.mongo_ip_4 = settings['mongo_ip_4']
+        self.vagrant_1 = settings['vagrant_1']
+        self.vagrant_2 = settings['vagrant_2']
+        self.vagrant_3 = settings['vagrant_3']
+        self.vagrant_4 = settings['vagrant_4']
 
         self.mongo_port = settings['mongo_port']
 
