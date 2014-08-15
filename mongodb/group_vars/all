@@ -7,7 +7,7 @@ mongos_chunk_size: 1
 mongos_port: 8888
 
 # The port for mongo config server
-mongoc_port: 7777
+mongoc_port: 27019
 
 # The directory prefix where the database files would be stored
 mongodb_datadir_prefix: /data/db

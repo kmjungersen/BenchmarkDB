@@ -15,15 +15,15 @@
 
 - name: Create a list file for MongoDB
   shell: echo 'deb http://downloads-distro.mongodb.org/repo/ubuntu-upstart dist 10gen' | sudo tee /etc/apt/sources.list.d/mongodb.list
-#
-#- name: Reload local package database
-#  shell: sudo apt-get update
-#
-#- name: Install the mongodb package
-#  apt: name=mongodb-org state=installed
-#
-#- name: Install pip
-#  apt: name=python-pip state=installed
+
+- name: Reload local package database
+  shell: apt-get update
+
+- name: Install the mongodb package
+  apt: name=mongodb-org state=installed
+
+- name: Install pip
+  apt: name=python-pip state=installed
 
 - name: Install the latest pymongo package
   pip: name=pymongo state=latest use_mirrors=no

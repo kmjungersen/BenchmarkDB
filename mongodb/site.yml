@@ -4,10 +4,14 @@
 - hosts: all
   roles:
   - role: common
-
+#
 - hosts: mongo_servers
   roles:
   - role: mongod
+
+- hosts: mongos_servers
+  roles:
+  - role: repset
 
 - hosts: mongoc_servers
   roles:
@@ -17,11 +21,6 @@
   roles:
   - role: mongos
 
-- hosts: mongo_servers
+- hosts: mongos_servers
   tasks:
   - include: roles/mongod/tasks/shards.yml
-#
-#- hosts: foo
-#  roles:
-#  - role: dotfiles-ansible
-#

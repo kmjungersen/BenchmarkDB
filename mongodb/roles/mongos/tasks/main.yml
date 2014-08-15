@@ -4,7 +4,6 @@
 - name: Create the mongos startup file
   template: src=mongos.j2 dest=/etc/init.d/mongos mode=0655
 
-
 - name: Create the mongos configuration file
   template: src=mongos.conf.j2 dest=/etc/mongos.conf
 
@@ -12,9 +11,10 @@
   copy: src=roles/mongod/files/secret dest={{ mongodb_datadir_prefix }}/secret owner=mongod group=mongod mode=0400
 
 - name: Start the mongos service
-  command: creates=/var/lock/subsys/mongos /etc/init.d/mongos start
+  shell: mongos --fork --logpath /var/log/mongos.log --configdb 192.168.33.21:27019,192.168.33.22:27019,192.168.33.23:27019 --port 8888
+
 - name: pause
-  pause: seconds=20
+  pause: seconds=5
 
 - name: copy the file for shard test 
   template: src=testsharding.j2 dest=/tmp/testsharding.js

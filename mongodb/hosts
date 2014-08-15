@@ -1,6 +1,6 @@
 #The site wide list of mongodb servers
 
-# the mongo servers need a mongod_port variable set, and they must not conflict.
+# the mongo servers need a mongod_port variable set, and they must not conflict if deployed to a single box.
 [mongo_servers]
 192.168.33.21 mongod_port=27017
 192.168.33.22 mongod_port=27017
@@ -20,12 +20,13 @@ mongos_servers
 
 [mongoc_servers]
 192.168.33.23
+192.168.33.22
 
 
 #The list of servers where mongos servers would run. 
 [mongos_servers]
 192.168.33.21
-192.168.33.22
+
 
 [foo]
 192.168.33.21
