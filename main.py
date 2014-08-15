@@ -2,7 +2,7 @@
 Main.py will house all of the benchmarking commands
 """
 
-# from mongo import BenchmarkMongo as Mongo
+from mongo_db import BenchmarkMongo
 from riak_db import BenchmarkRiak
 
 import time
@@ -11,26 +11,34 @@ import random
 
 from numpy import array, average
 
+
 class Benchmark():
 
-    def __init__(self):
+    def __init__(self, db):
 
         self.entry_length = 10
         self.number_of_trials = 100
         self.write_times = []
         self.read_times = []
 
-        self.Riak = BenchmarkRiak()
-
         self.collection = 'test'
         self.sorting_index = 'ID'
 
+        registered_dbs = {
+            'riak': BenchmarkRiak(),
+            'mongo': BenchmarkMongo(),
+        }
 
-    def random_entry(self, type='string'):
+        self.database = registered_dbs.get(db)
+
+        if not self.database:
+            print 'Not a valid db!'
+
+    def random_entry(self, entry_type='string'):
 
         entry = ''
 
-        if type == 'string':
+        if entry_type == 'string':
 
             selection = string.ascii_letters
 
@@ -48,8 +56,8 @@ class Benchmark():
 
         for index in range(self.number_of_trials):
 
-            info = self.random_entry(type='string')
-            item_number = self.random_entry(type='number')
+            info = self.random_entry(entry_type='string')
+            item_number = self.random_entry(entry_type='number')
 
             entry = {self.sorting_index: index,
                      'Number': item_number,
@@ -63,12 +71,11 @@ class Benchmark():
 
         self.compile_data()
 
-
     def writes(self, entry):
 
         write_start_time = time.time()
 
-        self.Riak.write(self.collection, self.sorting_index, entry)
+        self.database.write(self.collection, self.sorting_index, entry)
 
         write_stop_time = time.time()
 
@@ -82,7 +89,7 @@ class Benchmark():
 
         read_start_time = time.time()
 
-        self.Riak.read(self.collection, self.sorting_index)
+        self.database.read(self.collection, self.sorting_index)
 
         read_stop_time = time.time()
 
@@ -91,7 +98,6 @@ class Benchmark():
         self.read_times.append(read_time)
 
         return True
-
 
     def compile_data(self):
 
@@ -106,7 +112,7 @@ class Benchmark():
 
 if __name__ == '__main__':
 
-    foo = Benchmark()
+    foo = Benchmark('riak')
 
     foo.run()
 
