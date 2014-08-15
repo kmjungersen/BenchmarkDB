@@ -13,10 +13,12 @@ class BenchmarkRiak(BenchmarkDatabase):
 
     def setup(self):
 
-        riak_servers = [CONFIG.mongo_ip_1,
-                        CONFIG.mongo_ip_2,
-                        CONFIG.mongo_ip_3
-                        ]
+        riak_servers = [
+            CONFIG.vagrant_1,
+            CONFIG.vagrant_2,
+            CONFIG.vagrant_3,
+        ]
+
         riak_nodes = []
 
         for server in riak_servers:
