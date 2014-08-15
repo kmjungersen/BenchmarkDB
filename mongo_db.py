@@ -16,24 +16,26 @@ class BenchmarkMongo(BenchmarkDatabase):
         self.db = ''
         self.collection = ''
 
-
-        pass
+        self.setup()
 
     def setup(self):
 
-        self.client = MongoClient(host=CONFIG.mongo_ip, port=CONFIG.mongo_port)
+        self.client = MongoClient(host=CONFIG.vagrant_1, port=CONFIG.mongo_port)
 
         self.db = self.client.mydb
 
         self.collection = self.db.testData
 
-        pass
+    def write(self, collection, index, data):
 
-    def write(self, data):
+        new_entry = {
+            'index': index,
+            'data': data,
+        }
 
-        pass
+        self.collection.insert(new_entry)
 
-    def read(self, query):
+    def read(self, collection, index):
 
         self.collection.find()
 
