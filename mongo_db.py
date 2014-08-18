@@ -1,24 +1,24 @@
 __author__ = 'kurtisjungersen'
 
-from benchmark import BenchmarkDatabase
-from PyMongo import MongoClient
+from benchmark_template import BenchmarkDatabase
+from pymongo import MongoClient
 
 from load_settings import LocalSettings
 
 CONFIG = LocalSettings()
 
 
-class BenchmarkMongo(BenchmarkDatabase):
+class BenchmarkMongo():
 
-    def __init__(self):
+    def __init__(self, setup=False):
+
+        if setup:
+            self.setup('test', 'ID')
 
         self.client = ''
         self.db = ''
-        self.collection = ''
 
-        self.setup()
-
-    def setup(self):
+    def setup(self, collection, sorting_index):
 
         self.client = MongoClient(host=CONFIG.vagrant_1, port=CONFIG.mongo_port)
 
@@ -26,17 +26,19 @@ class BenchmarkMongo(BenchmarkDatabase):
 
         self.collection = self.db.testData
 
-    def write(self, collection, index, data):
+    def write(self, data):
 
-        new_entry = {
-            'index': index,
-            'data': data,
+        self.collection.insert(data)
+
+    def read(self, index):
+
+        query = {
+            'Index': index
         }
 
-        self.collection.insert(new_entry)
+        print self.collection.find_one(query)
 
-    def read(self, collection, index):
 
-        self.collection.find()
+if __name__ == '__main__':
 
-        return data
+    foo = BenchmarkMongo()
