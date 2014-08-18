@@ -1,6 +1,19 @@
 """
-Main.py will house all of the benchmarking commands
+DB Benchmarking Application
+===========================
+
+Main.py
+
+This file houses the core of the application, and is where all of the read/write
+commands are issued from, timed, and all data is analyzed.  Results from the
+trials are printed to the console by default, but can optionally be printed to a
+file to keep a record of.  This is particularly helpful when benchmarking
+multiple DB's in a row to see which one is best for deployment purposes.
+
 """
+
+# TODO(kmjungersen) - create terminal line arguments that enable certain options
+# such as the number of trials, file report, etc.
 
 from mongo_db import BenchmarkMongo
 from riak_db import BenchmarkRiak
@@ -24,13 +37,17 @@ class Benchmark():
         """
 
         self.entry_length = 10
-        self.number_of_trials = 100
+        self.number_of_trials = 10
+        self.number_of_nodes = 4
 
         self.write_times = []
         self.read_times = []
 
         self.collection = 'test'
         self.sorting_index = 'ID'
+
+        #TODO - do this better.  This sucks, but works for now.
+        self.db_name = db.upper()
 
         registered_dbs = {
             'riak': BenchmarkRiak(),
@@ -54,7 +71,8 @@ class Benchmark():
         and the number is generated from numbers 0-9.
 
         :param entry_type: the specified type of random entry, either 'string'
-                            or 'number'
+                    or 'number'
+
         :return: the random string or number that was just generated
         """
 
@@ -106,6 +124,7 @@ class Benchmark():
         written to the DB.
 
         :param entry: The entry to be recorded to the DB
+
         :return: True, if all operations successfully completed
         """
 
@@ -127,6 +146,7 @@ class Benchmark():
         retrieve from the DB.
 
         :param index: The index of the item to be retrieved from the DB
+
         :return: True, if all operations successfully completed
         """
 
@@ -142,27 +162,72 @@ class Benchmark():
 
         return True
 
-    def compile_data(self):
+    def compile_data(self, return_results=False):
         """ This function takes all the data collected from the trials (read and
         write times) and then calculates some important statistics about said
-        data.
+        data.  Without altering functionality, a report will be generated upon
+        completion of analysis.
 
-        :return data: The compiled results from the statistical analysis of the
-                        trial data
+        :param return_results=False: This parameter can be optionally passed as
+                    True if the user wants to have the dict of results returned
+                    instead of generating a report with said results
+
+        :return results: The compiled results from the statistical analysis of
+                    the trial data
         """
 
-        results = {}
+        
 
         self.write_times = array(self.write_times)
         self.read_times = array(self.read_times)
 
         write_avg = average(self.write_times)
-        print write_avg
+        write_stdev = 0
+        write_max = 0
+        write_min = 0
 
         read_avg = average(self.read_times)
-        print read_avg
+        read_stdev = 0
+        read_max = 0
+        read_min = 0
 
-        return results
+        results = {
+            'database': self.db_name,
+            'trial_number': self.number_of_trials,
+            'entry_length': self.entry_length,
+            'node_number': self.number_of_nodes,
+            'write_avg': write_avg,
+            'write_stdev': write_stdev,
+            'write_max': write_max,
+            'write_min': write_min,
+            'read_avg': read_avg,
+            'read_stdev': read_stdev,
+            'read_max': read_max,
+            'read_min': read_min,
+        }
+
+        if return_results:
+
+            return results
+
+        else:
+
+            self.generate_report(results)
+
+    def generate_report(self, results):
+
+        with open('report_template.md', 'r') as infile, \
+                open('{db}.report.md'.format(db=self.db_name), 'w+') as outfile:
+
+            template = infile.read()
+
+            report = template.format(**results)
+
+            print report
+
+            outfile.write(report)
+
+
 
 if __name__ == '__main__':
 
