@@ -15,14 +15,14 @@ multiple DB's in a row to see which one is best for deployment purposes.
 # TODO(kmjungersen) - create terminal line arguments that enable certain options
 # such as the number of trials, file report, etc.
 
-from mongo_db import BenchmarkMongo
-from riak_db import BenchmarkRiak
-
 import time
 import string
 import random
 
 from numpy import array, average
+
+from mongodb.mongo_db import BenchmarkMongo
+from riak.riak_db import BenchmarkRiak
 
 
 class Benchmark():
