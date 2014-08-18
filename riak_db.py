@@ -1,17 +1,21 @@
 import riak
 
 from load_settings import LocalSettings
-from benchmark import BenchmarkDatabase
+from benchmark_template import BenchmarkDatabase
 
 CONFIG = LocalSettings()
 
+
 class BenchmarkRiak(BenchmarkDatabase):
 
-    def __init__(self):
+    def __init__(self, setup=False):
 
-        self.setup()
+        if setup:
+            self.setup('test')
 
-    def setup(self):
+    def setup(self, collection):
+
+        port = CONFIG.riak_port
 
         riak_servers = [
             CONFIG.vagrant_1,
@@ -23,7 +27,7 @@ class BenchmarkRiak(BenchmarkDatabase):
 
         for server in riak_servers:
 
-            riak_nodes.append({'host': str(server), 'http_port': 8098})
+            riak_nodes.append({'host': str(server), 'http_port': port})
 
         print riak_nodes
 
@@ -31,19 +35,18 @@ class BenchmarkRiak(BenchmarkDatabase):
 
         self.client = riak.RiakClient(nodes=riak_nodes)
 
-    def write(self, collection, index, data):
+        self.bucket = self.client.bucket(collection)
 
-        bucket = self.client.bucket(collection)
 
-        entry = bucket.new('ID', data=data)
+    def write(self, index, data):
+
+        entry = self.bucket.new('ID', data=data)
 
         entry.store()
 
-    def read(self, collection, index):
+    def read(self, index):
 
-        bucket = self.client.bucket(collection)
-
-        read_entry = bucket.get('ID').data
+        read_entry = self.bucket.get('ID').data
 
         # return True
 
