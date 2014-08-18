@@ -19,7 +19,8 @@ class LocalSettings():
         self.vagrant_3 = settings['vagrant_3']
         self.vagrant_4 = settings['vagrant_4']
 
-        self.mongo_port = settings['mongo_port']
+        self.mongo_port = int(settings['mongo_port'])
+        self.riak_port = int(settings['riak_port'])
 
     @staticmethod
     def load_settings(config_file_path):
