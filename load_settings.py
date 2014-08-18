@@ -1,4 +1,19 @@
 """
+DB Benchmarking Application
+===========================
+
+Load_settings.py
+
+This file houses all of the configuration for the application.  It reads the
+appropriate settings from a config file, and when an instance of the
+`LocalSettings` class has been created, those settings can be accessed as
+attributes of the class.
+
+NOTE: If, for whatever reason, you need to add more options to this config file
+in order to build your module, you have to also add those options to `__init__`
+so they can be accessed as attributes.  Alternatively, after initializing the
+class, the `load_settings` function can be called to return all of the config
+settings as a dict.
 
 """
 
@@ -52,6 +67,7 @@ class LocalSettings():
                 config_settings[option] = config.get(section, option)
 
         return config_settings
+
 
 if __name__ == '__main__':
     LocalSettings()
