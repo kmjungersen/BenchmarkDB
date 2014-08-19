@@ -57,7 +57,7 @@ class BenchmarkRiak(BenchmarkDatabase):
 
     def read(self, index):
 
-        read_entry = self.bucket.get('Index').data
+        read_entry = self.bucket.get('ID').data
 
         print read_entry
 
