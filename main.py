@@ -19,6 +19,8 @@ import time
 import string
 import random
 
+from tabulate import tabulate
+
 from numpy import array, average
 
 from mongodb.mongo_db import BenchmarkMongo
@@ -45,6 +47,9 @@ class Benchmark():
 
         self.collection = 'test'
         self.sorting_index = 'ID'
+        self.reports_dir = 'generated_reports/'
+
+        self.time_and_date = time.strftime("%a, %d %b, %Y %H:%M:%S")
 
         #TODO - do this better.  This sucks, but works for now.
         self.db_name = db.upper()
@@ -173,10 +178,8 @@ class Benchmark():
                     instead of generating a report with said results
 
         :return results: The compiled results from the statistical analysis of
-                    the trial data
+                    the trial data as a dict
         """
-
-        
 
         self.write_times = array(self.write_times)
         self.read_times = array(self.read_times)
@@ -191,33 +194,90 @@ class Benchmark():
         read_max = 0
         read_min = 0
 
-        results = {
-            'database': self.db_name,
-            'trial_number': self.number_of_trials,
-            'entry_length': self.entry_length,
-            'node_number': self.number_of_nodes,
-            'write_avg': write_avg,
-            'write_stdev': write_stdev,
-            'write_max': write_max,
-            'write_min': write_min,
-            'read_avg': read_avg,
-            'read_stdev': read_stdev,
-            'read_max': read_max,
-            'read_min': read_min,
-        }
-
         if return_results:
+
+            results = {
+                'database': self.db_name,
+                'trial_number': self.number_of_trials,
+                'entry_length': self.entry_length,
+                'node_number': self.number_of_nodes,
+                'write_avg': write_avg,
+                'write_stdev': write_stdev,
+                'write_max': write_max,
+                'write_min': write_min,
+                'read_avg': read_avg,
+                'read_stdev': read_stdev,
+                'read_max': read_max,
+                'read_min': read_min,
+            }
 
             return results
 
         else:
 
-            self.generate_report(results)
+            param_header = [
+                'Parameter',
+                'Value',
+            ]
+
+            param_values = [
+                ['Database Tested', self.db_name],
+                ['Number of Trials', self.number_of_trials],
+                ['Length of Each Entry Field', self.entry_length],
+                ['Number of Nodes in Cluster', self.number_of_nodes],
+            ]
+
+            param_values = [
+                ['foo', 'bar'],
+                ['baz', 'bot']
+            ]
+
+            # data_header = [
+            #     'Operation',
+            #     'Average',
+            #     'St. Dev.',
+            #     'Max Time',
+            #     'Min Time',
+            # ]
+            #
+            # data_values = [
+            #     ['Writes', write_avg, write_stdev, write_max, write_min],
+            #     ['Reads', read_avg, read_stdev, read_max, read_min],
+            # ]
+
+            param_table = tabulate(
+                tabular_data=param_values,
+                headers=param_header,
+                tablefmt='pipe',
+            )
+
+            print param_table
+
+            # data_table = tabulate(
+            #     tabular_data=data_values,
+            #     headers=data_header,
+            #     tablefmt='pipe',
+            # )
+            #
+            #
+            # report_info = {
+            #     'database': self.db_name,
+            #     'time_and_date': self.time_and_date,
+            #     'param_table': param_table,
+            #     'data_table': data_table,
+            # }
+            #
+            # self.generate_report(report_info)
 
     def generate_report(self, results):
 
+        report_name = '{parent_dir}/{db}.report.md'.format(
+            parent_dir=self.reports_dir,
+            db=self.db_name
+        )
+
         with open('report_template.md', 'r') as infile, \
-                open('{db}.report.md'.format(db=self.db_name), 'w+') as outfile:
+                open(report_name, 'w+') as outfile:
 
             template = infile.read()
 
@@ -228,9 +288,12 @@ class Benchmark():
             outfile.write(report)
 
 
-
 if __name__ == '__main__':
 
     foo = Benchmark('riak')
 
-    foo.run()
+    foo.compile_data()
+
+    #hipchat
+    #flowdoc
+    #slack
