@@ -34,6 +34,10 @@ class LocalSettings():
         self.vagrant_3 = settings['vagrant_3']
         self.vagrant_4 = settings['vagrant_4']
 
+        self.riak_1 = settings['riak_1']
+        self.riak_2 = settings['riak_2']
+        self.riak_3 = settings['riak_3']
+
         self.mongo_port = int(settings['mongo_port'])
         self.riak_port = int(settings['riak_port'])
 
