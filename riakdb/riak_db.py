@@ -1,3 +1,13 @@
+"""
+DB Benchmarking Application
+===========================
+
+Riak_db.py
+
+This file handle all interactions with RiakDB during the benchmarking process.
+
+"""
+
 import riak
 
 from load_settings import LocalSettings
@@ -14,13 +24,19 @@ class BenchmarkRiak(BenchmarkDatabase):
             self.setup('test')
 
     def setup(self, collection):
+        """ `Setup()` handles all the necessary setup information for Riak.  It
+        creates an instance of a Riak Client and defines the collection to use
+        for reads and writes.
 
+        :param collection:
+        :return:
+        """
         port = CONFIG.riak_port
 
         riak_servers = [
-            CONFIG.vagrant_1,
-            CONFIG.vagrant_2,
-            CONFIG.vagrant_3,
+            CONFIG.riak_1,
+            CONFIG.riak_2,
+            CONFIG.riak_3,
         ]
 
         riak_nodes = []
@@ -29,16 +45,11 @@ class BenchmarkRiak(BenchmarkDatabase):
 
             riak_nodes.append({'host': str(server), 'http_port': port})
 
-        print riak_nodes
-
-        # foo_node = [{'host': '192.168.33.11', 'http_port': 8098}]
-
         self.client = riak.RiakClient(nodes=riak_nodes)
 
         self.bucket = self.client.bucket(collection)
 
-
-    def write(self, index, data):
+    def write(self, data):
 
         entry = self.bucket.new('ID', data=data)
 
@@ -46,9 +57,10 @@ class BenchmarkRiak(BenchmarkDatabase):
 
     def read(self, index):
 
-        read_entry = self.bucket.get('ID').data
+        read_entry = self.bucket.get('Index').data
 
-        # return True
+        print read_entry
+
 
 if __name__ == '__main__':
 
