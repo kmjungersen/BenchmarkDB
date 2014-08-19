@@ -59,7 +59,7 @@ class BenchmarkRiak(BenchmarkDatabase):
 
         read_entry = self.bucket.get('ID').data
 
-        print read_entry
+        # print read_entry
 
 
 if __name__ == '__main__':
