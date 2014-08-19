@@ -14,7 +14,7 @@ class BenchmarkDatabase():
 
         pass
 
-    def write(self, index, data):
+    def write(self, data):
 
         pass
 
