@@ -15,6 +15,7 @@ multiple DB's in a row to see which one is best for deployment purposes.
 # TODO(kmjungersen) - create terminal line arguments that enable certain options
 # such as the number of trials, file report, etc.
 
+import sys
 import time
 import string
 import random
@@ -39,7 +40,7 @@ class Benchmark():
         """
 
         self.entry_length = 10
-        self.number_of_trials = 10
+        self.number_of_trials = 100
         self.number_of_nodes = 4
 
         self.write_times = []
@@ -184,6 +185,9 @@ class Benchmark():
         self.write_times = array(self.write_times)
         self.read_times = array(self.read_times)
 
+        # self.write_times = 234
+        # self.read_times = 34565
+
         write_avg = average(self.write_times)
         write_stdev = 0
         write_max = 0
@@ -222,28 +226,23 @@ class Benchmark():
 
             param_values = [
                 ['Database Tested', self.db_name],
-                ['Number of Trials', self.number_of_trials],
-                ['Length of Each Entry Field', self.entry_length],
-                ['Number of Nodes in Cluster', self.number_of_nodes],
+                ['Number of Trials', str(self.number_of_trials)],
+                ['Length of Each Entry Field', str(self.entry_length)],
+                ['Number of Nodes in Cluster', str(self.number_of_nodes)],
             ]
 
-            param_values = [
-                ['foo', 'bar'],
-                ['baz', 'bot']
+            data_header = [
+                'Operation',
+                'Average',
+                'St. Dev.',
+                'Max Time',
+                'Min Time',
             ]
 
-            # data_header = [
-            #     'Operation',
-            #     'Average',
-            #     'St. Dev.',
-            #     'Max Time',
-            #     'Min Time',
-            # ]
-            #
-            # data_values = [
-            #     ['Writes', write_avg, write_stdev, write_max, write_min],
-            #     ['Reads', read_avg, read_stdev, read_max, read_min],
-            # ]
+            data_values = [
+                ['Writes', write_avg, write_stdev, write_max, write_min],
+                ['Reads', read_avg, read_stdev, read_max, read_min],
+            ]
 
             param_table = tabulate(
                 tabular_data=param_values,
@@ -251,37 +250,34 @@ class Benchmark():
                 tablefmt='pipe',
             )
 
-            print param_table
+            data_table = tabulate(
+                tabular_data=data_values,
+                headers=data_header,
+                tablefmt='pipe',
+            )
 
-            # data_table = tabulate(
-            #     tabular_data=data_values,
-            #     headers=data_header,
-            #     tablefmt='pipe',
-            # )
-            #
-            #
-            # report_info = {
-            #     'database': self.db_name,
-            #     'time_and_date': self.time_and_date,
-            #     'param_table': param_table,
-            #     'data_table': data_table,
-            # }
-            #
-            # self.generate_report(report_info)
+            report_info = {
+                'database': self.db_name,
+                'time_and_date': self.time_and_date,
+                'param_table': param_table,
+                'data_table': data_table,
+            }
 
-    def generate_report(self, results):
+            self.generate_report(report_info)
+
+    def generate_report(self, final_report):
 
         report_name = '{parent_dir}/{db}.report.md'.format(
             parent_dir=self.reports_dir,
             db=self.db_name
         )
 
-        with open('report_template.md', 'r') as infile, \
+        with open('report_template2.md', 'r') as infile, \
                 open(report_name, 'w+') as outfile:
 
             template = infile.read()
 
-            report = template.format(**results)
+            report = template.format(**final_report)
 
             print report
 
@@ -290,10 +286,8 @@ class Benchmark():
 
 if __name__ == '__main__':
 
-    foo = Benchmark('riak')
+    chosen_database = sys.argv[1]
 
-    foo.compile_data()
+    foo = Benchmark(db=chosen_database)
 
-    #hipchat
-    #flowdoc
-    #slack
+    foo.run()
