@@ -1,0 +1,2 @@
+sh.addShard("rs0/{{ inventory_hostname }}:{{ mongod_port }}")
+printjson(rs.status())

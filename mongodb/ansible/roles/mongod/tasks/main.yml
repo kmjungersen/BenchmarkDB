@@ -1,0 +1,17 @@
+---
+# This role deploys the mongod processes
+#
+- name: create data directory for mongodb
+  file: path={{ mongodb_datadir_prefix }} state=directory owner=mongod group=mongod
+
+- name: Copy the keyfile for authentication
+  copy: src=secret dest={{ mongodb_datadir_prefix }}secret owner=mongod group=mongod mode=0400
+
+- name: To avoid problems, kill any existing running instances of Mongo
+  shell: pkill mongo
+
+- name: Start the mongodb service
+  shell: mongod --fork --logpath /var/log/mongodb.log --replSet rs0 --journal --smallfiles --bind_ip {{ inventory_hostname }}
+
+- name: Pause for a while
+  pause: seconds=5

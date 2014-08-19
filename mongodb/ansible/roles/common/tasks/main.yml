@@ -1,0 +1,32 @@
+---
+# This Playbook runs all the common plays in the deployment 
+
+- name: Create the hosts file for all machines
+  template: src=hosts.j2 dest=/etc/hosts
+
+- name: Create the mongod user
+  user: name=mongod comment="MongoD"
+
+- name: Create the data directory for the namenode metadata
+  file: path={{ mongodb_datadir_prefix }} owner=mongod group=mongod state=directory
+
+- name: Import the public key user by the package management system
+  shell: sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10
+
+- name: Create a list file for MongoDB
+  shell: echo 'deb http://downloads-distro.mongodb.org/repo/ubuntu-upstart dist 10gen' | sudo tee /etc/apt/sources.list.d/mongodb.list
+
+- name: Reload local package database
+  shell: apt-get update
+
+- name: Install the mongodb package
+  apt: name=mongodb-org state=installed
+
+- name: Install pip
+  apt: name=python-pip state=installed
+
+- name: Install the latest pymongo package
+  pip: name=pymongo state=latest use_mirrors=no
+
+- name: Install freaking VIM
+  apt: name=vim state=installed

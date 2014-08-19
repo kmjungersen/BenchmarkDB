@@ -1,0 +1,5 @@
+*.pyc
+vagrant_boxes/*
+ansible/*
+*.report.md
+*.ipynb
