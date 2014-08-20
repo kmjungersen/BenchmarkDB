@@ -67,10 +67,12 @@ class Benchmark():
 
         """
 
-        #TODO - do this better.  This isn't perfect, but works for now.
         self.db_name = options['<database>']
+        self.verbose = options['--verbose']
 
-        self.database = self.register_module(self.db_name).Benchmark(setup=True)
+        self.database = self.register_module(self.db_name).Benchmark(
+            setup=True, verbose=self.verbose
+        )
 
         self.db_name = self.db_name.replace('db', '').upper()
         self.entry_length = int(options['--entry_length'])
@@ -205,9 +207,6 @@ class Benchmark():
 
         self.write_times = array(self.write_times)
         self.read_times = array(self.read_times)
-
-        # self.write_times = 234
-        # self.read_times = 34565
 
         write_avg = average(self.write_times)
         write_stdev = std(self.write_times)
