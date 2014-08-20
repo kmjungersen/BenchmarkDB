@@ -8,10 +8,10 @@ This file handles all interactions with MongoDB during the benchmarking process.
 
 """
 
+from pymongo import MongoClient
+
 from benchmark_template import BenchmarkDatabase
 from load_settings import LocalSettings
-
-from pymongo import MongoClient
 
 
 CONFIG = LocalSettings()
@@ -66,8 +66,3 @@ class BenchmarkMongo(BenchmarkDatabase):
         }
 
         print self.collection.find_one(query)
-
-
-if __name__ == '__main__':
-
-    foo = BenchmarkMongo()
