@@ -34,7 +34,7 @@ import random
 import importlib
 
 from tabulate import tabulate
-from numpy import array, average
+from numpy import array, average, std, max, min
 from docopt import docopt
 
 
@@ -210,14 +210,16 @@ class Benchmark():
         # self.read_times = 34565
 
         write_avg = average(self.write_times)
-        write_stdev = 0
-        write_max = 0
-        write_min = 0
+        write_stdev = std(self.write_times)
+        write_max = max(self.write_times)
+        write_min = min(self.write_times)
+        write_range = write_max - write_min
 
         read_avg = average(self.read_times)
-        read_stdev = 0
-        read_max = 0
-        read_min = 0
+        read_stdev = std(self.read_times)
+        read_max = max(self.read_times)
+        read_min = min(self.read_times)
+        read_range = read_max - read_min
 
         if return_results:
 
@@ -230,10 +232,12 @@ class Benchmark():
                 'write_stdev': write_stdev,
                 'write_max': write_max,
                 'write_min': write_min,
+                'write_range': write_range,
                 'read_avg': read_avg,
                 'read_stdev': read_stdev,
                 'read_max': read_max,
                 'read_min': read_min,
+                'read_range': read_range,
             }
 
             return results
@@ -258,11 +262,12 @@ class Benchmark():
                 'St. Dev.',
                 'Max Time',
                 'Min Time',
+                'Range',
             ]
 
             data_values = [
-                ['Writes', write_avg, write_stdev, write_max, write_min],
-                ['Reads', read_avg, read_stdev, read_max, read_min],
+                ['Writes', write_avg, write_stdev, write_max, write_min, write_range],
+                ['Reads', read_avg, read_stdev, read_max, read_min, read_range],
             ]
 
             param_table = tabulate(
@@ -275,6 +280,7 @@ class Benchmark():
                 tabular_data=data_values,
                 headers=data_header,
                 tablefmt='grid',
+                floatfmt='.5f',
             )
 
             param_table_md = tabulate(
@@ -287,6 +293,7 @@ class Benchmark():
                 tabular_data=data_values,
                 headers=data_header,
                 tablefmt='pipe',
+                floatfmt='.5f',
             )
 
             report_info = {
