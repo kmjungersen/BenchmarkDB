@@ -32,4 +32,9 @@ def list_mods():
 
     print mod_list
 
+@task
+def benchmarks(database):
+
+    run("python main.py {db}".format(db=database))
+
 #TODO - add tasks for running ansible playbooks from invoke
