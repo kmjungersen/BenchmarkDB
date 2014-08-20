@@ -65,4 +65,6 @@ class BenchmarkMongo(BenchmarkDatabase):
             'Index': index
         }
 
-        print self.collection.find_one(query)
+        read_entry = self.collection.find_one(query)
+
+        return read_entry

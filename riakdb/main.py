@@ -18,7 +18,9 @@ CONFIG = LocalSettings()
 
 class Benchmark(BenchmarkDatabase):
 
-    def __init__(self, setup=False):
+    def __init__(self, setup=False, verbose=False):
+
+        self.verbose = verbose
 
         if setup:
             self.setup('test')
@@ -60,4 +62,4 @@ class Benchmark(BenchmarkDatabase):
 
         read_entry = self.bucket.get('ID').data
 
-        # print read_entry
+        print read_entry
