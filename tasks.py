@@ -1,5 +1,6 @@
 import os
 import sys
+import importlib
 
 from invoke import task, run
 
@@ -23,3 +24,17 @@ def browse_docs():
 def clean_docs():
     run("rm -rf {dir}".format(dir=build_dir))
 
+@task
+def list_mods():
+    from main import retrieve_module_list
+
+    mod_list = retrieve_module_list()
+
+    print mod_list
+
+@task
+def benchmarks(database):
+
+    run("python main.py {db}".format(db=database))
+
+#TODO - add tasks for running ansible playbooks from invoke

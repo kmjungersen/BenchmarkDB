@@ -16,9 +16,11 @@ from benchmark_template import BenchmarkDatabase
 CONFIG = LocalSettings()
 
 
-class BenchmarkRiak(BenchmarkDatabase):
+class Benchmark(BenchmarkDatabase):
 
-    def __init__(self, setup=False):
+    def __init__(self, setup=False, verbose=False):
+
+        self.verbose = verbose
 
         if setup:
             self.setup('test')
@@ -31,6 +33,7 @@ class BenchmarkRiak(BenchmarkDatabase):
         :param collection:
         :return:
         """
+
         port = CONFIG.riak_port
 
         riak_servers = [
@@ -59,9 +62,4 @@ class BenchmarkRiak(BenchmarkDatabase):
 
         read_entry = self.bucket.get('ID').data
 
-        # print read_entry
-
-
-if __name__ == '__main__':
-
-    foo = BenchmarkRiak()
+        print read_entry
