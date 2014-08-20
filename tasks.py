@@ -4,8 +4,6 @@ import importlib
 
 from invoke import task, run
 
-import registered_dbs
-
 docs_dir = 'docs'
 build_dir = os.path.join(docs_dir, '_build')
 
