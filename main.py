@@ -59,24 +59,23 @@ def retrieve_module_list():
 
 class Benchmark():
 
-    def __init__(self, options_dict):
+    def __init__(self):
         """ The init method is passed a single parameter upon initialization in
         order to define which database should be benchmarked.  Other important
         values are defined here, such as the entry length and the number of
         trials to execute.
 
-        :param options_dict: The dict of Docopt options where we can get all of
-                                the runtime configuration options we need
         """
 
-        #TODO - do this better.  This sucks, but works for now.
-        self.db_name = options_dict['<database>']
+        #TODO - do this better.  This isn't perfect, but works for now.
+        self.db_name = options['<database>']
 
         self.database = self.register_module(self.db_name).Benchmark(setup=True)
 
-        self.entry_length = int(options_dict['--entry_length'])
-        self.number_of_trials = int(options_dict['--trial_number'])
-        self.report = options_dict['--report']
+        self.db_name = self.db_name.replace('db', '').upper()
+        self.entry_length = int(options['--entry_length'])
+        self.number_of_trials = int(options['--trial_number'])
+        self.report = options['--report']
 
         #TODO - fix this
         self.number_of_nodes = 4
@@ -269,10 +268,22 @@ class Benchmark():
             param_table = tabulate(
                 tabular_data=param_values,
                 headers=param_header,
-                tablefmt='pipe',
+                tablefmt='grid',
             )
 
             data_table = tabulate(
+                tabular_data=data_values,
+                headers=data_header,
+                tablefmt='grid',
+            )
+
+            param_table_md = tabulate(
+                tabular_data=param_values,
+                headers=param_header,
+                tablefmt='pipe',
+            )
+
+            data_table_md = tabulate(
                 tabular_data=data_values,
                 headers=data_header,
                 tablefmt='pipe',
@@ -283,6 +294,8 @@ class Benchmark():
                 'time_and_date': self.time_and_date,
                 'param_table': param_table,
                 'data_table': data_table,
+                'param_table_md': param_table_md,
+                'data_table_md': data_table_md,
             }
 
             self.generate_report(report_info)
@@ -307,9 +320,13 @@ class Benchmark():
 
             report = template.format(**report_info)
 
-            print report
+            print '\n\n' + report + '\n\n'
 
             if self.report:
+
+                template = template.replace('_table', '_table_md')
+
+                report = template.format(**report_info)
 
                 with open(report_name, 'w+') as outfile:
 
@@ -341,6 +358,15 @@ class Benchmark():
 
     @staticmethod
     def import_db_mod(module):
+        """ This function will do the actual import of the database-specific
+        module.  The `try/except` format is meant to be able to attempt the
+        import, but fail gracefully if for some reason the package can't be
+        imported.
+
+        :param module: The module to be imported
+        
+        :return mod_class: The `Benchmark` class of the module, if it exists
+        """
 
         try:
 
@@ -362,4 +388,4 @@ if __name__ == '__main__':
 
     options = docopt(__doc__)
 
-    foo = Benchmark(options)
+    foo = Benchmark()
