@@ -62,4 +62,6 @@ class Benchmark(BenchmarkDatabase):
 
         read_entry = self.bucket.get('ID').data
 
-        print read_entry
+        if self.verbose:
+
+            print read_entry
