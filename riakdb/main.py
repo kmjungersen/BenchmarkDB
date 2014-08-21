@@ -10,10 +10,8 @@ This file handle all interactions with RiakDB during the benchmarking process.
 
 import riak
 
-from load_settings import LocalSettings
+from local import *
 from benchmark_template import BenchmarkDatabase
-
-CONFIG = LocalSettings()
 
 
 class Benchmark(BenchmarkDatabase):
@@ -34,12 +32,12 @@ class Benchmark(BenchmarkDatabase):
         :return:
         """
 
-        port = CONFIG.riak_port
+        port = RIAK_PORT
 
         riak_servers = [
-            CONFIG.riak_1,
-            CONFIG.riak_2,
-            CONFIG.riak_3,
+            RIAK_1,
+            RIAK_2,
+            RIAK_3,
         ]
 
         riak_nodes = []
