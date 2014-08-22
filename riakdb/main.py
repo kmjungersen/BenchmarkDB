@@ -16,12 +16,10 @@ from benchmark_template import BenchmarkDatabase
 
 class Benchmark(BenchmarkDatabase):
 
-    def __init__(self, setup=False, verbose=False):
-
-        self.verbose = verbose
+    def __init__(self, collection, setup=False):
 
         if setup:
-            self.setup('test')
+            self.setup(collection)
 
     def setup(self, collection):
         """ `Setup()` handles all the necessary setup information for Riak.  It
@@ -60,6 +58,4 @@ class Benchmark(BenchmarkDatabase):
 
         read_entry = self.bucket.get('ID').data
 
-        if self.verbose:
-
-            print read_entry
+        return read_entry
