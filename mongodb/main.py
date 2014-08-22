@@ -14,9 +14,9 @@ from local import *
 from benchmark_template import BenchmarkDatabase
 
 
-class BenchmarkMongo(BenchmarkDatabase):
+class Benchmark(BenchmarkDatabase):
 
-    def __init__(self, setup=False):
+    def __init__(self, setup=False, verbose=False):
 
         if setup:
             self.setup('test')
@@ -55,6 +55,8 @@ class BenchmarkMongo(BenchmarkDatabase):
         parameter (index) which determines which record to retrieve from the DB.
 
         :param index: The index of the record to be retrieved from the DB
+
+        :return read_entry: the entry retrieved from the DB
 
         """
 
