@@ -11,7 +11,7 @@
   copy: src=roles/mongod/files/secret dest={{ mongodb_datadir_prefix }}/secret owner=mongod group=mongod mode=0400
 
 - name: Start the mongos service
-  shell: mongos --fork --logpath /var/log/mongos.log --configdb 192.168.33.21:27019,192.168.33.22:27019,192.168.33.23:27019 --port 8888
+  shell: mongos --fork --logpath /var/log/mongos.log --configdb 192.168.33.11:27019,192.168.33.12:27019,192.168.33.13:27019 --port 8888
 
 - name: pause
   pause: seconds=5
