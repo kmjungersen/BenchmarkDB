@@ -3,4 +3,4 @@ vagrant_boxes/*
 ansible/*
 *.report.md
 *.ipynb
-*/.vagrant/*
+*/ansible/.vagrant/
