@@ -1,7 +1,17 @@
 """
+DB Benchmarking Application
+===========================
+
+Tasks.py
+
+This file houses all of the invoke commands for the application.  This makes it
+very easy for a user to quickly bring up the necessary vagrant boxes for a module
+and then perform benchmarks with that module.
+
+    Usage:
+        invoke <command> [args]
 
 """
-
 
 from invoke import task, run
 
