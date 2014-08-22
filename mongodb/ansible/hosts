@@ -2,31 +2,31 @@
 
 # the mongo servers need a mongod_port variable set, and they must not conflict if deployed to a single box.
 [mongo_servers]
-192.168.33.21 mongod_port=27017
-192.168.33.22 mongod_port=27017
-192.168.33.23 mongod_port=27017
-192.168.33.24 mongod_port=27017
+192.168.33.11 mongod_port=27017
+192.168.33.12 mongod_port=27017
+192.168.33.13 mongod_port=27017
+192.168.33.14 mongod_port=27017
 
 #The list of servers where replication should happen, by default include all servers
 [replication_servers:children]
 mongoc_servers
 
 [replication_servers]
-192.168.33.24
+192.168.33.14
 
 #The list of mongodb configuration servers, make sure it is 1 or 3
 [mongoc_servers:children]
 mongos_servers
 
 [mongoc_servers]
-192.168.33.23
-192.168.33.22
+192.168.33.13
+192.168.33.12
 
 
 #The list of servers where mongos servers would run. 
 [mongos_servers]
-192.168.33.21
+192.168.33.11
 
 
 [foo]
-192.168.33.21
+192.168.33.11

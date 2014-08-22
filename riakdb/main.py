@@ -10,20 +10,16 @@ This file handle all interactions with RiakDB during the benchmarking process.
 
 import riak
 
-from load_settings import LocalSettings
+from local import *
 from benchmark_template import BenchmarkDatabase
-
-CONFIG = LocalSettings()
 
 
 class Benchmark(BenchmarkDatabase):
 
-    def __init__(self, setup=False, verbose=False):
-
-        self.verbose = verbose
+    def __init__(self, collection, setup=False):
 
         if setup:
-            self.setup('test')
+            self.setup(collection)
 
     def setup(self, collection):
         """ `Setup()` handles all the necessary setup information for Riak.  It
@@ -34,12 +30,12 @@ class Benchmark(BenchmarkDatabase):
         :return:
         """
 
-        port = CONFIG.riak_port
+        port = RIAK_PORT
 
         riak_servers = [
-            CONFIG.riak_1,
-            CONFIG.riak_2,
-            CONFIG.riak_3,
+            RIAK_1,
+            RIAK_2,
+            RIAK_3,
         ]
 
         riak_nodes = []
@@ -62,4 +58,4 @@ class Benchmark(BenchmarkDatabase):
 
         read_entry = self.bucket.get('ID').data
 
-        print read_entry
+        return read_entry

@@ -10,19 +10,16 @@ This file handles all interactions with MongoDB during the benchmarking process.
 
 from pymongo import MongoClient
 
+from local import *
 from benchmark_template import BenchmarkDatabase
-from load_settings import LocalSettings
 
 
-CONFIG = LocalSettings()
+class Benchmark(BenchmarkDatabase):
 
-
-class BenchmarkMongo(BenchmarkDatabase):
-
-    def __init__(self, setup=False):
+    def __init__(self, setup=False, verbose=False):
 
         if setup:
-            self.setup('test', 'ID')
+            self.setup('test')
 
         self.client = ''
         self.db = ''
@@ -37,7 +34,7 @@ class BenchmarkMongo(BenchmarkDatabase):
         """
         #TODO - fix how the collection is used here
 
-        self.client = MongoClient(host=CONFIG.vagrant_1, port=CONFIG.mongo_port)
+        self.client = MongoClient(host=MONGO_PRIMARY, port=MONGO_PORT)
 
         self.db = self.client.mydb
 
@@ -58,6 +55,8 @@ class BenchmarkMongo(BenchmarkDatabase):
         parameter (index) which determines which record to retrieve from the DB.
 
         :param index: The index of the record to be retrieved from the DB
+
+        :return read_entry: the entry retrieved from the DB
 
         """
 
