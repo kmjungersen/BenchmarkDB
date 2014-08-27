@@ -69,9 +69,9 @@ class Benchmark():
 
         self.db_name = options['<database>']
         self.verbose = options['--verbose']
-
+        self.collection = 'test'
         self.database = self.register_module(self.db_name).Benchmark(
-            setup=True, verbose=self.verbose
+                    self.collection, setup=True
         )
 
         self.db_name = self.db_name.replace('db', '').upper()
@@ -85,7 +85,6 @@ class Benchmark():
         self.write_times = []
         self.read_times = []
 
-        self.collection = 'test'
         self.sorting_index = 'ID'
         self.reports_dir = 'generated_reports/'
 
@@ -143,7 +142,7 @@ class Benchmark():
                 print 'WRITE ERROR'
 
             if not self.reads(index):
-                print 'WRITE ERROR'
+                print 'READ ERROR'
 
         self.compile_data()
 
@@ -370,7 +369,7 @@ class Benchmark():
         imported.
 
         :param module: The module to be imported
-        
+
         :return mod_class: The `Benchmark` class of the module, if it exists
         """
 
