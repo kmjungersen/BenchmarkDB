@@ -1,3 +1,7 @@
 PyMongo
 Flask
 ansible
+tabulate
+numpy
+docopt
+riak
