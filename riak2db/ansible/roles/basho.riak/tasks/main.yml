@@ -73,8 +73,8 @@
 - name: wait for port to become active
   wait_for: port={{ riak_http_port }}
 
-- name: wait for riak_kv service to start
-  riak: wait_for_service=kv
+#- name: wait for riak_kv service to start
+#  riak: wait_for_service=kv
 
 - name: ping riak
   riak: command=ping

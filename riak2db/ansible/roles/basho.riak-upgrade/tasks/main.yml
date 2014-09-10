@@ -7,15 +7,17 @@
 
 - name: Install riak
   command: 'rpm -Uvh /tmp/riak-2.0.0-1.el6.x86_64.rpm'
+  ignore_errors: yes
 
 - name: restart riak
   command: riak start
+  ignore_errors: yes
 
 - name: verify riak is running the new version
   command: riak-admin status
 
-- name: wait for the riak_kv to start
-  command: riak-admin wait-for-service riak_kv riak@{{ inventory_hostname }}
+#- name: wait for the riak_kv to start
+#  command: riak-admin wait-for-service riak_kv riak@{{ inventory_hostname }}
 
 - name: wait for any hinted handoff transfers to complete
   command: riak-admin transfers
