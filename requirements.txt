@@ -1,7 +1,7 @@
-PyMongo
-Flask
-ansible
-tabulate
-numpy
-docopt
-riak
+PyMongo==2.7.2
+Flask==0.10.1
+ansible==1.7.1
+tabulate==0.7.2
+numpy=1.9.0
+docopt=0.6.2
+riak==2.1.0
