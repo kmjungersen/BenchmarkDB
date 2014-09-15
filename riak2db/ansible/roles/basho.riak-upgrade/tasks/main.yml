@@ -2,6 +2,9 @@
 - name: stop riak
   command: riak stop
 
+- name: backup some stuff
+  command: sudo tar -czf riak_backup.tar.gz /var/lib/riak /etc/riak
+
 - name: download riak package
   get_url: url='http://s3.amazonaws.com/downloads.basho.com/riak/2.0/2.0.0/rhel/6/riak-2.0.0-1.el6.x86_64.rpm' dest='/tmp'
 
@@ -11,13 +14,12 @@
 
 - name: restart riak
   command: riak start
-  ignore_errors: yes
 
 - name: verify riak is running the new version
-  command: riak-admin status
+  command: riak version
 
-#- name: wait for the riak_kv to start
-#  command: riak-admin wait-for-service riak_kv riak@{{ inventory_hostname }}
+- name: wait for the riak_kv to start
+  command: riak-admin wait-for-service riak_kv riak@{{ inventory_hostname }}
 
 - name: wait for any hinted handoff transfers to complete
   command: riak-admin transfers
