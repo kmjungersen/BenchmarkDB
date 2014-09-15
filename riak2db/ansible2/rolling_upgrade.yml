@@ -1,0 +1,4 @@
+- hosts: riak_cluster
+  sudo: True
+  roles:
+  - { role: basho.riak-upgrade, tags: ["riak"] }

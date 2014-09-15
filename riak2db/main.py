@@ -44,7 +44,7 @@ class Benchmark(BenchmarkDatabase):
 
             riak_nodes.append({'host': str(server), 'http_port': port})
 
-        self.client = riak.RiakClient(nodes=riak_nodes)
+        self.client = riak.RiakClient(nodes=riak_nodes, protocol='pbc', pb_port=10017)
 
         self.bucket = self.client.bucket(collection)
 
@@ -56,6 +56,6 @@ class Benchmark(BenchmarkDatabase):
 
     def read(self, index):
 
-        read_entry = self.bucket.get('ID').data
+        read_entry = self.bucket.get(str(index)).data
 
         return read_entry
