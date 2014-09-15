@@ -14,6 +14,7 @@ and then perform benchmarks with that module.
 """
 
 from invoke import task, run
+import importlib
 
 #TODO - make a docs directory
 
@@ -60,7 +61,7 @@ def benchmark(database):
 
 
 @task
-def vagrant_up(module):
+def vagrant(module):
     """ Runs `vagrant up` for the specified module """
 
     module = check_module_naming(module)
@@ -84,3 +85,50 @@ def deploy(database):
 
     run('cd {db}/ansible && ansible-playbook -u vagrant -i hosts -s'
         ' site.yml -vv'.format(db=database))
+
+
+@task
+def destroy(database):
+    """ Destorys the vagrant environment for the given DB """
+    database = check_module_naming(database)
+
+    db = import_module_info(database)
+
+    node_number = db.number_of_nodes
+
+    run(' cd {db}/ansible && vagrant destroy'.format(db=database))
+
+    for i in range(1, node_number):
+
+        run('y')
+
+
+def import_module_info(database):
+    """
+    """
+
+    package = '{db}.local'.format(db=database)
+
+    db_package = importlib.import_module(package)
+
+    return db_package
+
+
+@task
+def copy_ssh(database):
+    """
+
+    """
+
+    database = check_module_naming(database)
+
+    db = import_module_info(database)
+
+    for ip in db.riak_list:
+
+        run('ssh-copy-id vagrant@{ip_adr}'.format(ip_adr=ip))
+
+        run('vagrant')
+
+
+
