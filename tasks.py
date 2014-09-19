@@ -104,7 +104,8 @@ def destroy(database):
 
 
 def import_module_info(database):
-    """
+    """ Utility function to return some helpful config settings from a
+    module
     """
 
     package = '{db}.local'.format(db=database)
@@ -116,9 +117,7 @@ def import_module_info(database):
 
 @task
 def copy_ssh(database):
-    """
-
-    """
+    """ Copy the ssh keys for a module's vagrant boxes """
 
     database = check_module_naming(database)
 
