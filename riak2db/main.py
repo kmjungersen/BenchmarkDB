@@ -27,7 +27,6 @@ class Benchmark(BenchmarkDatabase):
         for reads and writes.
 
         :param collection:
-        :return:
         """
 
         port = RIAK_PORT
@@ -54,12 +53,24 @@ class Benchmark(BenchmarkDatabase):
         self.bucket = self.client.bucket(collection)
 
     def write(self, data):
+        """ This function defines a new bucket entry with the given data and
+         then writes it to the Riak cluster.
+
+         :param data: The data to be written to the db
+         """
 
         entry = self.bucket.new('ID', data=data)
 
         entry.store()
 
     def read(self, index):
+        """ This function reads the last entry from Riak and then returns it
+        to the primary application.
+
+        :param index: An unused parameter that describes the most recent index
+
+        :return read_entry: the entry that was just retrieved from Riak
+        """
 
         read_entry = self.bucket.get('ID').data
 
