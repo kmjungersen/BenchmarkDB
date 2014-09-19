@@ -1,3 +1,0 @@
----
-- name: install riak
-  yum: name={{ riak_package }} state=present
