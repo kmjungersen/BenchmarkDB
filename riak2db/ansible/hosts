@@ -1,7 +1,10 @@
-[riak_cluster]
+[riak_master_node]
 192.168.33.21
-192.168.33.22
-192.168.33.23
 
-[riak_servers:children]
-riak_cluster
+[riak_children_nodes]
+192.168.33.22
+# 192.168.33.23
+
+[riak_cluster:children]
+riak_children_nodes
+riak_master_node
