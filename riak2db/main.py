@@ -34,17 +34,24 @@ class Benchmark(BenchmarkDatabase):
 
         riak_servers = [
             RIAK_1,
-            #RIAK_2,
-            # RIAK_3,
+            RIAK_2,
+            RIAK_3,
         ]
 
-        riak_nodes = []
+        riak_cluster = []
 
         for server in riak_servers:
 
-            riak_nodes.append({'host': str(server), 'http_port': port})
+            riak_cluster.append({
+                'host': str(server),
+                'http_port': port
+            })
 
-        self.client = riak.RiakClient(nodes=riak_nodes, protocol='pbc', pb_port=8087)
+        self.client = riak.RiakClient(
+            nodes=riak_cluster,
+            protocol='pbc',
+            pb_port=8087
+        )
 
         self.bucket = self.client.bucket(collection)
 
