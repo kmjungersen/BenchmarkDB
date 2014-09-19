@@ -1,0 +1,23 @@
+---
+#This Playbook configures the mongos service of mongodb
+
+- name: Create the mongos startup file
+  template: src=mongos.j2 dest=/etc/init.d/mongos mode=0655
+
+- name: Create the mongos configuration file
+  template: src=mongos.conf.j2 dest=/etc/mongos.conf
+
+- name: Copy the keyfile for authentication
+  copy: src=roles/mongod/files/secret dest={{ mongodb_datadir_prefix }}/secret owner=mongod group=mongod mode=0400
+
+- name: Start the mongos service
+  shell: mongos --fork --logpath /var/log/mongos.log --configdb 192.168.33.11:27019,192.168.33.12:27019,192.168.33.13:27019 --port 8888
+
+- name: pause
+  pause: seconds=5
+
+- name: copy the file for shard test 
+  template: src=testsharding.j2 dest=/tmp/testsharding.js
+
+- name: copy the file enable  sharding 
+  template: src=enablesharding.j2 dest=/tmp/enablesharding.js

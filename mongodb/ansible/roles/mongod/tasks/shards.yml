@@ -1,0 +1,8 @@
+---
+#This Playbooks adds shards to the mongos servers once everythig is added
+
+- name: Create the file to initialize the mongod Shard
+  template: src=shard_init.j2 dest=/tmp/shard_init.js
+
+- name: Add the shard to the mongos 
+  shell: mongo {{ inventory_hostname }}:{{ mongos_port }} /tmp/shard_init.js
