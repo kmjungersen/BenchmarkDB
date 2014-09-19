@@ -43,6 +43,11 @@ The following modules are currently operational:
         Options:
             -h --help           Show this help screen
             -v --verbose        Show verbose output from the application
+
+            -V --really_verbose
+                                Show REALLY verbose output, including the individual
+                                    time information from each run
+
             -l --list_mods      Outputs a list of available DB modules before running
             -r --report         Option to generate a report file, which will
                                     OVERWRITE any existing reports from the specified
