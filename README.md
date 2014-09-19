@@ -2,6 +2,12 @@
 
 This application is intended to help you benchmark a database of your choice very simply and easily.  Simply follow the specified steps to build a module of your own and then you can see how it stacks up to other similar databases!
 
+The following modules are currently operational:
+* Riak DB
+* Riak 2.0 DB
+* MongoDB
+
+
 ## Using the Application
 
 1. Install dependencies from `requirements.txt`.  It's recommended to use a virtual environment.
