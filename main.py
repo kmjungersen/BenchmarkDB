@@ -180,13 +180,17 @@ class Benchmark():
 
         read_start_time = time.time()
 
-        self.database.read(index)
+        read_entry = self.database.read(index)
 
         read_stop_time = time.time()
 
         read_time = read_stop_time - read_start_time
 
         self.read_times.append(read_time)
+
+        if self.verbose:
+
+            print read_entry
 
         return True
 
