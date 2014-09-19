@@ -166,6 +166,12 @@ class Benchmark():
 
         self.write_times.append(write_time)
 
+        if self.verbose:
+
+            write_msg = 'Write time: {time}'.format(time=write_time)
+
+            print write_msg
+
         return True
 
     def reads(self, index):
@@ -190,7 +196,12 @@ class Benchmark():
 
         if self.verbose:
 
-            print read_entry
+            read_msg = 'Read data: {data}\nRead time: {time}'.format(
+                data=read_entry, time=read_time)
+
+            print read_msg
+
+            print '--------------------------'
 
         return True
 
