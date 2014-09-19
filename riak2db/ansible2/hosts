@@ -1,0 +1,8 @@
+[riak_cluster]
+192.168.33.21
+192.168.33.22
+192.168.33.23
+# 192.168.33.34
+
+[riak_servers:children]
+riak_cluster
