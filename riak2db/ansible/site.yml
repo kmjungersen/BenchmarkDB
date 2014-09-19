@@ -1,7 +1,9 @@
 - hosts: riak_cluster
   sudo: True
   roles:
-  - { role: basho.riak, tags: ["riak"] }
+  - role: basho.riak2.0
 
-- include: form_cluster.yml
-- include: rolling_upgrade.yml
+- hosts: riak_children_nodes
+  sudo: True
+  roles:
+  - role: join_cluster
