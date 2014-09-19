@@ -3,7 +3,7 @@
 
 [riak_children_nodes]
 192.168.33.22
-# 192.168.33.23
+192.168.33.23
 
 [riak_cluster:children]
 riak_children_nodes
