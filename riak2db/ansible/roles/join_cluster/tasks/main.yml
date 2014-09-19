@@ -1,0 +1,6 @@
+---
+- name: Join nodes to the cluster
+  command: riak-admin cluster join {{ primary_node }}
+
+- name: Commit changes
+  command: riak-admin cluster commit
