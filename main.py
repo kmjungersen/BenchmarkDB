@@ -16,6 +16,11 @@ multiple DB's in a row to see which one is best for deployment purposes.
     Options:
         -h --help           Show this help screen
         -v --verbose        Show verbose output from the application
+
+        -V --really_verbose
+                            Show REALLY verbose output, including the individual
+                                time information from each run
+
         -l --list_mods      Outputs a list of available DB modules before running
         -r --report         Option to generate a report file, which will
                                 OVERWRITE any existing reports from the specified
@@ -69,6 +74,7 @@ class Benchmark():
 
         self.db_name = options['<database>']
         self.verbose = options['--verbose']
+        self.really_verbose = options['--really_verbose']
         self.collection = 'test'
         self.database = self.register_module(self.db_name).Benchmark(
                     self.collection, setup=True
@@ -166,7 +172,7 @@ class Benchmark():
 
         self.write_times.append(write_time)
 
-        if self.verbose:
+        if self.really_verbose:
 
             write_msg = 'Write time: {time}'.format(time=write_time)
 
@@ -194,14 +200,17 @@ class Benchmark():
 
         self.read_times.append(read_time)
 
-        if self.verbose:
+        if self.verbose or self.really_verbose:
 
-            read_msg = 'Read data: {data}\nRead time: {time}'.format(
-                data=read_entry, time=read_time)
+            read_msg = 'Read data: {data}'.format(data=read_entry)
+
+            if self.really_verbose:
+
+                read_msg += '\nRead time: {time}'.format(time=read_time)
+
+                read_msg += '\n--------------------------'
 
             print read_msg
-
-            print '--------------------------'
 
         return True
 
