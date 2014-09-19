@@ -44,13 +44,11 @@ class Benchmark(BenchmarkDatabase):
 
             riak_cluster.append({
                 'host': str(server),
-                'http_port': port
+                'pbc_port': port
             })
 
         self.client = riak.RiakClient(
             nodes=riak_cluster,
-            protocol='pbc',
-            pb_port=8087
         )
 
         self.bucket = self.client.bucket(collection)
