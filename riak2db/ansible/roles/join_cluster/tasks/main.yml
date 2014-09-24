@@ -1,0 +1,9 @@
+---
+- name: Join nodes to the cluster
+  riak: command=join target_node={{ primary_node }}
+
+- name: Plan changes to the cluster
+  riak: command="plan"
+
+- name: Commit said changes
+  riak: command="commit"
