@@ -1,6 +1,6 @@
 *.pyc
 vagrant_boxes/*
 ansible/*
-*.report.md
+# *.report.md
 *.ipynb
 */ansible/.vagrant/
