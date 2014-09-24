@@ -304,8 +304,10 @@ class Benchmark():
             ]
 
             data_values = [
-                ['Writes', write_avg, write_stdev, write_max, write_min, write_range],
-                ['Reads', read_avg, read_stdev, read_max, read_min, read_range],
+                ['Writes', write_avg, write_stdev, write_max, write_min,
+                 write_range],
+                ['Reads', read_avg, read_stdev, read_max, read_min,
+                 read_range],
             ]
 
             param_table = tabulate(
