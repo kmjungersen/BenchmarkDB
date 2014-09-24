@@ -108,7 +108,7 @@ class Benchmark():
         self.read_times = []
 
         self.sorting_index = 'ID'
-        self.reports_dir = 'generated_reports/'
+        self.reports_dir = 'generated_reports'
 
         self.time_and_date = time.strftime("%a, %d %b, %Y %H:%M:%S")
 
