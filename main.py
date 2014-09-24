@@ -74,6 +74,20 @@ class Benchmark():
         """
 
         self.db_name = options['<database>']
+
+        if options['--list_mods']:
+
+            mod_list = retrieve_module_list()
+
+            message = 'The following {number} modules are available: \n\n'.\
+                format(number=mod_list.__len__())
+
+            for mod in mod_list:
+
+                message += '-{mod}\n'.format(mod=mod)
+
+            exit(message)
+
         self.verbose = options['--verbose']
         self.really_verbose = options['--really_verbose']
         self.collection = 'test'
