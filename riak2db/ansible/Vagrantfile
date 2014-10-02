@@ -6,11 +6,6 @@ CENTOS = {
   virtualbox_url: "http://opscode-vm-bento.s3.amazonaws.com/vagrant/virtualbox/opscode_centos-6.5_chef-provisionerless.box",
   vmware_fusion_url: "http://opscode-vm-bento.s3.amazonaws.com/vagrant/vmware/opscode_centos-6.5_chef-provisionerless.box"
 }
-UBUNTU = {
-  box: "opscode-ubuntu-12.04",
-  virtualbox_url: "http://opscode-vm-bento.s3.amazonaws.com/vagrant/virtualbox/opscode_ubuntu-12.04_chef-provisionerless.box",
-  vmware_fusion_url: "http://opscode-vm-bento.s3.amazonaws.com/vagrant/vmware/opscode_ubuntu-12.04_chef-provisionerless.box"
-}
 
 VAGRANTFILE_API_VERSION = "2"
 NODES = ENV["ARBY_NODES"].nil? ? 3 : ENV["ARBY_NODES"].to_i
@@ -49,7 +44,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |cluster|
       end
 
       config.vm.hostname = vm_name
-      config.vm.network :private_network, ip: "192.168.33.2#{last_octet}"
+      config.vm.network :private_network, ip: "192.168.33.3#{last_octet}"
     end
   end
 
