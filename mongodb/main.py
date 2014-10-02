@@ -16,10 +16,10 @@ from benchmark_template import BenchmarkDatabase
 
 class Benchmark(BenchmarkDatabase):
 
-    def __init__(self, setup=False, verbose=False):
+    def __init__(self, collection, setup=False):
 
         if setup:
-            self.setup('test')
+            self.setup(collection)
 
         self.client = ''
         self.db = ''
