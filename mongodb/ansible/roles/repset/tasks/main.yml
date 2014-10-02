@@ -5,4 +5,5 @@
   template: src=repset_init.j2 dest=/tmp/repset_init.js
 
 - name: Initialize the replication set
-  shell: mongo --host {{ inventory_hostname }} --port {{ mongod_port }} /tmp/repset_init.js
+  command: mongo --host {{ inventory_hostname }} --port {{ mongod_port }} /tmp/repset_init.js
+  ignore_errors: yes

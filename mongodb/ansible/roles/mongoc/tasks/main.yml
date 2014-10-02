@@ -17,8 +17,12 @@
     state: directory
     recurse: yes
 
+#- name: If mongoc is already running, stop it
+#  service: name=mongoc state=stopped
+
 - name: Start the mongo configuration server service
-  shell: mongod --fork --logpath /var/log/mongo-configdb.log --configsvr --port {{ mongoc_port }}
+  command: mongod --fork --logpath /var/log/mongo-configdb.log --configsvr --port {{ mongoc_port }}
+  ignore_errors: yes
 
 - name: Pause for a moment
   pause: seconds=5
