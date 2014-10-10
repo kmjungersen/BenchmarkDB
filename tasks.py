@@ -33,7 +33,8 @@ def check_module_naming(name):
 
 @task
 def help():
-    """ Returns some basic task information, much of which provided by invoke """
+    """ Returns some basic task information, much of which provided by invoke
+    """
 
     run('invoke -l')
 
