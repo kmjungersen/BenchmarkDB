@@ -4,7 +4,8 @@ DB Benchmarking Application
 
 Mongo_db.py
 
-This file handles all interactions with MongoDB during the benchmarking process.
+This file handles all interactions with MongoDB during the benchmarking
+process.
 
 """
 
