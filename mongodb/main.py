@@ -37,9 +37,9 @@ class Benchmark(BenchmarkDatabase):
 
         self.client = MongoClient(host=MONGO_PRIMARY, port=MONGO_PORT)
 
-        self.db = self.client.mydb
+        self.db = self.client.test
 
-        self.collection = self.db.collection
+        self.collection = self.db.test_collection
 
     def write(self, data):
         """ The function handles all writes with MongoDB.  It takes a single
