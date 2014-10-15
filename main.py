@@ -156,7 +156,7 @@ class Benchmark():
 
             entry = {
                 'Index': index,
-                'Number': item_number,
+                'number': item_number,
                 'Info': info
             }
 
