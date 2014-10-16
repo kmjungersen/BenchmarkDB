@@ -1,10 +1,10 @@
 ---
-#This Playbook would deploy the whole mongodb cluster with replication and sharding.
+# This Playbook would deploy the whole mongodb cluster with replication and sharding.
 
 - hosts: all
   roles:
-  - role: common
-#
+   - role: common
+
 - hosts: mongo_servers
   roles:
   - role: mongod
@@ -21,6 +21,6 @@
   roles:
   - role: mongos
 
-- hosts: mongos_servers
+- hosts: mongo_servers
   tasks:
   - include: roles/mongod/tasks/shards.yml

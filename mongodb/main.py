@@ -4,7 +4,8 @@ DB Benchmarking Application
 
 Mongo_db.py
 
-This file handles all interactions with MongoDB during the benchmarking process.
+This file handles all interactions with MongoDB during the benchmarking
+process.
 
 """
 
@@ -16,10 +17,10 @@ from benchmark_template import BenchmarkDatabase
 
 class Benchmark(BenchmarkDatabase):
 
-    def __init__(self, setup=False, verbose=False):
+    def __init__(self, collection, setup=False):
 
         if setup:
-            self.setup('test')
+            self.setup(collection)
 
         self.client = ''
         self.db = ''
@@ -36,9 +37,9 @@ class Benchmark(BenchmarkDatabase):
 
         self.client = MongoClient(host=MONGO_PRIMARY, port=MONGO_PORT)
 
-        self.db = self.client.mydb
+        self.db = self.client.test
 
-        self.collection = self.db.collection
+        self.collection = self.db.test_collection
 
     def write(self, data):
         """ The function handles all writes with MongoDB.  It takes a single
