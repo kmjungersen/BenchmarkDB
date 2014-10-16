@@ -7,7 +7,7 @@ built by [Kurtis Jungersen](http://kmjungersen.com).
 TIME AND DATE
 =============
 
-Wed, 15 Oct, 2014 19:52:48
+Thu, 16 Oct, 2014 15:33:09
 
 
 RESULTS
@@ -26,5 +26,5 @@ These results were obtained:
 
 | Operation   |   Average |   St. Dev. |   Max Time |   Min Time |   Range |
 |:------------|----------:|-----------:|-----------:|-----------:|--------:|
-| Writes      |   0.00125 |    0.00456 |    0.37216 |    0.00057 | 0.37159 |
-| Reads       |   0.00410 |    0.00162 |    0.03088 |    0.00058 | 0.03030 |
+| Writes      |   0.00114 |    0.00099 |    0.06534 |    0.00053 | 0.06481 |
+| Reads       |   0.00358 |    0.00155 |    0.01153 |    0.00052 | 0.01101 |
