@@ -1,28 +1,31 @@
 ---
-# This playbook  deploys the mongodb configuration servers
+# This playbook  deploys the mongodb configurationdb  servers
 
 - name: Create data directory for mongoc configuration server
-  file:
-    path: "{{ mongodb_datadir_prefix }}/configdb"
-    state: directory
-    owner: mongod
-    group: mongod
+  file: path={{ mongodb_datadir_prefix }}/configdb state=directory owner=mongod group=mongod
+
+- name: Create the mongo configuration server startup file
+  template: src=mongoc.j2 dest=/etc/init.d/mongoc mode=0655
+
+- name: Create the mongo configuration server file
+  template: src=mongoc.conf.j2 dest=/etc/mongoc.conf
 
 - name: Copy the keyfile for authentication
   copy: src=roles/mongod/files/secret dest={{ mongodb_datadir_prefix }}/secret owner=mongod group=mongod mode=0400
 
-- name: Create the directory for the Config DB
-  file:
-    path: /data/configdb
-    state: directory
-    recurse: yes
-
-#- name: If mongoc is already running, stop it
-#  service: name=mongoc state=stopped
-
-- name: Start the mongo configuration server service
-  command: mongod --fork --logpath /var/log/mongo-configdb.log --configsvr --port {{ mongoc_port }}
+- name: Before starting mongoc, make sure it's not already running
+  command: pkill mongoc
   ignore_errors: yes
 
-- name: Pause for a moment
-  pause: seconds=5
+- name: start mongoc
+  command: mongod -f /etc/mongoc.conf
+
+#- name: Start the mongo configuration server service
+#  command: mongod --fork --logpath /var/log/mongo-configdb.log --configsvr --port {{ mongoc_port }}
+
+- name: pause
+  pause: seconds=20
+
+- name: add the admin user
+  mongodb_user: database=admin name=admin password={{ mongo_admin_pass }} login_port={{ mongoc_port }} state=present
+  ignore_errors: yes

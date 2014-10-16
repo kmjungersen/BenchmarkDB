@@ -1,21 +1,40 @@
 ---
-# This role deploys the mongod processes
+# This role deploys the mongod processes and sets up the replication set.
 #
 - name: create data directory for mongodb
-  file: path={{ mongodb_datadir_prefix }} state=directory owner=mongod group=mongod
+  file: path={{ mongodb_datadir_prefix }}/db state=directory owner=mongod group=mongod
+  delegate_to: '{{ item }}'
+  with_items: groups.replication_servers
+
+
+- name: Create the mongodb startup file
+  template: src=mongod.j2 dest=/etc/init.d/mongod mode=0655
+  delegate_to: '{{ item }}'
+  with_items: groups.replication_servers
+
+
+- name: Create the mongodb configuration file
+  template: src=mongod.conf.j2 dest=/etc/mongod.conf
+  delegate_to: '{{ item }}'
+  with_items: groups.replication_servers
 
 - name: Copy the keyfile for authentication
-  copy: src=secret dest={{ mongodb_datadir_prefix }}secret owner=mongod group=mongod mode=0400
+  copy: src=secret dest={{ mongodb_datadir_prefix }}/secret owner=mongod group=mongod mode=0400
 
-- name: If mongod is already running, stop it!
+- name: Before starting mongod, make sure it's not already running...
   service: name=mongod state=stopped
-
-#- name: Start mongo
-#  service: name=mongod state=started
-
-- name: Start the mongodb service
-  command: mongod --fork --logpath /var/log/mongodb.log --replSet rs0 --journal --smallfiles --bind_ip {{ inventory_hostname }}
   ignore_errors: yes
 
-- name: Pause for a while
-  pause: seconds=5
+- name: start mongod
+  command: mongod -f /etc/mongod.conf
+
+#- name: start mongod
+#  command: mongod --fork --logpath /var/log/mongodb/mongod.log --replSet rs0 --journal --smallfiles --bind_ip {{ inventory_hostname }}
+#  sudo: yes
+
+#- name: Start the mongodb service
+#  command: creates=/var/lock/subsys/mongod /etc/init.d/mongod start
+#  delegate_to: '{{ item }}'
+#  with_items: groups.replication_servers
+
+

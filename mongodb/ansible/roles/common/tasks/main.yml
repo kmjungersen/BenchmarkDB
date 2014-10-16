@@ -1,8 +1,22 @@
 ---
 # This Playbook runs all the common plays in the deployment 
+- name: Install some cool libselinux-python
+  yum: name=libselinux-python state=installed
+
+- name: Install some VIM
+  yum: name=vim state=installed
 
 - name: Create the hosts file for all machines
   template: src=hosts.j2 dest=/etc/hosts
+
+- name: Create the repository for 10Gen
+  copy: src=10gen.repo.j2 dest=/etc/yum.repos.d/10gen.repo
+
+- name: Create the EPEL Repository.
+  copy: src=epel.repo.j2 dest=/etc/yum.repos.d/epel.repo
+
+- name: Create the GPG key for EPEL
+  copy: src=RPM-GPG-KEY-EPEL-6 dest=/etc/pki/rpm-gpg
 
 - name: Create the mongod user
   user: name=mongod comment="MongoD"
@@ -10,23 +24,18 @@
 - name: Create the data directory for the namenode metadata
   file: path={{ mongodb_datadir_prefix }} owner=mongod group=mongod state=directory
 
-- name: Import the public key user by the package management system
-  shell: sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10
-
-- name: Create a list file for MongoDB
-  shell: echo 'deb http://downloads-distro.mongodb.org/repo/ubuntu-upstart dist 10gen' | sudo tee /etc/apt/sources.list.d/mongodb.list
-
-- name: Reload local package database
-  shell: apt-get update
-
 - name: Install the mongodb package
-  apt: name=mongodb-org state=installed
-
-- name: Install pip
-  apt: name=python-pip state=installed
+  yum: name={{ item }} state=installed
+  with_items:
+   - libselinux-python
+   - mongo-10gen
+   - mongo-10gen-server
+   - bc
+   - python-pip
 
 - name: Install the latest pymongo package
   pip: name=pymongo state=latest use_mirrors=no
 
-- name: Install freaking VIM
-  apt: name=vim state=installed
+- name: Create the iptables file
+  template: src=iptables.j2 dest=/etc/sysconfig/iptables
+  notify: restart iptables 

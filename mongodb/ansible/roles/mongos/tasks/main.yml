@@ -10,14 +10,24 @@
 - name: Copy the keyfile for authentication
   copy: src=roles/mongod/files/secret dest={{ mongodb_datadir_prefix }}/secret owner=mongod group=mongod mode=0400
 
-- name: Start the mongos service
-  shell: mongos --fork --logpath /var/log/mongos.log --configdb 192.168.33.11:27019,192.168.33.12:27019,192.168.33.13:27019 --port {{ mongos_port }}
+- name: before starting mongos, make sure it's not already running
+  service: name=mongos state=stopped
+
+- name: start mongos
+  command: mongos -f /etc/mongos.conf
+
+#- name: Start the mongos service
+#  command: mongos --fork --logpath /var/log/mongos.log --configdb 192.168.33.11:27019,192.168.33.12:27019,192.168.33.13:27019 --port {{ mongos_port }}
+#  sudo: yes
 
 - name: pause
-  pause: seconds=5
+  pause: seconds=20
 
 - name: copy the file for shard test 
   template: src=testsharding.j2 dest=/tmp/testsharding.js
 
 - name: copy the file enable  sharding 
   template: src=enablesharding.j2 dest=/tmp/enablesharding.js
+
+- name: enable sharding
+  command: mongo {{ inventory_hostname }}:{{ mongos_port }} /tmp/enablesharding.js

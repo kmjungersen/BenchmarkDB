@@ -1,9 +1,11 @@
 ---
-# This role will create the replication set on the primary box
+# This role initilizes the replication set on the primary node
 
 - name: Create the file to initialize the mongod replica set
   template: src=repset_init.j2 dest=/tmp/repset_init.js
 
+- name: Pause for a while
+  pause: seconds=10
+
 - name: Initialize the replication set
-  command: mongo --host {{ inventory_hostname }} --port {{ mongod_port }} /tmp/repset_init.js
-  ignore_errors: yes
+  shell: /usr/bin/mongo --host {{ inventory_hostname }} /tmp/repset_init.js
