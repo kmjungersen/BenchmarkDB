@@ -21,6 +21,6 @@
   roles:
   - role: mongos
 
-- hosts: mongo_servers
-  tasks:
-  - include: roles/mongod/tasks/shards.yml
+#- hosts: mongo_servers
+#  tasks:
+#  - include: roles/mongod/tasks/shards.yml
