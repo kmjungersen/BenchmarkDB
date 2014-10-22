@@ -32,6 +32,9 @@ multiple DB's in a row to see which one is best for deployment purposes.
 
 """
 
+# TODO [x] - add a progress bar for non-verbose output
+# TODO [ ] - add some better data analysis
+
 from os import getcwd, listdir
 from sys import exit
 import time
