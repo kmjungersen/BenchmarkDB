@@ -26,8 +26,8 @@ multiple DB's in a row to see which one is best for deployment purposes.
                                 OVERWRITE any existing reports from the specified
                                 DB in the `generated_reports` directory
 
-        --entry_length=<n>  Specify an entry length [default: 10]
-        --trial_number=<n>  Specify the number of reads and writes to make to the
+        --length=<n>        Specify an entry length for reads/writes [default: 10]
+        --trials=<n>        Specify the number of reads and writes to make to the
                                 DB to collect data on [default: 100]
 
 """
@@ -100,8 +100,8 @@ class Benchmark():
         self.number_of_nodes = self.module_settings.NUMBER_OF_NODES
 
         self.db_name = self.db_name.replace('db', '').upper()
-        self.entry_length = int(options['--entry_length'])
-        self.number_of_trials = int(options['--trial_number'])
+        self.entry_length = int(options['--length'])
+        self.number_of_trials = int(options['--trials'])
         self.report = options['--report']
 
         self.write_times = []
