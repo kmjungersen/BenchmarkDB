@@ -42,6 +42,7 @@ import importlib
 from tabulate import tabulate
 from numpy import array, average, std, max, min
 from docopt import docopt
+from clint.textui import progress
 
 
 def retrieve_module_list():
@@ -151,7 +152,7 @@ class Benchmark():
 
         """
 
-        for index in range(self.number_of_trials):
+        for index in progress.bar(range(self.number_of_trials)):
 
             item_number = self.random_entry(entry_type='number')
             info = self.random_entry(entry_type='string')
