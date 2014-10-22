@@ -21,7 +21,9 @@ multiple DB's in a row to see which one is best for deployment purposes.
                             Show REALLY verbose output, including the individual
                                 time information from each run
 
-        -l --list_mods      Outputs a list of available DB modules before running
+        -c --chaos          Activates CHAOS mode, where reads are taken
+                                randomly from the DB instead of sequentially
+        -l --list_mods      Outputs a list of available DB modules
         -r --report         Option to generate a report file, which will
                                 OVERWRITE any existing reports from the specified
                                 DB in the `generated_reports` directory
@@ -112,6 +114,8 @@ class Benchmark():
 
         self.time_and_date = time.strftime("%a, %d %b, %Y %H:%M:%S")
 
+        self.chaos = options['--chaos']
+
         # Run the benchmarks!
         self.run()
 
@@ -162,6 +166,9 @@ class Benchmark():
 
             if not self.writes(entry):
                 print 'WRITE ERROR'
+
+            if self.chaos:
+                index = random.randint(0, index)
 
             if not self.reads(index):
                 print 'READ ERROR'
