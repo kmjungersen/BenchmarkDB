@@ -15,11 +15,9 @@ multiple DB's in a row to see which one is best for deployment purposes.
 
     Options:
         -h --help           Show this help screen
-        -v --verbose        Show verbose output from the application
-
-        -V --really_verbose
-                            Show REALLY verbose output, including the individual
-                                time information from each run
+        -v                  Show verbose output from the application
+        -V                  Show REALLY verbose output, including the time
+                                from each run
 
         -c --chaos          Activates CHAOS mode, where reads are taken
                                 randomly from the DB instead of sequentially
@@ -90,8 +88,8 @@ class Benchmark():
 
             exit(message)
 
-        self.verbose = options['--verbose']
-        self.really_verbose = options['--really_verbose']
+        self.verbose = options['-v']
+        self.really_verbose = options['-V']
         self.collection = 'test'
 
         self.module = self.register_module(self.db_name)
