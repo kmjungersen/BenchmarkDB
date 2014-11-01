@@ -395,6 +395,90 @@ class Benchmark():
 
                     outfile.write(report)
 
+    def compile_plots(self, compiled_data):
+        """ This function will take compiled data and generate certain graphs
+        to display it visually.
+
+        :param report_info:
+        :return:
+        """
+
+        results = compiled_data['results']
+
+        writes = results['write_times']
+        reads = results['read_times']
+
+        # Generating read/write time plot
+        self.generate_plot(
+            name='rw',
+            data_set=[writes, reads],
+            title='Plot of read and write speeds for every trial',
+            x_label='Trial Number',
+            y_label='Speed (seconds)',
+        )
+
+        self.generate_plot(
+            name='stats',
+            data_set=[writes, reads],
+            title='Histogram of Read and Write Times',
+            x_label='Time (seconds)',
+            y_label='Number of Occurrences',
+            plot_type='hist',
+        )
+
+    def generate_plot(self, name, data_set, title=None, x_label=None,
+                      y_label=None, grid=True, plot_type='plot'):
+        """
+
+        :param name:
+        :param data:
+        :param title:
+        :param x_label:
+        :param y_label:
+        :param grid:
+        :param type:
+        :return:
+        """
+        fig, a = self.plt.subplots()
+
+        if plot_type == 'plot':
+
+            for data in data_set:
+
+                a.plot(data)
+
+        elif plot_type == 'hist':
+
+            for data in data_set:
+
+                a.hist(data)
+
+        if title:
+            a.set_title(title)
+
+        if x_label:
+            a.set_xlabel(x_label)
+
+        if y_label:
+            a.set_ylabel(y_label)
+
+        if grid:
+            a.grid = True
+
+        current_name = '{parent_dir}/images/{db}-{date}-{name}'.format(
+            parent_dir=self.reports_dir,
+            db=self.db_name,
+            date=self.report_date,
+            name=name,
+        )
+        self.image_names['reads_writes'] = current_name
+
+        # a.show()
+
+        fig = a.get_figure()
+
+        fig.savefig(current_name)
+
     def register_module(self, db_mod):
         """ This function begins the process of registering a module for
         benchmarking.  The first step is to check to see if the module exists,
