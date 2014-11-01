@@ -186,10 +186,12 @@ class Benchmark():
 
         self.generate_report(data)
 
+        self.compile_plots(data)
+
     def writes(self, entry):
         """ This function handles all DB write commands, and times that action
-        as well.  It takes a single parameter ('entry'), which is the data to be
-        written to the DB.
+        as well.  It takes a single parameter ('entry'), which is the data to
+        be written to the DB.
 
         :param entry: The entry to be recorded to the DB
 
@@ -215,9 +217,9 @@ class Benchmark():
         return True
 
     def reads(self, index):
-        """ This function handles all DB read commands, and times that action as
-        well.  It takes a single parameter, which is the index of an entry to
-        retrieve from the DB.
+        """ This function handles all DB read commands, and times that action
+        as well.  It takes a single parameter, which is the index of an entry
+        to retrieve from the DB.
 
         :param index: The index of the item to be retrieved from the DB
 
