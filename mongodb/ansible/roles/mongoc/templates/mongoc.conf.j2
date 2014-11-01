@@ -1,6 +1,6 @@
 
 #where to log
-logpath=/var/log/mongo/mongod-config.log
+logpath=/var/log/mongod-config.log
 
 logappend=true
 
@@ -9,9 +9,7 @@ fork = true
 
 port = {{ mongoc_port }}
 
-dbpath={{ mongodb_datadir_prefix }}configdb
-keyFile={{ mongodb_datadir_prefix }}secret
+dbpath={{ mongodb_datadir_prefix }}/configdb
+#keyFile={{ mongodb_datadir_prefix }}/secret
 # location of pidfile
 pidfilepath = /var/run/mongoc.pid
-
-configsvr=true

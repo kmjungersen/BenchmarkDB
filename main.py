@@ -33,6 +33,7 @@ multiple DB's in a row to see which one is best for deployment purposes.
 """
 
 from os import getcwd, listdir
+from sys import exit
 import time
 import string
 import random
@@ -73,26 +74,41 @@ class Benchmark():
         """
 
         self.db_name = options['<database>']
+
+        if options['--list_mods']:
+
+            mod_list = retrieve_module_list()
+
+            message = 'The following {number} modules are available: \n\n'.\
+                format(number=mod_list.__len__())
+
+            for mod in mod_list:
+
+                message += '-{mod}\n'.format(mod=mod)
+
+            exit(message)
+
         self.verbose = options['--verbose']
         self.really_verbose = options['--really_verbose']
         self.collection = 'test'
-        self.database = self.register_module(self.db_name).Benchmark(
-                    self.collection, setup=True
-        )
+
+        self.module = self.register_module(self.db_name)
+        self.database = self.module.Benchmark(self.collection, setup=True)
+
+        self.module_settings = self.import_db_mod(
+            self.db_name, mod_file='local')
+        self.number_of_nodes = self.module_settings.NUMBER_OF_NODES
 
         self.db_name = self.db_name.replace('db', '').upper()
         self.entry_length = int(options['--entry_length'])
         self.number_of_trials = int(options['--trial_number'])
         self.report = options['--report']
 
-        #TODO - fix this
-        self.number_of_nodes = 4
-
         self.write_times = []
         self.read_times = []
 
         self.sorting_index = 'ID'
-        self.reports_dir = 'generated_reports/'
+        self.reports_dir = 'generated_reports'
 
         self.time_and_date = time.strftime("%a, %d %b, %Y %H:%M:%S")
 
@@ -140,7 +156,7 @@ class Benchmark():
 
             entry = {
                 'Index': index,
-                'Number': item_number,
+                'number': item_number,
                 'Info': info
             }
 
@@ -288,8 +304,10 @@ class Benchmark():
             ]
 
             data_values = [
-                ['Writes', write_avg, write_stdev, write_max, write_min, write_range],
-                ['Reads', read_avg, read_stdev, read_max, read_min, read_range],
+                ['Writes', write_avg, write_stdev, write_max, write_min,
+                 write_range],
+                ['Reads', read_avg, read_stdev, read_max, read_min,
+                 read_range],
             ]
 
             param_table = tabulate(
@@ -330,9 +348,9 @@ class Benchmark():
             self.generate_report(report_info)
 
     def generate_report(self, report_info):
-        """ This function will take the compiled data and generated a report from
-        it.  If the `--report` option was selected at runtime, a report file will
-        also be saved in the `generated_reports` directory.
+        """ This function will take the compiled data and generated a report
+        from it.  If the `--report` option was selected at runtime, a report
+        file will also be saved in the `generated_reports` directory.
 
         :param report_info: all of the necessary information to generate the
                     benchmark report
@@ -381,12 +399,13 @@ class Benchmark():
         else:
 
             error = 'Invalid DB module!  Please be sure you are using the \n' \
-                    'package name and not just the name of the database itself.\n'
+                    'package name and not just the name of the database itself.'\
+                    '\n'
 
-            print error
+            exit(error)
 
     @staticmethod
-    def import_db_mod(module):
+    def import_db_mod(module, mod_file='main'):
         """ This function will do the actual import of the database-specific
         module.  The `try/except` format is meant to be able to attempt the
         import, but fail gracefully if for some reason the package can't be
@@ -399,7 +418,7 @@ class Benchmark():
 
         try:
 
-            package = '{mod}.main'.format(mod=module)
+            package = '{mod}.{file}'.format(mod=module, file=mod_file)
 
             mod_class = importlib.import_module(package)
 
@@ -411,7 +430,7 @@ class Benchmark():
                     'sure you are using the package name and not the name \n' \
                     'of the database itself.'
 
-            print error
+            exit(error)
 
 if __name__ == '__main__':
 
