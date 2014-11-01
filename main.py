@@ -77,8 +77,6 @@ class Benchmark():
 
         """
 
-        self.db_name = options['<database>']
-
         if options['--list_mods']:
 
             mod_list = retrieve_module_list()
@@ -91,6 +89,8 @@ class Benchmark():
                 message += '-{mod}\n'.format(mod=mod)
 
             exit(message)
+
+        self.db_name = options['<database>']
 
         self.verbose = options['-v']
         self.really_verbose = options['-V']
@@ -268,93 +268,95 @@ class Benchmark():
         read_min = min(self.read_times)
         read_range = read_max - read_min
 
+        param_header = [
+            'Parameter',
+            'Value',
+        ]
+
+        param_values = [
+            ['Database Tested', self.db_name],
+            ['Number of Trials', str(self.number_of_trials)],
+            ['Length of Each Entry Field', str(self.entry_length)],
+            ['Number of Nodes in Cluster', str(self.number_of_nodes)],
+        ]
+
+        data_header = [
+            'Operation',
+            'Average',
+            'St. Dev.',
+            'Max Time',
+            'Min Time',
+            'Range',
+        ]
+
+        data_values = [
+            ['Writes', write_avg, write_stdev, write_max, write_min,
+             write_range],
+            ['Reads', read_avg, read_stdev, read_max, read_min,
+             read_range],
+        ]
+
+        param_table = tabulate(
+            tabular_data=param_values,
+            headers=param_header,
+            tablefmt='grid',
+        )
+
+        data_table = tabulate(
+            tabular_data=data_values,
+            headers=data_header,
+            tablefmt='grid',
+            floatfmt='.5f',
+        )
+
+        param_table_md = tabulate(
+            tabular_data=param_values,
+            headers=param_header,
+            tablefmt='pipe',
+        )
+
+        data_table_md = tabulate(
+            tabular_data=data_values,
+            headers=data_header,
+            tablefmt='pipe',
+            floatfmt='.5f',
+        )
+
+        compiled_data = {
+            'database': self.db_name,
+            'time_and_date': self.time_and_date,
+            'param_table': param_table,
+            'data_table': data_table,
+            'param_table_md': param_table_md,
+            'data_table_md': data_table_md,
+        }
+
+        results = {
+            'database': self.db_name,
+            'trial_number': self.number_of_trials,
+            'entry_length': self.entry_length,
+            'node_number': self.number_of_nodes,
+            'write_times': self.write_times,
+            'write_avg': write_avg,
+            'write_stdev': write_stdev,
+            'write_max': write_max,
+            'write_min': write_min,
+            'write_range': write_range,
+            'read_times': self.read_times,
+            'read_avg': read_avg,
+            'read_stdev': read_stdev,
+            'read_max': read_max,
+            'read_min': read_min,
+            'read_range': read_range,
+        }
+
         if return_results:
 
-            results = {
-                'database': self.db_name,
-                'trial_number': self.number_of_trials,
-                'entry_length': self.entry_length,
-                'node_number': self.number_of_nodes,
-                'write_avg': write_avg,
-                'write_stdev': write_stdev,
-                'write_max': write_max,
-                'write_min': write_min,
-                'write_range': write_range,
-                'read_avg': read_avg,
-                'read_stdev': read_stdev,
-                'read_max': read_max,
-                'read_min': read_min,
-                'read_range': read_range,
-            }
-
-            return results
+            return compiled_data, results
 
         else:
 
-            param_header = [
-                'Parameter',
-                'Value',
-            ]
-
-            param_values = [
-                ['Database Tested', self.db_name],
-                ['Number of Trials', str(self.number_of_trials)],
-                ['Length of Each Entry Field', str(self.entry_length)],
-                ['Number of Nodes in Cluster', str(self.number_of_nodes)],
-            ]
-
-            data_header = [
-                'Operation',
-                'Average',
-                'St. Dev.',
-                'Max Time',
-                'Min Time',
-                'Range',
-            ]
-
-            data_values = [
-                ['Writes', write_avg, write_stdev, write_max, write_min,
-                 write_range],
-                ['Reads', read_avg, read_stdev, read_max, read_min,
-                 read_range],
-            ]
-
-            param_table = tabulate(
-                tabular_data=param_values,
-                headers=param_header,
-                tablefmt='grid',
-            )
-
-            data_table = tabulate(
-                tabular_data=data_values,
-                headers=data_header,
-                tablefmt='grid',
-                floatfmt='.5f',
-            )
-
-            param_table_md = tabulate(
-                tabular_data=param_values,
-                headers=param_header,
-                tablefmt='pipe',
-            )
-
-            data_table_md = tabulate(
-                tabular_data=data_values,
-                headers=data_header,
-                tablefmt='pipe',
-                floatfmt='.5f',
-            )
-
-            report_info = {
-                'database': self.db_name,
-                'time_and_date': self.time_and_date,
-                'param_table': param_table,
-                'data_table': data_table,
-                'param_table_md': param_table_md,
-                'data_table_md': data_table_md,
-            }
-
-            self.generate_report(report_info)
+            return compiled_data
 
     def generate_report(self, report_info):
         """ This function will take the compiled data and generated a report
