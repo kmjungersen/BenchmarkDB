@@ -241,16 +241,14 @@ class Benchmark():
 
         return True
 
-    def compile_data(self, return_results=False):
-        """ This function takes all the data collected from the trials (read and
-        write times) and then calculates some important statistics about said
-        data.  Without altering functionality, a report will be generated upon
-        completion of analysis.
+    def compile_data(self):
+        """ This function takes all the data collected from the trials (read
+        and write times) and then calculates some important statistics about
+        said data.  Without altering functionality, a report will be generated
+        upon completion of analysis.
 
-        :param return_results=False: This parameter can be optionally passed as
-                    True if the user wants to have the dict of results returned
-                    instead of generating a report with said results
-
+        :return compiled_data: All of the data and tables needed to generate a
+                    full benchmarking report
         :return results: The compiled results from the statistical analysis of
                     the trial data as a dict
         """
@@ -324,15 +322,6 @@ class Benchmark():
             floatfmt='.5f',
         )
 
-        compiled_data = {
-            'database': self.db_name,
-            'time_and_date': self.time_and_date,
-            'param_table': param_table,
-            'data_table': data_table,
-            'param_table_md': param_table_md,
-            'data_table_md': data_table_md,
-        }
-
         results = {
             'database': self.db_name,
             'trial_number': self.number_of_trials,
@@ -352,13 +341,17 @@ class Benchmark():
             'read_range': read_range,
         }
 
-        if return_results:
+        compiled_data = {
+            'database': self.db_name,
+            'time_and_date': self.time_and_date,
+            'param_table': param_table,
+            'data_table': data_table,
+            'param_table_md': param_table_md,
+            'data_table_md': data_table_md,
+            'results': results,
+        }
 
-            return compiled_data, results
-
-        else:
-
-            return compiled_data
+        return compiled_data
 
     def generate_report(self, report_info):
         """ This function will take the compiled data and generated a report
