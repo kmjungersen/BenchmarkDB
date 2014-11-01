@@ -77,7 +77,7 @@ class Benchmark():
 
         """
 
-        if options['--list_mods']:
+        if options['--list']:
 
             mod_list = retrieve_module_list()
 
@@ -106,25 +106,32 @@ class Benchmark():
         self.db_name = self.db_name.replace('db', '').upper()
         self.entry_length = int(options['--length'])
         self.number_of_trials = int(options['--trials'])
+
         self.report = options['--report']
+        # if self.report:
+        self.matplotlib = importlib.import_module('matplotlib')
+        self.matplotlib.use('Agg')
+        self.plt = importlib.import_module('matplotlib.pyplot')
+
+        self.chaos = options['--chaos']
 
         self.write_times = []
         self.read_times = []
 
         self.sorting_index = 'ID'
         self.reports_dir = 'generated_reports'
+        self.image_names = {}
 
         self.time_and_date = time.strftime("%a, %d %b, %Y %H:%M:%S")
-
-        self.chaos = options['--chaos']
+        self.report_date = time.strftime("%b%d-%Y-%H:%M:%S")
 
         # Run the benchmarks!
         self.run()
 
     def random_entry(self, entry_type='string'):
-        """ This function generates a random string or random number depending on
-        the arguments passed in.  The string is generated from all ascii letters
-        and the number is generated from numbers 0-9.
+        """ This function generates a random string or random number depending
+        on the arguments passed in.  The string is generated from all ascii
+        letters and the number is generated from numbers 0-9.
 
         :param entry_type: the specified type of random entry, either 'string'
                     or 'number'
