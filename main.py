@@ -175,7 +175,9 @@ class Benchmark():
             if not self.reads(index):
                 print 'READ ERROR'
 
-        self.compile_data()
+        data = self.compile_data()
+
+        self.generate_report(data)
 
     def writes(self, entry):
         """ This function handles all DB write commands, and times that action
@@ -376,9 +378,9 @@ class Benchmark():
 
             template = infile.read()
 
-            report = template.format(**report_info)
+            terminal_report = template.format(**report_info)
 
-            print '\n\n' + report + '\n\n'
+            print '\n\n' + terminal_report + '\n\n'
 
             if self.report:
 
@@ -447,4 +449,4 @@ if __name__ == '__main__':
 
     options = docopt(__doc__)
 
-    foo = Benchmark()
+    Benchmark()
