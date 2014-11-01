@@ -7,6 +7,7 @@
   tasks:
   - name: Kill all mongo processes
     command: pkill mongo
+    ignore_errors: yes
 
   - name: Start mongo daemon
     command: mongod -f /etc/mongod.conf
