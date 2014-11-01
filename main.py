@@ -371,9 +371,10 @@ class Benchmark():
                     benchmark report
         """
 
-        report_name = '{parent_dir}/{db}.report.md'.format(
+        report_name = '{parent_dir}/{db}-{date}.report.md'.format(
             parent_dir=self.reports_dir,
-            db=self.db_name
+            db=self.db_name,
+            date=self.report_date,
         )
 
         with open('report_template.md', 'r') as infile:
