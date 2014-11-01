@@ -21,7 +21,7 @@ multiple DB's in a row to see which one is best for deployment purposes.
 
         -c --chaos          Activates CHAOS mode, where reads are taken
                                 randomly from the DB instead of sequentially
-        -l --list_mods      Outputs a list of available DB modules
+        -l --list           Outputs a list of available DB modules
         -r --report         Option to generate a report file, which will
                                 OVERWRITE any existing reports from the specified
                                 DB in the `generated_reports` directory
