@@ -277,6 +277,28 @@ class Benchmark():
         read_min = min(self.read_times)
         read_range = read_max - read_min
 
+        unnormalized_data = {
+            'write_times': self.write_times,
+            'write_avg': write_avg,
+            'write_stdev': write_stdev,
+            'write_max': write_max,
+            'write_min': write_min,
+            'read_times': self.read_times,
+            'read_avg': read_avg,
+            'read_stdev': read_stdev,
+            'read_max': read_max,
+            'read_min': read_min,
+        }
+
+        normalized_data = self.normalize_data(unnormalized_data)
+
+        self.write_times = normalized_data['writes']
+        self.read_times = normalized_data['reads']
+        writes_running_avg = normalized_data['writes_running_avg']
+        reads_running_avg = normalized_data['reads_running_avg']
+        writes_outliers = normalized_data['writes_outliers']
+        reads_outliers = normalized_data['reads_outliers']
+
         param_header = [
             'Parameter',
             'Value',
