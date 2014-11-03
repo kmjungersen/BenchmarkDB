@@ -394,6 +394,26 @@ class Benchmark():
             tablefmt='pipe'
         )
 
+        image_template = '![Alt text](images/{db}-{date}-{name}.png "{name}"'
+
+        speed_plot = image_template.format(
+            db=self.db_name,
+            date=self.report_date,
+            name='rw',
+        )
+
+        hist_plot = image_template.format(
+            db=self.db_name,
+            date=self.report_date,
+            name='stats',
+        )
+
+        avgs_plot = image_template.format(
+            db=self.db_name,
+            date=self.report_date,
+            name='running_averages',
+        )
+
         results = {
             'database': self.db_name,
             'trial_number': self.number_of_trials,
