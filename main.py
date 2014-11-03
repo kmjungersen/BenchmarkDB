@@ -332,6 +332,30 @@ class Benchmark():
              read_range],
         ]
 
+        outlier_header = [
+            'Operation',
+            'Trial Number',
+            'Value',
+        ]
+
+        outlier_values = []
+
+        if len(writes_outliers):
+            for count, value in writes_outliers.iteritems():
+                outlier_values.append([
+                    'Write',
+                    count,
+                    value,
+                ])
+
+        if len(reads_outliers):
+            for count, value in reads_outliers.iteritems():
+                outlier_values.append([
+                    'Read',
+                    count,
+                    value,
+                ])
+
         param_table = tabulate(
             tabular_data=param_values,
             headers=param_header,
@@ -345,6 +369,12 @@ class Benchmark():
             floatfmt='.5f',
         )
 
+        outlier_table = tabulate(
+            tabular_data=outlier_values,
+            headers=outlier_header,
+            tablefmt='grid'
+        )
+
         param_table_md = tabulate(
             tabular_data=param_values,
             headers=param_header,
@@ -356,6 +386,12 @@ class Benchmark():
             headers=data_header,
             tablefmt='pipe',
             floatfmt='.5f',
+        )
+
+        outlier_table_md = tabulate(
+            tabular_data=outlier_values,
+            headers=outlier_header,
+            tablefmt='pipe'
         )
 
         results = {
