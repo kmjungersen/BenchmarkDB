@@ -362,6 +362,58 @@ class Benchmark():
 
         return compiled_data
 
+    def normalize_data(self, unnormalized_data):
+        """
+        """
+
+        writes = unnormalized_data['write_times']
+        reads = unnormalized_data['read_times']
+        write_stdev = unnormalized_data['write_stdev']
+        read_stdev = unnormalized_data['read_stdev']
+        write_avg = unnormalized_data['write_avg']
+        read_avg = unnormalized_data['read_avg']
+
+        writes_running_avg = []
+        reads_running_avg = []
+        writes_outliers = {}
+        reads_outliers = {}
+
+        w_count = 0
+        r_count = 0
+        w_sum = 0
+        r_sum = 0
+
+        for w in writes:
+            if abs(w - write_avg) > (3 * write_stdev):
+                delete(writes, w_count)
+                writes_outliers[w_count] = w
+
+            w_sum += w
+            w_count += 1
+            avg = w_sum / w_count
+            writes_running_avg.append(avg)
+
+        for r in reads:
+            if abs(r - read_avg) > (3 * read_stdev):
+                delete(reads, r_count)
+                reads_outliers[r_count] = r
+
+            r_sum += r
+            r_count += 1
+            avg = r_sum / r_count
+            reads_running_avg.append(avg)
+
+        normalized_data = {
+            'writes': writes,
+            'reads': reads,
+            'writes_running_avg': writes_running_avg,
+            'reads_running_avg': reads_running_avg,
+            'writes_outliers': writes_outliers,
+            'reads_outliers': reads_outliers,
+        }
+
+        return normalized_data
+
     def generate_report(self, report_info):
         """ This function will take the compiled data and generated a report
         from it.  If the `--report` option was selected at runtime, a report
