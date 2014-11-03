@@ -43,7 +43,7 @@ import random
 import importlib
 
 from tabulate import tabulate
-from numpy import array, average, std, max, min
+from numpy import array, average, std, max, min, delete
 from docopt import docopt
 from clint.textui import progress
 
