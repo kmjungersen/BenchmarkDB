@@ -18,6 +18,8 @@ multiple DB's in a row to see which one is best for deployment purposes.
         -v                  Show verbose output from the application
         -V                  Show REALLY verbose output, including the time
                                 from each run
+        -s                  Sleep mode (experimental) - sleeps for 1/20 (s)
+                                between each read and write
 
         -c --chaos          Activates CHAOS mode, where reads are taken
                                 randomly from the DB instead of sequentially
@@ -178,6 +180,9 @@ class Benchmark():
 
             if self.chaos:
                 index = random.randint(0, index)
+
+            if options['-s']:
+                time.sleep(1/20)
 
             if not self.reads(index):
                 print 'READ ERROR'
