@@ -425,12 +425,14 @@ class Benchmark():
             'write_max': write_max,
             'write_min': write_min,
             'write_range': write_range,
+            'writes_running_avg': writes_running_avg,
             'read_times': self.read_times,
             'read_avg': read_avg,
             'read_stdev': read_stdev,
             'read_max': read_max,
             'read_min': read_min,
             'read_range': read_range,
+            'reads_running_avg': reads_running_avg,
         }
 
         compiled_data = {
@@ -438,8 +440,13 @@ class Benchmark():
             'time_and_date': self.time_and_date,
             'param_table': param_table,
             'data_table': data_table,
+            'outlier_table': outlier_table,
             'param_table_md': param_table_md,
             'data_table_md': data_table_md,
+            'outlier_table_md': outlier_table_md,
+            'speed_plot': speed_plot,
+            'hist_plot': hist_plot,
+            'avgs_plot': avgs_plot,
             'results': results,
         }
 
@@ -543,10 +550,13 @@ class Benchmark():
         writes = results['write_times']
         reads = results['read_times']
 
+        writes_running_avg = results['writes_running_avg']
+        reads_running_avg = results['reads_running_avg']
+
         # Generating read/write time plot
         self.generate_plot(
             name='rw',
-            data_set=[writes, reads],
+            data_set={'writes': writes, 'reads': reads},
             title='Plot of read and write speeds for every trial',
             x_label='Trial Number',
             y_label='Speed (seconds)',
@@ -554,11 +564,19 @@ class Benchmark():
 
         self.generate_plot(
             name='stats',
-            data_set=[writes, reads],
+            data_set={'writes': writes, 'reads': reads},
             title='Histogram of Read and Write Times',
             x_label='Time (seconds)',
             y_label='Number of Occurrences',
             plot_type='hist',
+        )
+
+        self.generate_plot(
+            name='running_averages',
+            data_set={'writes_running_avg': writes_running_avg, 'reads_running_avg': reads_running_avg},
+            title='Read and Write Speeds - Running Averages',
+            x_label='Trial Number',
+            y_label='Running Average (s)',
         )
 
     def generate_plot(self, name, data_set, title=None, x_label=None,
@@ -576,17 +594,28 @@ class Benchmark():
         """
         fig, a = self.plt.subplots()
 
+        legend_list = []
+
         if plot_type == 'plot':
 
-            for data in data_set:
+            for label, data in data_set.iteritems():
 
-                a.plot(data)
+                foo, = a.plot(data, label=label)
+                legend_list.append(foo)
+
+            a.legend(handles=legend_list)
 
         elif plot_type == 'hist':
 
-            for data in data_set:
+            data_list = []
+            label_list = []
 
-                a.hist(data)
+            for label, data in data_set.iteritems():
+
+                data_list.append(data)
+                label_list.append(label)
+
+            foo = a.hist(data_list, histtype='bar', label=label_list)
 
         if title:
             a.set_title(title)
