@@ -339,43 +339,175 @@ class Benchmark():
         :return results: The compiled results from the statistical analysis of
                     the trial data as a dict
         """
+        # w = pd.DataFrame({'data': self.write_times})
+        # r = pd.DataFrame({'data': self.read_times})
+        #
+        # foo = pd.DataFrame({
+        #     'reads': self.read_times,
+        #     'writes': self.write_times,
+        # })
 
-        self.write_times = array(self.write_times)
-        self.read_times = array(self.read_times)
+        w = pd.DataFrame({'data': self.write_times})
+        r = pd.DataFrame({'data': self.read_times})
 
-        write_avg = average(self.write_times)
-        write_stdev = std(self.write_times)
-        write_max = max(self.write_times)
-        write_min = min(self.write_times)
+        w_out = pd.DataFrame({'data': self.write_times})
+        r_out = pd.DataFrame({'data': self.read_times})
+
+        write_avg = w.data.mean()
+        write_stdev = w.data.std()
+        write_max = w.data.max()
+        write_min = w.data.min()
         write_range = write_max - write_min
 
-        read_avg = average(self.read_times)
-        read_stdev = std(self.read_times)
-        read_max = max(self.read_times)
-        read_min = min(self.read_times)
+        read_avg = r.data.mean()
+        read_stdev = r.data.std()
+        read_max = r.data.max()
+        read_min = r.data.min()
         read_range = read_max - read_min
 
-        unnormalized_data = {
-            'write_times': self.write_times,
+        # unnormalized_data = {
+        #     'write_times': self.write_times,
+        #     'write_avg': write_avg,
+        #     'write_stdev': write_stdev,
+        #     'write_max': write_max,
+        #     'write_min': write_min,
+        #     'read_times': self.read_times,
+        #     'read_avg': read_avg,
+        #     'read_stdev': read_stdev,
+        #     'read_max': read_max,
+        #     'read_min': read_min,
+        # }
+
+        if options['--debug']:
+            write_stdev = 15
+            read_stdev = 15
+
+        #
+        # w_list = []
+        # r_list = []
+        #
+        # w_outlier_list = []
+        # r_outlier_list = []
+        #
+        # count = 0
+
+        # Remove values that are beyond 3 st. dev.'s from the mean
+        w = w[abs(w.data - write_avg) <= (3 * write_stdev)]
+        r = r[abs(r.data - read_avg) <= (3 * read_stdev)]
+
+        # Keep these outliers for display to the user
+        w_out = w_out[abs(w_out.data - write_avg) >= (3 * write_stdev)]
+        r_out = r_out[abs(r_out.data - read_avg) >= (3 * read_stdev)]
+
+
+        # for write in w.data:
+        #
+        #     if abs(int(write.item()) - write_avg) >= (3 * write_stdev):
+        #
+        #         w_outlier_list.append({
+        #             count: write,
+        #         })
+        #         w_list.append('NaN')
+        #
+        #     else:
+        #
+        #         w_list.append(write)
+        #
+        #     count += 1
+        #
+        # count = 0
+        #
+        # for read in r.data:
+        #
+        #     if abs(read - read_avg) >= (3 * read_stdev):
+        #
+        #         r_outlier_list.append({
+        #             count: read,
+        #         })
+        #         r_list.append('NaN')
+        #
+        #     else:
+        #
+        #         r_list.append(read)
+        #
+        #     count += 1
+
+        #
+        # writes_outliers = pd.DataFrame({
+        #     'data': w_outlier_list,
+        # })
+        # reads_outliers = pd.DataFrame({
+        #     'data': r_outlier_list,
+        # })
+
+        writes_running_avg = self.compute_running_avg(w)
+        reads_running_avg = self.compute_running_avg(r)
+
+        # writes_outliers = pd.DataFrame({'data': self.write_times})
+        # reads_outliers = pd.DataFrame({'data': self.read_times})
+
+        # normalized_data = self.normalize_data(unnormalized_data)
+
+        # self.write_times = normalized_data['writes']
+        # self.read_times = normalized_data['reads']
+        # writes_running_avg = normalized_data['writes_running_avg']
+        # reads_running_avg = normalized_data['reads_running_avg']
+        # writes_outliers = normalized_data['writes_outliers']
+        # reads_outliers = normalized_data['reads_outliers']
+
+        outlier_values = []
+
+        if len(w_out):
+            for count, value in w_out.data.iteritems():
+                outlier_values.append([
+                    'Write',
+                    count,
+                    value,
+                ])
+
+        if len(r_out):
+            for count, value in r_out.data.iteritems():
+                pass
+                outlier_values.append([
+                    'Read',
+                    count,
+                    value,
+                ])
+
+        compiled_data = {
+            # 'database': self.db_name,
+            # 'trial_number': self.number_of_trials,
+            # 'entry_length': self.entry_length,
+            # 'node_number': self.number_of_nodes,
+            'writes': w,
             'write_avg': write_avg,
             'write_stdev': write_stdev,
             'write_max': write_max,
             'write_min': write_min,
-            'read_times': self.read_times,
+            'write_range': write_range,
+            'writes_running_avg': writes_running_avg,
+            # 'writes_outliers': writes_outliers,
+            'reads': r,
             'read_avg': read_avg,
             'read_stdev': read_stdev,
             'read_max': read_max,
             'read_min': read_min,
+            'read_range': read_range,
+            'reads_running_avg': reads_running_avg,
+            # 'reads_outliers': reads_outliers,
+            'outlier_values': outlier_values,
         }
 
-        normalized_data = self.normalize_data(unnormalized_data)
+        return compiled_data
 
-        self.write_times = normalized_data['writes']
-        self.read_times = normalized_data['reads']
-        writes_running_avg = normalized_data['writes_running_avg']
-        reads_running_avg = normalized_data['reads_running_avg']
-        writes_outliers = normalized_data['writes_outliers']
-        reads_outliers = normalized_data['reads_outliers']
+    def generate_report_data(self, compiled_data):
+        """
+
+        :param compiled_data:
+        :return:
+        """
+
+        cd = compiled_data
 
         param_header = [
             'Parameter',
