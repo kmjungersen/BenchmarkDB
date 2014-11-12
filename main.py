@@ -648,64 +648,36 @@ class Benchmark():
             'speed_plot': speed_plot,
             'hist_plot': hist_plot,
             'avgs_plot': avgs_plot,
-            'results': results,
         }
 
-        return compiled_data
+        return report_data
 
-    def normalize_data(self, unnormalized_data):
+    def compute_running_avg(self, dataframe):
+        """ Given a dataframe object, this function will compute a running
+        average and return it as a separate dataframe object
+
+        :param dataframe: a dataframe with which to compute a running average
+        :return running_avg: a dataframe object with .data containing the
+                    running average data
         """
-        """
 
-        writes = unnormalized_data['write_times']
-        reads = unnormalized_data['read_times']
-        write_stdev = unnormalized_data['write_stdev']
-        read_stdev = unnormalized_data['read_stdev']
-        write_avg = unnormalized_data['write_avg']
-        read_avg = unnormalized_data['read_avg']
+        count = 0
+        sum = 0
+        avgs = []
 
-        writes_running_avg = []
-        reads_running_avg = []
-        writes_outliers = {}
-        reads_outliers = {}
+        for item in dataframe.data:
 
-        w_count = 0
-        r_count = 0
-        w_sum = 0
-        r_sum = 0
+            sum += item
+            count += 1
 
-        for w in writes:
-            if abs(w - write_avg) > (3 * write_stdev):
-                delete(writes, w_count)
-                writes_outliers[w_count] = w
+            avg = sum / count
+            avgs.append(avg)
 
-            w_sum += w
-            w_count += 1
-            avg = w_sum / w_count
-            writes_running_avg.append(avg)
+        running_avg = pd.DataFrame({'data': avgs})
 
-        for r in reads:
-            if abs(r - read_avg) > (3 * read_stdev):
-                delete(reads, r_count)
-                reads_outliers[r_count] = r
+        return running_avg
 
-            r_sum += r
-            r_count += 1
-            avg = r_sum / r_count
-            reads_running_avg.append(avg)
-
-        normalized_data = {
-            'writes': writes,
-            'reads': reads,
-            'writes_running_avg': writes_running_avg,
-            'reads_running_avg': reads_running_avg,
-            'writes_outliers': writes_outliers,
-            'reads_outliers': reads_outliers,
-        }
-
-        return normalized_data
-
-    def generate_report(self, report_info):
+    def generate_report(self, report_data):
         """ This function will take the compiled data and generated a report
         from it.  If the `--report` option was selected at runtime, a report
         file will also be saved in the `generated_reports` directory.
