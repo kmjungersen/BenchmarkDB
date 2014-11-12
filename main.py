@@ -696,7 +696,7 @@ class Benchmark():
 
             template = infile.read()
 
-            terminal_report = template.format(**report_info)
+            terminal_report = template.format(**report_data)
 
             print '\n\n' + terminal_report + '\n\n'
 
@@ -704,56 +704,14 @@ class Benchmark():
 
                 template = template.replace('_table', '_table_md')
 
-                report = template.format(**report_info)
+                report = template.format(**report_data)
 
                 with open(report_name, 'w+') as outfile:
 
                     outfile.write(report)
 
-    def compile_plots(self, compiled_data):
-        """ This function will take compiled data and generate certain graphs
-        to display it visually.
-
-        :param report_info:
-        :return:
-        """
-
-        results = compiled_data['results']
-
-        writes = results['write_times']
-        reads = results['read_times']
-
-        writes_running_avg = results['writes_running_avg']
-        reads_running_avg = results['reads_running_avg']
-
-        # Generating read/write time plot
-        self.generate_plot(
-            name='rw',
-            data_set={'writes': writes, 'reads': reads},
-            title='Plot of read and write speeds for every trial',
-            x_label='Trial Number',
-            y_label='Speed (seconds)',
-        )
-
-        self.generate_plot(
-            name='stats',
-            data_set={'writes': writes, 'reads': reads},
-            title='Histogram of Read and Write Times',
-            x_label='Time (seconds)',
-            y_label='Number of Occurrences',
-            plot_type='hist',
-        )
-
-        self.generate_plot(
-            name='running_averages',
-            data_set={'writes_running_avg': writes_running_avg, 'reads_running_avg': reads_running_avg},
-            title='Read and Write Speeds - Running Averages',
-            x_label='Trial Number',
-            y_label='Running Average (s)',
-        )
-
-    def generate_plot(self, name, data_set, title=None, x_label=None,
-                      y_label=None, grid=True, plot_type='plot'):
+    def generate_plot(self, name, data_frame, title=None, x_label=None,
+                      y_label=None, grid=True, plot_type='line'):
         """
 
         :param name:
@@ -765,42 +723,19 @@ class Benchmark():
         :param type:
         :return:
         """
-        fig, a = self.plt.subplots()
+        import matplotlib.pyplot as plt
 
-        legend_list = []
+        plt.figure()
 
-        if plot_type == 'plot':
-
-            for label, data in data_set.iteritems():
-
-                foo, = a.plot(data, label=label)
-                legend_list.append(foo)
-
-            a.legend(handles=legend_list)
-
-        elif plot_type == 'hist':
-
-            data_list = []
-            label_list = []
-
-            for label, data in data_set.iteritems():
-
-                data_list.append(data)
-                label_list.append(label)
-
-            foo = a.hist(data_list, histtype='bar', label=label_list)
-
-        if title:
-            a.set_title(title)
+        ax = data_frame.plot(title=title, grid=grid, legend=True, kind=plot_type)
 
         if x_label:
-            a.set_xlabel(x_label)
+
+            ax.set_xlabel(x_label)
 
         if y_label:
-            a.set_ylabel(y_label)
 
-        if grid:
-            a.grid = True
+            ax.set_ylabel(y_label)
 
         current_name = '{parent_dir}/images/{db}-{date}-{name}'.format(
             parent_dir=self.reports_dir,
@@ -808,13 +743,33 @@ class Benchmark():
             date=self.report_date,
             name=name,
         )
-        self.image_names['reads_writes'] = current_name
 
-        # a.show()
+        pylab.savefig(current_name)
 
-        fig = a.get_figure()
+    def generate_hist(self, name, data_frame):
+        """
 
-        fig.savefig(current_name)
+        :param name:
+        :param data_frame:
+        :return:
+        """
+
+        # data_frame.hist()
+
+        import matplotlib.pyplot as plt
+
+        plt.figure()
+
+        data_frame.plot(legend=True, kind='hist', alpha=0.5, stacked=False)
+
+        current_name = '{parent_dir}/images/{db}-{date}-{name}'.format(
+            parent_dir=self.reports_dir,
+            db=self.db_name,
+            date=self.report_date,
+            name=name,
+        )
+
+        pylab.savefig(current_name)
 
     def register_module(self, db_mod):
         """ This function begins the process of registering a module for
