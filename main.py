@@ -157,6 +157,19 @@ class Benchmark():
 
         # self.compile_plots(data)
 
+    def feaux_run(self):
+        """
+
+        :return:
+        """
+        self.number_of_nodes = 3
+        self.db_name = 'feaux_db'
+
+
+        for index in progress.bar(range(self.number_of_trials)):
+
+            self.write_times.append(random.randrange(0, stop=100))
+            self.read_times.append(random.randrange(0, stop=100))
 
     def random_entry(self, entry_type='string'):
         """ This function generates a random string or random number depending
