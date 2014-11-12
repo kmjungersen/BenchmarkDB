@@ -69,13 +69,19 @@ Some sweet features of using this robust application as opposed to hacking toget
         -v                  Show verbose output from the application
         -V                  Show REALLY verbose output, including the time
                                 from each run
+        -s                  Sleep mode (experimental) - sleeps for 1/20 (s)
+                                between each read and write
 
         -c --chaos          Activates CHAOS mode, where reads are taken
                                 randomly from the DB instead of sequentially
-        -l --list_mods      Outputs a list of available DB modules
+        -l --list           Outputs a list of available DB modules
         -r --report         Option to generate a report file, which will
                                 OVERWRITE any existing reports from the specified
                                 DB in the `generated_reports` directory
+        --split             Splits reads and writes into two consecutive
+                                batches instead of alternating between them
+        --debug             Generates fake, random data instead of actually
+                                connecting to a DB
 
         --length=<n>        Specify an entry length for reads/writes [default: 10]
         --trials=<n>        Specify the number of reads and writes to make to the
