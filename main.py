@@ -47,9 +47,15 @@ import time
 import string
 import random
 import importlib
+import pandas as pd
+import numpy as np
+import pylab
+import seaborn
 
 from tabulate import tabulate
-from numpy import array, average, std, max, min, delete
+
+# from numpy import array, average, std, max, min, delete
+from scipy import stats
 from docopt import docopt
 from clint.textui import progress
 
