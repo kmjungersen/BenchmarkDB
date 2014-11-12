@@ -102,30 +102,20 @@ class Benchmark():
 
             exit(message)
 
-        self.db_name = options['<database>']
-
         self.verbose = options['-v']
         self.really_verbose = options['-V']
         self.collection = 'test'
-
-        self.module = self.register_module(self.db_name)
-        self.database = self.module.Benchmark(self.collection, setup=True)
-
-        self.module_settings = self.import_db_mod(
-            self.db_name, mod_file='local')
-        self.number_of_nodes = self.module_settings.NUMBER_OF_NODES
-
-        self.db_name = self.db_name.replace('db', '').upper()
         self.entry_length = int(options['--length'])
         self.number_of_trials = int(options['--trials'])
-
         self.report = options['--report']
-        # if self.report:
-        self.matplotlib = importlib.import_module('matplotlib')
-        self.matplotlib.use('Agg')
-        self.plt = importlib.import_module('matplotlib.pyplot')
-
         self.chaos = options['--chaos']
+
+
+
+        # if self.report:
+        # self.matplotlib = importlib.import_module('matplotlib')
+        # self.matplotlib.use('Agg')
+        # self.plt = importlib.import_module('matplotlib.pyplot')
 
         self.write_times = []
         self.read_times = []
@@ -137,8 +127,36 @@ class Benchmark():
         self.time_and_date = time.strftime("%a, %d %b, %Y %H:%M:%S")
         self.report_date = time.strftime("%b%d-%Y-%H:%M:%S")
 
-        # Run the benchmarks!
-        self.run()
+        if options['--debug']:
+
+            self.feaux_run()
+
+        else:
+            self.db_name = options['<database>']
+
+            self.module = self.register_module(self.db_name)
+            self.database = self.module.Benchmark(self.collection, setup=True)
+
+            self.module_settings = self.import_db_mod(
+                self.db_name, mod_file='local')
+            self.number_of_nodes = self.module_settings.NUMBER_OF_NODES
+
+            self.db_name = self.db_name.replace('db', '').upper()
+
+            # Run the benchmarks!
+            if options['--split']:
+                self.run_split()
+            else:
+                self.run()
+
+        data = self.compile_data()
+
+        report_data = self.generate_report_data(data)
+
+        self.generate_report(report_data)
+
+        # self.compile_plots(data)
+
 
     def random_entry(self, entry_type='string'):
         """ This function generates a random string or random number depending
