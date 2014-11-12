@@ -531,10 +531,10 @@ class Benchmark():
         ]
 
         data_values = [
-            ['Writes', write_avg, write_stdev, write_max, write_min,
-             write_range],
-            ['Reads', read_avg, read_stdev, read_max, read_min,
-             read_range],
+            ['Writes', cd['write_avg'], cd['write_stdev'], cd['write_max'], cd['write_min'],
+             cd['write_range']],
+            ['Reads', cd['read_avg'], cd['read_stdev'], cd['read_max'], cd['read_min'],
+             cd['read_range']],
         ]
 
         outlier_header = [
@@ -542,24 +542,6 @@ class Benchmark():
             'Trial Number',
             'Value',
         ]
-
-        outlier_values = []
-
-        if len(writes_outliers):
-            for count, value in writes_outliers.iteritems():
-                outlier_values.append([
-                    'Write',
-                    count,
-                    value,
-                ])
-
-        if len(reads_outliers):
-            for count, value in reads_outliers.iteritems():
-                outlier_values.append([
-                    'Read',
-                    count,
-                    value,
-                ])
 
         param_table = tabulate(
             tabular_data=param_values,
@@ -575,7 +557,7 @@ class Benchmark():
         )
 
         outlier_table = tabulate(
-            tabular_data=outlier_values,
+            tabular_data=cd['outlier_values'],
             headers=outlier_header,
             tablefmt='grid'
         )
@@ -594,12 +576,14 @@ class Benchmark():
         )
 
         outlier_table_md = tabulate(
-            tabular_data=outlier_values,
+            tabular_data=cd['outlier_values'],
             headers=outlier_header,
             tablefmt='pipe'
         )
 
-        image_template = '![Alt text](images/{db}-{date}-{name}.png "{name}"'
+        #TODO - fix the terminal report so graphs aren't generated
+
+        image_template = '![Alt text](images/{db}-{date}-{name}.png "{name}")'
 
         speed_plot = image_template.format(
             db=self.db_name,
@@ -619,30 +603,42 @@ class Benchmark():
             name='running_averages',
         )
 
-        results = {
-            'database': self.db_name,
-            'trial_number': self.number_of_trials,
-            'entry_length': self.entry_length,
-            'node_number': self.number_of_nodes,
-            'write_times': self.write_times,
-            'write_avg': write_avg,
-            'write_stdev': write_stdev,
-            'write_max': write_max,
-            'write_min': write_min,
-            'write_range': write_range,
-            'writes_running_avg': writes_running_avg,
-            'read_times': self.read_times,
-            'read_avg': read_avg,
-            'read_stdev': read_stdev,
-            'read_max': read_max,
-            'read_min': read_min,
-            'read_range': read_range,
-            'reads_running_avg': reads_running_avg,
-        }
+        rw = pd.DataFrame({
+            'Writes': cd['writes'].data,
+            'Reads': cd['reads'].data,
+        })
 
-        compiled_data = {
+        bar = pd.DataFrame({
+            'Writes Average': cd['writes_running_avg'].data,
+            'Reads Average': cd['reads_running_avg'].data,
+        })
+
+        self.generate_plot(
+            'rw', rw,
+            title='Plot of Read and Write Speeds',
+            x_label='Trial Number',
+            y_label='Time (s)',
+        )
+
+        self.generate_plot(
+            'running_averages', bar,
+            title='Plot of Running Averages for Reads and Writes',
+            x_label='Trial Number',
+            y_label='Time (s)',
+        )
+
+        self.generate_plot(
+            'hist', rw,
+            title='Histogram of Read and Write Times',
+            plot_type='hist',
+            x_label='Value (s)',
+        )
+
+        report_data = {
             'database': self.db_name,
             'time_and_date': self.time_and_date,
+            'entry_length': self.entry_length,
+            'node_number': self.number_of_nodes,
             'param_table': param_table,
             'data_table': data_table,
             'outlier_table': outlier_table,
