@@ -39,7 +39,7 @@ multiple DB's in a row to see which one is best for deployment purposes.
 """
 
 # TODO [x] - add a progress bar for non-verbose output
-# TODO [ ] - add some better data analysis
+# TODO [x] - add some better data analysis
 
 from os import getcwd, listdir
 from sys import exit
@@ -48,14 +48,11 @@ import string
 import random
 import importlib
 import pandas as pd
-import numpy as np
 import pylab
 import seaborn
 
 from tabulate import tabulate
 
-# from numpy import array, average, std, max, min, delete
-from scipy import stats
 from docopt import docopt
 from clint.textui import progress
 
@@ -110,8 +107,7 @@ class Benchmark():
         self.report = options['--report']
         self.chaos = options['--chaos']
 
-
-
+        # TODO - Fix this
         # if self.report:
         # self.matplotlib = importlib.import_module('matplotlib')
         # self.matplotlib.use('Agg')
@@ -158,10 +154,9 @@ class Benchmark():
         # self.compile_plots(data)
 
     def feaux_run(self):
+        """ This function generates fake data to be used for testing purposes.
         """
 
-        :return:
-        """
         self.number_of_nodes = 'n/a'
         self.db_name = 'feaux_db'
 
@@ -228,12 +223,12 @@ class Benchmark():
                 print 'READ ERROR'
 
     def run_split(self):
+        """ This function performs the same actions as 'run()', with the key
+        exception that this splits reads and writes into two separate runs,
+        instead of alternating reads and writes.
         """
 
-        :return:
-        """
-
-        print "Write progress:\n"
+        print('Write progress:\n')
 
         for index in progress.bar(range(self.number_of_trials)):
 
@@ -252,7 +247,7 @@ class Benchmark():
             if options['-s']:
                 time.sleep(1/20)
 
-        print 'Read progress:\n'
+        print('Read progress:\n')
 
         for index in progress.bar(range(self.number_of_trials)):
 
@@ -333,18 +328,9 @@ class Benchmark():
         said data.  Without altering functionality, a report will be generated
         upon completion of analysis.
 
-        :return compiled_data: All of the data and tables needed to generate a
-                    full benchmarking report
-        :return results: The compiled results from the statistical analysis of
-                    the trial data as a dict
+        :return compiled_data: All of the data needed to generate a full
+                    benchmarking report
         """
-        # w = pd.DataFrame({'data': self.write_times})
-        # r = pd.DataFrame({'data': self.read_times})
-        #
-        # foo = pd.DataFrame({
-        #     'reads': self.read_times,
-        #     'writes': self.write_times,
-        # })
 
         w = pd.DataFrame({'data': self.write_times})
         r = pd.DataFrame({'data': self.read_times})
@@ -364,31 +350,9 @@ class Benchmark():
         read_min = r.data.min()
         read_range = read_max - read_min
 
-        # unnormalized_data = {
-        #     'write_times': self.write_times,
-        #     'write_avg': write_avg,
-        #     'write_stdev': write_stdev,
-        #     'write_max': write_max,
-        #     'write_min': write_min,
-        #     'read_times': self.read_times,
-        #     'read_avg': read_avg,
-        #     'read_stdev': read_stdev,
-        #     'read_max': read_max,
-        #     'read_min': read_min,
-        # }
-
         if options['--debug']:
             write_stdev = 15
             read_stdev = 15
-
-        #
-        # w_list = []
-        # r_list = []
-        #
-        # w_outlier_list = []
-        # r_outlier_list = []
-        #
-        # count = 0
 
         # Remove values that are beyond 3 st. dev.'s from the mean
         w = w[abs(w.data - write_avg) <= (3 * write_stdev)]
@@ -398,61 +362,8 @@ class Benchmark():
         w_out = w_out[abs(w_out.data - write_avg) >= (3 * write_stdev)]
         r_out = r_out[abs(r_out.data - read_avg) >= (3 * read_stdev)]
 
-
-        # for write in w.data:
-        #
-        #     if abs(int(write.item()) - write_avg) >= (3 * write_stdev):
-        #
-        #         w_outlier_list.append({
-        #             count: write,
-        #         })
-        #         w_list.append('NaN')
-        #
-        #     else:
-        #
-        #         w_list.append(write)
-        #
-        #     count += 1
-        #
-        # count = 0
-        #
-        # for read in r.data:
-        #
-        #     if abs(read - read_avg) >= (3 * read_stdev):
-        #
-        #         r_outlier_list.append({
-        #             count: read,
-        #         })
-        #         r_list.append('NaN')
-        #
-        #     else:
-        #
-        #         r_list.append(read)
-        #
-        #     count += 1
-
-        #
-        # writes_outliers = pd.DataFrame({
-        #     'data': w_outlier_list,
-        # })
-        # reads_outliers = pd.DataFrame({
-        #     'data': r_outlier_list,
-        # })
-
         writes_running_avg = self.compute_running_avg(w)
         reads_running_avg = self.compute_running_avg(r)
-
-        # writes_outliers = pd.DataFrame({'data': self.write_times})
-        # reads_outliers = pd.DataFrame({'data': self.read_times})
-
-        # normalized_data = self.normalize_data(unnormalized_data)
-
-        # self.write_times = normalized_data['writes']
-        # self.read_times = normalized_data['reads']
-        # writes_running_avg = normalized_data['writes_running_avg']
-        # reads_running_avg = normalized_data['reads_running_avg']
-        # writes_outliers = normalized_data['writes_outliers']
-        # reads_outliers = normalized_data['reads_outliers']
 
         outlier_values = []
 
@@ -474,10 +385,6 @@ class Benchmark():
                 ])
 
         compiled_data = {
-            # 'database': self.db_name,
-            # 'trial_number': self.number_of_trials,
-            # 'entry_length': self.entry_length,
-            # 'node_number': self.number_of_nodes,
             'writes': w,
             'write_avg': write_avg,
             'write_stdev': write_stdev,
@@ -485,7 +392,6 @@ class Benchmark():
             'write_min': write_min,
             'write_range': write_range,
             'writes_running_avg': writes_running_avg,
-            # 'writes_outliers': writes_outliers,
             'reads': r,
             'read_avg': read_avg,
             'read_stdev': read_stdev,
@@ -493,17 +399,18 @@ class Benchmark():
             'read_min': read_min,
             'read_range': read_range,
             'reads_running_avg': reads_running_avg,
-            # 'reads_outliers': reads_outliers,
             'outlier_values': outlier_values,
         }
 
         return compiled_data
 
     def generate_report_data(self, compiled_data):
-        """
+        """ This function generates all of the actual tabular data that is
+        displayed in the report.
 
-        :param compiled_data:
-        :return:
+        :param compiled_data: The post-analysis data from the benchmarks
+
+        :return report_data: All of the tables for the report
         """
 
         cd = compiled_data
@@ -654,7 +561,8 @@ class Benchmark():
 
         return report_data
 
-    def compute_running_avg(self, dataframe):
+    @staticmethod
+    def compute_running_avg(dataframe):
         """ Given a dataframe object, this function will compute a running
         average and return it as a separate dataframe object
 
@@ -714,17 +622,18 @@ class Benchmark():
 
     def generate_plot(self, name, data_frame, title=None, x_label=None,
                       y_label=None, grid=True, plot_type='line'):
-        """
+        """ This function take several parameters and generates a plot based
+        on them.
 
-        :param name:
-        :param data:
-        :param title:
-        :param x_label:
-        :param y_label:
-        :param grid:
-        :param type:
-        :return:
+        :param name: The name of the plot, which is important for saving
+        :param data: The data to be plotted
+        :param title: The title to be displayed above the plot
+        :param x_label: The label for the x-axis
+        :param y_label: The label for the y-axis
+        :param grid: Boolean to determine whether or not a grid should be used
+        :param type: The type of plot to generate
         """
+        
         import matplotlib.pyplot as plt
 
         plt.figure()
@@ -738,31 +647,6 @@ class Benchmark():
         if y_label:
 
             ax.set_ylabel(y_label)
-
-        current_name = '{parent_dir}/images/{db}-{date}-{name}'.format(
-            parent_dir=self.reports_dir,
-            db=self.db_name,
-            date=self.report_date,
-            name=name,
-        )
-
-        pylab.savefig(current_name)
-
-    def generate_hist(self, name, data_frame):
-        """
-
-        :param name:
-        :param data_frame:
-        :return:
-        """
-
-        # data_frame.hist()
-
-        import matplotlib.pyplot as plt
-
-        plt.figure()
-
-        data_frame.plot(legend=True, kind='hist', alpha=0.5, stacked=False)
 
         current_name = '{parent_dir}/images/{db}-{date}-{name}'.format(
             parent_dir=self.reports_dir,
