@@ -162,11 +162,10 @@ class Benchmark():
 
         :return:
         """
-        self.number_of_nodes = 3
+        self.number_of_nodes = 'n/a'
         self.db_name = 'feaux_db'
 
-
-        for index in progress.bar(range(self.number_of_trials)):
+        for i in progress.bar(range(self.number_of_trials)):
 
             self.write_times.append(random.randrange(0, stop=100))
             self.read_times.append(random.randrange(0, stop=100))
@@ -519,6 +518,9 @@ class Benchmark():
             ['Number of Trials', str(self.number_of_trials)],
             ['Length of Each Entry Field', str(self.entry_length)],
             ['Number of Nodes in Cluster', str(self.number_of_nodes)],
+            ['Split Reads and Writes', str(options['--split'])],
+            ['Debug Mode', str(options['--debug'])],
+            ['Chaos Mode (Random Reads)', str(options['--chaos'])],
         ]
 
         data_header = [
@@ -628,7 +630,7 @@ class Benchmark():
         )
 
         self.generate_plot(
-            'hist', rw,
+            'stats', rw,
             title='Histogram of Read and Write Times',
             plot_type='hist',
             x_label='Value (s)',
