@@ -27,6 +27,10 @@ multiple DB's in a row to see which one is best for deployment purposes.
         -r --report         Option to generate a report file, which will
                                 OVERWRITE any existing reports from the specified
                                 DB in the `generated_reports` directory
+        --split             Splits reads and writes into two consecutive
+                                batches instead of alternating between them
+        --debug             Generates a random dataset instead of actually
+                                connecting to a DB
 
         --length=<n>        Specify an entry length for reads/writes [default: 10]
         --trials=<n>        Specify the number of reads and writes to make to the
