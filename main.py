@@ -197,11 +197,43 @@ class Benchmark():
             if not self.reads(index):
                 print 'READ ERROR'
 
-        data = self.compile_data()
+    def run_split(self):
+        """
 
-        self.generate_report(data)
+        :return:
+        """
 
-        self.compile_plots(data)
+        print "Write progress:\n"
+
+        for index in progress.bar(range(self.number_of_trials)):
+
+            item_number = self.random_entry(entry_type='number')
+            info = self.random_entry(entry_type='string')
+
+            entry = {
+                'Index': index,
+                'number': item_number,
+                'Info': info
+            }
+
+            if not self.writes(entry):
+                print 'WRITE ERROR!'
+
+            if options['-s']:
+                time.sleep(1/20)
+
+        print 'Read progress:\n'
+
+        for index in progress.bar(range(self.number_of_trials)):
+
+            if self.chaos:
+                    index = random.randint(0, index)
+
+            if not self.reads(index):
+                print 'READ ERROR!'
+
+            if options['-s']:
+                time.sleep(1/20)
 
     def writes(self, entry):
         """ This function handles all DB write commands, and times that action
