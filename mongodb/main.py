@@ -41,6 +41,8 @@ class Benchmark(BenchmarkDatabase):
 
         self.collection = self.db.test_collection
 
+        self.collection.ensure_index("Index")
+
     def write(self, data):
         """ The function handles all writes with MongoDB.  It takes a single
         parameter (a dict of sample data) and then writes it to the DB.
