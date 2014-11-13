@@ -1,1 +1,2 @@
 riak_iface: eth1
+primary_node: riak@192.168.33.31
