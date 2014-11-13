@@ -633,7 +633,7 @@ class Benchmark():
         :param grid: Boolean to determine whether or not a grid should be used
         :param type: The type of plot to generate
         """
-        
+
         import matplotlib.pyplot as plt
 
         plt.figure()
