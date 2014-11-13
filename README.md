@@ -58,6 +58,12 @@ Some sweet features of using this robust application as opposed to hacking toget
     ```
     $ python main.py <database_module_name> [options]
     ```
+    
+    Example usage:
+    
+    ```
+    $ python main.py mongodb -c --split --trials=3000
+    ```
 
     * General usage information and options:
     ```
@@ -75,17 +81,17 @@ Some sweet features of using this robust application as opposed to hacking toget
         -c --chaos          Activates CHAOS mode, where reads are taken
                                 randomly from the DB instead of sequentially
         -l --list           Outputs a list of available DB modules
-        -r --report         Option to generate a report file, which will
-                                OVERWRITE any existing reports from the specified
-                                DB in the `generated_reports` directory
+
+        --no-report         Option to disable the creation of the report file
         --split             Splits reads and writes into two consecutive
                                 batches instead of alternating between them
-        --debug             Generates fake, random data instead of actually
+        --debug             Generates a random dataset instead of actually
                                 connecting to a DB
 
-        --length=<n>        Specify an entry length for reads/writes [default: 10]
-        --trials=<n>        Specify the number of reads and writes to make to the
-                                DB to collect data on [default: 100]
+        --length=<n>        Specify an entry length for reads/writes
+                                [default: 10]
+        --trials=<n>        Specify the number of reads and writes to make to
+                                the DB to collect data on [default: 1000]
     ```
 
 ## Building a module
