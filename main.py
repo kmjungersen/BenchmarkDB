@@ -4,11 +4,12 @@ DB Benchmarking Application
 
 Main.py
 
-This file houses the core of the application, and is where all of the read/write
-commands are issued from, timed, and all data is analyzed.  Results from the
-trials are printed to the console by default, but can optionally be printed to a
-file to keep a record of.  This is particularly helpful when benchmarking
-multiple DB's in a row to see which one is best for deployment purposes.
+This file houses the core of the application, and is where all of the
+read/write commands are issued from, timed, and all data is analyzed.  Results
+from the trials are printed to the console by default, and are also printed to
+a markdown file to keep a record of.  This is particularly helpful when
+benchmarking multiple DB's in a row to see which one is fastest for deployment
+purposes.
 
     Usage:
         main.py <database> [options]
@@ -24,22 +25,22 @@ multiple DB's in a row to see which one is best for deployment purposes.
         -c --chaos          Activates CHAOS mode, where reads are taken
                                 randomly from the DB instead of sequentially
         -l --list           Outputs a list of available DB modules
-        -r --report         Option to generate a report file, which will
-                                OVERWRITE any existing reports from the specified
-                                DB in the `generated_reports` directory
+
+        --no-report         Option to disable the creation of the report file
         --split             Splits reads and writes into two consecutive
                                 batches instead of alternating between them
         --debug             Generates a random dataset instead of actually
                                 connecting to a DB
 
-        --length=<n>        Specify an entry length for reads/writes [default: 10]
-        --trials=<n>        Specify the number of reads and writes to make to the
-                                DB to collect data on [default: 100]
-
+        --length=<n>        Specify an entry length for reads/writes
+                                [default: 10]
+        --trials=<n>        Specify the number of reads and writes to make to
+                                the DB to collect data on [default: 1000]
 """
 
 # TODO [x] - add a progress bar for non-verbose output
 # TODO [x] - add some better data analysis
+# TODO [ ] - add python 3.x support
 
 from os import getcwd, listdir
 from sys import exit
@@ -104,14 +105,8 @@ class Benchmark():
         self.collection = 'test'
         self.entry_length = int(options['--length'])
         self.number_of_trials = int(options['--trials'])
-        self.report = options['--report']
+        self.no_report = options['--no-report']
         self.chaos = options['--chaos']
-
-        # TODO - Fix this
-        # if self.report:
-        # self.matplotlib = importlib.import_module('matplotlib')
-        # self.matplotlib.use('Agg')
-        # self.plt = importlib.import_module('matplotlib.pyplot')
 
         self.write_times = []
         self.read_times = []
@@ -610,15 +605,13 @@ class Benchmark():
 
             print '\n\n' + terminal_report + '\n\n'
 
-            if self.report:
+            template = template.replace('_table', '_table_md')
 
-                template = template.replace('_table', '_table_md')
+            report = template.format(**report_data)
 
-                report = template.format(**report_data)
+            with open(report_name, 'w+') as outfile:
 
-                with open(report_name, 'w+') as outfile:
-
-                    outfile.write(report)
+                outfile.write(report)
 
     def generate_plot(self, name, data_frame, title=None, x_label=None,
                       y_label=None, grid=True, plot_type='line'):
