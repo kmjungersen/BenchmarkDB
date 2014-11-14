@@ -49,6 +49,7 @@ import string
 import random
 import importlib
 import pandas as pd
+import numpy as np
 import pylab
 
 # Although it appears as if this import is unused, it's used for formatting
@@ -165,10 +166,15 @@ class Benchmark():
         self.number_of_nodes = 'n/a'
         self.db_name = 'feaux_db'
 
+        r = np.random.normal(0.004, 0.001, self.number_of_trials)
+        self.read_times = r.tolist()
+
+        w = np.random.normal(0.005, 0.0015, self.number_of_trials)
+        self.write_times = w.tolist()
+
         for i in progress.bar(range(self.number_of_trials)):
 
-            self.write_times.append(random.randrange(0, stop=100))
-            self.read_times.append(random.randrange(0, stop=100))
+            pass
 
     def random_entry(self, entry_type='string'):
         """ This function generates a random string or random number depending
