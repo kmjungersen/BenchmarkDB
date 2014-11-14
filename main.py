@@ -42,7 +42,7 @@ purposes.
 # TODO [x] - add some better data analysis
 # TODO [ ] - add python 3.x support
 
-from os import getcwd, listdir
+from os import getcwd, listdir, makedirs
 from sys import exit
 import time
 import string
@@ -141,11 +141,20 @@ class Benchmark():
             else:
                 self.run()
 
+        self.reports_dir = 'generated_reports/{db}-{date}'.format(
+                           db=self.db_name,
+                           date=self.report_date,
+        )
+        makedirs(self.reports_dir)
+
+        self.images_dir = self.reports_dir + '/images'
+        makedirs(self.images_dir)
+
         data = self.compile_data()
 
         report_data = self.generate_report_data(data)
 
-        self.generate_report(report_data)
+        self.generate_report(report_data, )
 
         # self.compile_plots(data)
 
@@ -646,8 +655,8 @@ class Benchmark():
 
             ax.set_ylabel(y_label)
 
-        current_name = '{parent_dir}/images/{db}-{date}-{name}'.format(
-            parent_dir=self.reports_dir,
+        current_name = '{parent_dir}/{db}-{date}-{name}'.format(
+            parent_dir=self.images_dir,
             db=self.db_name,
             date=self.report_date,
             name=name,
