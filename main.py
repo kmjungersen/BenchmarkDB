@@ -50,6 +50,10 @@ import random
 import importlib
 import pandas as pd
 import pylab
+
+# Although it appears as if this import is unused, it's used for formatting
+# pandas graphs.
+
 import seaborn
 
 from tabulate import tabulate
@@ -103,6 +107,7 @@ class Benchmark():
         self.verbose = options['-v']
         self.really_verbose = options['-V']
         self.collection = 'test'
+        self.sorting_index = 'ID'
         self.entry_length = int(options['--length'])
         self.number_of_trials = int(options['--trials'])
         self.no_report = options['--no-report']
@@ -110,10 +115,6 @@ class Benchmark():
 
         self.write_times = []
         self.read_times = []
-
-        self.sorting_index = 'ID'
-        self.reports_dir = 'generated_reports'
-        self.image_names = {}
 
         self.time_and_date = time.strftime("%a, %d %b, %Y %H:%M:%S")
         self.report_date = time.strftime("%b%d-%Y-%H:%M:%S")
@@ -485,7 +486,7 @@ class Benchmark():
             tablefmt='pipe'
         )
 
-        #TODO - fix the terminal report so graphs aren't generated
+        #TODO - fix the terminal report so graph names aren't generated
 
         image_template = '![Alt text](images/{db}-{date}-{name}.png "{name}")'
 
@@ -557,7 +558,7 @@ class Benchmark():
         return report_data
 
     @staticmethod
-    def compute_running_avg(dataframe):
+    def compute_cumulative_avg(dataframe):
         """ Given a dataframe object, this function will compute a running
         average and return it as a separate dataframe object
 
@@ -587,7 +588,7 @@ class Benchmark():
         from it.  If the `--report` option was selected at runtime, a report
         file will also be saved in the `generated_reports` directory.
 
-        :param report_info: all of the necessary information to generate the
+        :param report_data: all of the necessary data to generate the
                     benchmark report
         """
 
@@ -619,12 +620,12 @@ class Benchmark():
         on them.
 
         :param name: The name of the plot, which is important for saving
-        :param data: The data to be plotted
+        :param data_frame: The data to be plotted
         :param title: The title to be displayed above the plot
         :param x_label: The label for the x-axis
         :param y_label: The label for the y-axis
         :param grid: Boolean to determine whether or not a grid should be used
-        :param type: The type of plot to generate
+        :param plot_type: The type of plot to generate
         """
 
         import matplotlib.pyplot as plt
