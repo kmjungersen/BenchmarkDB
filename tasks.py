@@ -85,3 +85,9 @@ def deploy(database):
 
     run('cd {db}/ansible && ansible-playbook -u vagrant -i hosts -s'
         ' site.yml -vv'.format(db=database))
+
+@task
+def requirements():
+    """Pip installs all requirements"""
+
+    run('pip install -r requirements.txt')

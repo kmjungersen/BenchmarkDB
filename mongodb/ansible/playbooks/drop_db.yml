@@ -1,0 +1,12 @@
+---
+# This playbook can be used to flush the db
+
+- hosts: mongos_servers
+  tasks:
+  - name: Copy the need JS file
+    template: src=templates/drop_db.j2 dest=/tmp/drop_db.js
+
+  - name: Dr-dr-dr-dr-drop the (data)BASE
+    command: mongo {{ inventory_hostname }}:{{ mongod_port }} /tmp/drop_db.js
+
+- include: restart_mongo.yml
