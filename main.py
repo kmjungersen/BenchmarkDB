@@ -513,31 +513,33 @@ class Benchmark():
             'Reads': cd['reads'].data,
         })
 
-        bar = pd.DataFrame({
+        avgs = pd.DataFrame({
             'Writes Average': cd['writes_running_avg'].data,
             'Reads Average': cd['reads_running_avg'].data,
         })
 
-        self.generate_plot(
-            'rw', rw,
-            title='Plot of Read and Write Speeds',
-            x_label='Trial Number',
-            y_label='Time (s)',
-        )
+        if not self.no_report:
 
-        self.generate_plot(
-            'running_averages', bar,
-            title='Plot of Running Averages for Reads and Writes',
-            x_label='Trial Number',
-            y_label='Time (s)',
-        )
+            self.generate_plot(
+                'rw', rw,
+                title='Plot of Read and Write Speeds',
+                x_label='Trial Number',
+                y_label='Time (s)',
+            )
 
-        self.generate_plot(
-            'stats', rw,
-            title='Histogram of Read and Write Times',
-            plot_type='hist',
-            x_label='Value (s)',
-        )
+            self.generate_plot(
+                'running_averages', avgs,
+                title='Plot of Running Averages for Reads and Writes',
+                x_label='Trial Number',
+                y_label='Time (s)',
+            )
+
+            self.generate_plot(
+                'stats', rw,
+                title='Histogram of Read and Write Times',
+                plot_type='hist',
+                x_label='Value (s)',
+            )
 
         report_data = {
             'database': self.db_name,
@@ -606,13 +608,15 @@ class Benchmark():
 
             print '\n\n' + terminal_report + '\n\n'
 
-            template = template.replace('_table', '_table_md')
+            if not self.no_report:
 
-            report = template.format(**report_data)
+                template = template.replace('_table', '_table_md')
 
-            with open(report_name, 'w+') as outfile:
+                report = template.format(**report_data)
 
-                outfile.write(report)
+                with open(report_name, 'w+') as outfile:
+
+                    outfile.write(report)
 
     def generate_plot(self, name, data_frame, title=None, x_label=None,
                       y_label=None, grid=True, plot_type='line'):
