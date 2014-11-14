@@ -373,8 +373,8 @@ class Benchmark():
         w_out = w_out[abs(w_out.data - write_avg) >= (3 * write_stdev)]
         r_out = r_out[abs(r_out.data - read_avg) >= (3 * read_stdev)]
 
-        writes_running_avg = self.compute_running_avg(w)
-        reads_running_avg = self.compute_running_avg(r)
+        writes_running_avg = self.compute_cumulative_avg(w)
+        reads_running_avg = self.compute_cumulative_avg(r)
 
         outlier_values = []
 
@@ -451,10 +451,10 @@ class Benchmark():
         ]
 
         data_values = [
-            ['Writes', cd['write_avg'], cd['write_stdev'], cd['write_max'], cd['write_min'],
-             cd['write_range']],
-            ['Reads', cd['read_avg'], cd['read_stdev'], cd['read_max'], cd['read_min'],
-             cd['read_range']],
+            ['Writes', cd['write_avg'], cd['write_stdev'], cd['write_max'],
+             cd['write_min'], cd['write_range']],
+            ['Reads', cd['read_avg'], cd['read_stdev'], cd['read_max'],
+             cd['read_min'], cd['read_range']],
         ]
 
         outlier_header = [
@@ -651,7 +651,12 @@ class Benchmark():
 
         plt.figure()
 
-        ax = data_frame.plot(title=title, grid=grid, legend=True, kind=plot_type)
+        ax = data_frame.plot(
+            title=title,
+            grid=grid,
+            legend=True,
+            kind=plot_type,
+        )
 
         if x_label:
 
