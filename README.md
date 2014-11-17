@@ -75,15 +75,17 @@ Some sweet features of using this robust application as opposed to hacking toget
     # Benchmark 3000 reads and writes of mongo separately, with randomly ordered reads
     $ python main.py mongodb -c --split --trials=3000
     
-    # Benchmark Riak 2.0 with 10000 reads and writes, each with two 1000 character fields, and then generate a CSV file of the raw data
+    # Benchmark Riak 2.0 with 10000 reads and writes, each with two 1000 character fields, 
+    # and then generate a CSV file of the raw data
     $ python main.py riak2db --csv --trials=10000 --length=1000
     
-    # Run the application in debug mode, which generates a Normal (Gaussian) data set for analysis and debugging
+    # Run the application in debug mode, which generates a Normal (Gaussian) data set for 
+    # analysis and debugging
     $ python main.py --debug
     ```
 
     * General usage information and options, which can be viewed any time with `$ python main.py -h`:
-    ```
+    ``` bash
     Usage:
         main.py <database> [options]
         main.py --debug [options]
