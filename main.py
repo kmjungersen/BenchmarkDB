@@ -28,6 +28,8 @@ purposes.
                                 randomly from the DB instead of sequentially
         -l --list           Outputs a list of available DB modules
 
+        --csv               Records unaltered read and write data to a CSV file
+                                for your own analysis
         --no-report         Option to disable the creation of the report file
         --split             Splits reads and writes into two consecutive
                                 batches instead of alternating between them
@@ -115,6 +117,7 @@ class Benchmark():
         self.number_of_trials = int(options['--trials'])
         self.no_report = options['--no-report']
         self.chaos = options['--chaos']
+        self.csv = options['--csv']
         self.report_title = options['<report_title>']
 
         self.write_times = []
@@ -354,6 +357,15 @@ class Benchmark():
 
         w = pd.DataFrame({'data': self.write_times})
         r = pd.DataFrame({'data': self.read_times})
+
+        if self.csv:
+
+            w.to_csv('{parent_dir}/writes.csv'.format(
+                parent_dir=self.reports_dir
+            ))
+            r.to_csv('{parent_dir}/reads.csv'.format(
+                parent_dir=self.reports_dir
+            ))
 
         w_out = pd.DataFrame({'data': self.write_times})
         r_out = pd.DataFrame({'data': self.read_times})
