@@ -1,4 +1,4 @@
-DATABASE BENCHMARKING REPORT - RIAK2
+DATABASE BENCHMARKING REPORT - RIAK2 - 10000 Trials
 =========================================
 
 This report has been automatically generated from a Benchmarking application

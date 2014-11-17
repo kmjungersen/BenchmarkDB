@@ -1,4 +1,4 @@
-DATABASE BENCHMARKING REPORT - MONGO
+DATABASE BENCHMARKING REPORT - MONGO - 10000 Trials
 =========================================
 
 This report has been automatically generated from a Benchmarking application
