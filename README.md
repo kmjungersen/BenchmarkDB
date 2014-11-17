@@ -71,7 +71,7 @@ Some sweet features of using this robust application as opposed to hacking toget
     
     Examples:
     
-    ```
+    ``` bash
     # Benchmark 3000 reads and writes of mongo separately, with randomly ordered reads
     $ python main.py mongodb -c --split --trials=3000
     
