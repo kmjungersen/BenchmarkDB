@@ -582,6 +582,7 @@ class Benchmark():
             'time_and_date': self.time_and_date,
             'entry_length': self.entry_length,
             'node_number': self.number_of_nodes,
+            'trial_number': self.number_of_trials,
             'param_table': param_table,
             'data_table': data_table,
             'outlier_table': outlier_table,

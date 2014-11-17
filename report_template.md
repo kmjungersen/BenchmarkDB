@@ -1,4 +1,4 @@
-DATABASE BENCHMARKING REPORT - {database}
+DATABASE BENCHMARKING REPORT - {database} - {trial_number} Trials
 =========================================
 
 This report has been automatically generated from a Benchmarking application
