@@ -13,6 +13,8 @@ purposes.
 
     Usage:
         main.py <database> [options]
+        main.py --debug [options]
+        main.py <database> <report_title> [options]
 
     Options:
         -h --help           Show this help screen
@@ -113,6 +115,7 @@ class Benchmark():
         self.number_of_trials = int(options['--trials'])
         self.no_report = options['--no-report']
         self.chaos = options['--chaos']
+        self.report_title = options['<report_title>']
 
         self.write_times = []
         self.read_times = []
@@ -142,10 +145,16 @@ class Benchmark():
             else:
                 self.run()
 
-        self.reports_dir = 'generated_reports/{db}-{date}'.format(
-                           db=self.db_name,
-                           date=self.report_date,
-        )
+        if self.report_title:
+            self.reports_dir = 'generated_reports/{title}'.format(
+                                title=self.report_title,
+            )
+
+        else:
+            self.reports_dir = 'generated_reports/{db}-{date}'.format(
+                               db=self.db_name,
+                               date=self.report_date,
+            )
         makedirs(self.reports_dir)
 
         self.images_dir = self.reports_dir + '/images'
@@ -155,7 +164,7 @@ class Benchmark():
 
         report_data = self.generate_report_data(data)
 
-        self.generate_report(report_data, )
+        self.generate_report(report_data)
 
         # self.compile_plots(data)
 
@@ -609,11 +618,20 @@ class Benchmark():
                     benchmark report
         """
 
-        report_name = '{parent_dir}/{db}-{date}.report.md'.format(
-            parent_dir=self.reports_dir,
-            db=self.db_name,
-            date=self.report_date,
-        )
+        if self.report_title:
+
+            report_name = '{parent_dir}/{title}.md'.format(
+                          parent_dir=self.reports_dir,
+                          title=self.report_title,
+            )
+
+        else:
+
+            report_name = '{parent_dir}/{db}-{date}.report.md'.format(
+                parent_dir=self.reports_dir,
+                db=self.db_name,
+                date=self.report_date,
+            )
 
         with open('report_template.md', 'r') as infile:
 
