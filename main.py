@@ -607,15 +607,15 @@ class Benchmark():
         """
 
         count = 0
-        sum = 0
+        cumsum = 0
         avgs = []
 
         for item in dataframe.data:
 
-            sum += item
+            cumsum += item
             count += 1
 
-            avg = sum / count
+            avg = cumsum / count
             avgs.append(avg)
 
         running_avg = pd.DataFrame({'data': avgs})
@@ -726,8 +726,8 @@ class Benchmark():
         else:
 
             error = 'Invalid DB module!  Please be sure you are using the \n' \
-                    'package name and not just the name of the database itself.'\
-                    '\n'
+                    'package name and not just the name of the database ' \
+                    'itself.\n'
 
             exit(error)
 
