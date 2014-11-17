@@ -3,10 +3,10 @@
 This application is intended to help you benchmark a database of your choice very simply and easily.  Simply follow the specified steps to build a module of your own and then you can see how it stacks up to other similar databases!
 
 The following modules are currently operational:
-* Riak DB
+* Riak 1.x DB
 * Riak 2.0 DB
-* Riak 2.0 DB with highly consistent buckets (NEW!)
-* MongoDB (partially, though expect some breaking changes.  For the ansible roles, see my forked repo "ansible-examples/mongodb".  They will soon live in THIS repository!)
+* Riak 2.0 DB with highly consistent buckets
+* MongoDB (Sharded replication set) (NEW!)
 
 ## Sample Reports
 
@@ -23,17 +23,16 @@ Recently updated with graphs:
 * [MongoDB Sharded Replication Set - 50000 reads/writes](published_reports/mongodb/MONGO-ShardedCluster-50000trials/MONGO-ShardedCluster-50000trials.md)
 
 Older reports (without graphs, soon to be updated)
-* [Riak 2.0 DB with highly consistent buckets](published_reports/riakdb/RIAK2_CONSISTENT_.report.md)
 * [Riak DB](published_reports/riakdb/RIAK.report.md)
-
 
 
 ## Some Nice Features
 
 Some sweet features of using this robust application as opposed to hacking together a quick benchmark
-* Ansible roles are included for each module for local or remote deployment and testing
-* Easily change module IP and port addresses to run benchmarks on remote deployments, especially your development and production servers 
-* Robust data analysis gives you an excellent idea of how your database is performing
+* Robust Data Analysis with PANDAS allows you to handle any ludacris number of benchmark trials (I've tried up to 100k)
+* MatPlotLib graphs of data so you can see what really matters
+* Ansible roles for each module, enabling local or remote deployment and testing
+* Easily modify IP and port addresses to run benchmarks on remote deployments, especially your development and production servers 
 * Track benchmark progress with the progress bar, while optional verbose output gives you more detailed info on what's going on
 * Generate a markdown report to view in a nicely formatted document for showing off to your boss or whomever
 * `Invoke` tasks simplify most common tasks for basic usage.
@@ -81,6 +80,8 @@ Some sweet features of using this robust application as opposed to hacking toget
     ```
     Usage:
         main.py <database> [options]
+        main.py --debug [options]
+        main.py <database> <report_title> [options]
 
     Options:
         -h --help           Show this help screen
@@ -94,6 +95,8 @@ Some sweet features of using this robust application as opposed to hacking toget
                                 randomly from the DB instead of sequentially
         -l --list           Outputs a list of available DB modules
 
+        --csv               Records unaltered read and write data to a CSV file
+                                for your own analysis
         --no-report         Option to disable the creation of the report file
         --split             Splits reads and writes into two consecutive
                                 batches instead of alternating between them
