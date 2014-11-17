@@ -4,44 +4,67 @@ DB Benchmarking Application
 
 Main.py
 
-This file houses the core of the application, and is where all of the read/write
-commands are issued from, timed, and all data is analyzed.  Results from the
-trials are printed to the console by default, but can optionally be printed to a
-file to keep a record of.  This is particularly helpful when benchmarking
-multiple DB's in a row to see which one is best for deployment purposes.
+This file houses the core of the application, and is where all of the
+read/write commands are issued from, timed, and all data is analyzed.  Results
+from the trials are printed to the console by default, and are also printed to
+a markdown file to keep a record of.  This is particularly helpful when
+benchmarking multiple DB's in a row to see which one is fastest for deployment
+purposes.
 
     Usage:
         main.py <database> [options]
+        main.py --debug [options]
+        main.py <database> <report_title> [options]
 
     Options:
         -h --help           Show this help screen
-        -v --verbose        Show verbose output from the application
+        -v                  Show verbose output from the application
+        -V                  Show REALLY verbose output, including the time
+                                from each run
+        -s                  Sleep mode (experimental) - sleeps for 1/20 (s)
+                                between each read and write
 
-        -V --really_verbose
-                            Show REALLY verbose output, including the individual
-                                time information from each run
+        -c --chaos          Activates CHAOS mode, where reads are taken
+                                randomly from the DB instead of sequentially
+        -l --list           Outputs a list of available DB modules
 
-        -l --list_mods      Outputs a list of available DB modules before running
-        -r --report         Option to generate a report file, which will
-                                OVERWRITE any existing reports from the specified
-                                DB in the `generated_reports` directory
+        --csv               Records unaltered read and write data to a CSV file
+                                for your own analysis
+        --no-report         Option to disable the creation of the report file
+        --split             Splits reads and writes into two consecutive
+                                batches instead of alternating between them
+        --debug             Generates a random dataset instead of actually
+                                connecting to a DB
 
-        --entry_length=<n>  Specify an entry length [default: 10]
-        --trial_number=<n>  Specify the number of reads and writes to make to the
-                                DB to collect data on [default: 100]
-
+        --length=<n>        Specify an entry length for reads/writes
+                                [default: 10]
+        --trials=<n>        Specify the number of reads and writes to make to
+                                the DB to collect data on [default: 1000]
 """
 
-from os import getcwd, listdir
+# TODO [x] - add a progress bar for non-verbose output
+# TODO [x] - add some better data analysis
+# TODO [ ] - add python 3.x support
+
+from os import getcwd, listdir, makedirs
 from sys import exit
 import time
 import string
 import random
 import importlib
+import pandas as pd
+import numpy as np
+import pylab
+
+# Although it appears as if this import is unused, it's used for formatting
+# pandas graphs.
+
+import seaborn
 
 from tabulate import tabulate
-from numpy import array, average, std, max, min
+
 from docopt import docopt
+from clint.textui import progress
 
 
 def retrieve_module_list():
@@ -73,9 +96,7 @@ class Benchmark():
 
         """
 
-        self.db_name = options['<database>']
-
-        if options['--list_mods']:
+        if options['--list']:
 
             mod_list = retrieve_module_list()
 
@@ -88,37 +109,89 @@ class Benchmark():
 
             exit(message)
 
-        self.verbose = options['--verbose']
-        self.really_verbose = options['--really_verbose']
+        self.verbose = options['-v']
+        self.really_verbose = options['-V']
         self.collection = 'test'
-
-        self.module = self.register_module(self.db_name)
-        self.database = self.module.Benchmark(self.collection, setup=True)
-
-        self.module_settings = self.import_db_mod(
-            self.db_name, mod_file='local')
-        self.number_of_nodes = self.module_settings.NUMBER_OF_NODES
-
-        self.db_name = self.db_name.replace('db', '').upper()
-        self.entry_length = int(options['--entry_length'])
-        self.number_of_trials = int(options['--trial_number'])
-        self.report = options['--report']
+        self.sorting_index = 'ID'
+        self.entry_length = int(options['--length'])
+        self.number_of_trials = int(options['--trials'])
+        self.no_report = options['--no-report']
+        self.chaos = options['--chaos']
+        self.csv = options['--csv']
+        self.report_title = options['<report_title>']
 
         self.write_times = []
         self.read_times = []
 
-        self.sorting_index = 'ID'
-        self.reports_dir = 'generated_reports'
-
         self.time_and_date = time.strftime("%a, %d %b, %Y %H:%M:%S")
+        self.report_date = time.strftime("%b%d-%Y-%H:%M:%S")
 
-        # Run the benchmarks!
-        self.run()
+        if options['--debug']:
+
+            self.feaux_run()
+
+        else:
+            self.db_name = options['<database>']
+
+            self.module = self.register_module(self.db_name)
+            self.database = self.module.Benchmark(self.collection, setup=True)
+
+            self.module_settings = self.import_db_mod(
+                self.db_name, mod_file='local')
+            self.number_of_nodes = self.module_settings.NUMBER_OF_NODES
+
+            self.db_name = self.db_name.replace('db', '').upper()
+
+            # Run the benchmarks!
+            if options['--split']:
+                self.run_split()
+            else:
+                self.run()
+
+        if self.report_title:
+            self.reports_dir = 'generated_reports/{title}'.format(
+                                title=self.report_title,
+            )
+
+        else:
+            self.reports_dir = 'generated_reports/{db}-{date}'.format(
+                               db=self.db_name,
+                               date=self.report_date,
+            )
+        makedirs(self.reports_dir)
+
+        self.images_dir = self.reports_dir + '/images'
+        makedirs(self.images_dir)
+
+        data = self.compile_data()
+
+        report_data = self.generate_report_data(data)
+
+        self.generate_report(report_data)
+
+        # self.compile_plots(data)
+
+    def feaux_run(self):
+        """ This function generates fake data to be used for testing purposes.
+        """
+
+        self.number_of_nodes = 'n/a'
+        self.db_name = 'feaux_db'
+
+        r = np.random.normal(0.004, 0.001, self.number_of_trials)
+        self.read_times = r.tolist()
+
+        w = np.random.normal(0.005, 0.0015, self.number_of_trials)
+        self.write_times = w.tolist()
+
+        for i in progress.bar(range(self.number_of_trials)):
+
+            pass
 
     def random_entry(self, entry_type='string'):
-        """ This function generates a random string or random number depending on
-        the arguments passed in.  The string is generated from all ascii letters
-        and the number is generated from numbers 0-9.
+        """ This function generates a random string or random number depending
+        on the arguments passed in.  The string is generated from all ascii
+        letters and the number is generated from numbers 0-9.
 
         :param entry_type: the specified type of random entry, either 'string'
                     or 'number'
@@ -149,7 +222,7 @@ class Benchmark():
 
         """
 
-        for index in range(self.number_of_trials):
+        for index in progress.bar(range(self.number_of_trials)):
 
             item_number = self.random_entry(entry_type='number')
             info = self.random_entry(entry_type='string')
@@ -163,15 +236,57 @@ class Benchmark():
             if not self.writes(entry):
                 print 'WRITE ERROR'
 
+            if self.chaos:
+                index = random.randint(0, index)
+
+            if options['-s']:
+                time.sleep(1/20)
+
             if not self.reads(index):
                 print 'READ ERROR'
 
-        self.compile_data()
+    def run_split(self):
+        """ This function performs the same actions as 'run()', with the key
+        exception that this splits reads and writes into two separate runs,
+        instead of alternating reads and writes.
+        """
+
+        print('Write progress:\n')
+
+        for index in progress.bar(range(self.number_of_trials)):
+
+            item_number = self.random_entry(entry_type='number')
+            info = self.random_entry(entry_type='string')
+
+            entry = {
+                'Index': index,
+                'number': item_number,
+                'Info': info
+            }
+
+            if not self.writes(entry):
+                print 'WRITE ERROR!'
+
+            if options['-s']:
+                time.sleep(1/20)
+
+        print('Read progress:\n')
+
+        for index in progress.bar(range(self.number_of_trials)):
+
+            if self.chaos:
+                    index = random.randint(0, index)
+
+            if not self.reads(index):
+                print 'READ ERROR!'
+
+            if options['-s']:
+                time.sleep(1/20)
 
     def writes(self, entry):
         """ This function handles all DB write commands, and times that action
-        as well.  It takes a single parameter ('entry'), which is the data to be
-        written to the DB.
+        as well.  It takes a single parameter ('entry'), which is the data to
+        be written to the DB.
 
         :param entry: The entry to be recorded to the DB
 
@@ -197,9 +312,9 @@ class Benchmark():
         return True
 
     def reads(self, index):
-        """ This function handles all DB read commands, and times that action as
-        well.  It takes a single parameter, which is the index of an entry to
-        retrieve from the DB.
+        """ This function handles all DB read commands, and times that action
+        as well.  It takes a single parameter, which is the index of an entry
+        to retrieve from the DB.
 
         :param index: The index of the item to be retrieved from the DB
 
@@ -230,154 +345,366 @@ class Benchmark():
 
         return True
 
-    def compile_data(self, return_results=False):
-        """ This function takes all the data collected from the trials (read and
-        write times) and then calculates some important statistics about said
-        data.  Without altering functionality, a report will be generated upon
-        completion of analysis.
+    def compile_data(self):
+        """ This function takes all the data collected from the trials (read
+        and write times) and then calculates some important statistics about
+        said data.  Without altering functionality, a report will be generated
+        upon completion of analysis.
 
-        :param return_results=False: This parameter can be optionally passed as
-                    True if the user wants to have the dict of results returned
-                    instead of generating a report with said results
-
-        :return results: The compiled results from the statistical analysis of
-                    the trial data as a dict
+        :return compiled_data: All of the data needed to generate a full
+                    benchmarking report
         """
 
-        self.write_times = array(self.write_times)
-        self.read_times = array(self.read_times)
+        w = pd.DataFrame({'data': self.write_times})
+        r = pd.DataFrame({'data': self.read_times})
 
-        write_avg = average(self.write_times)
-        write_stdev = std(self.write_times)
-        write_max = max(self.write_times)
-        write_min = min(self.write_times)
+        if self.csv:
+
+            w.to_csv('{parent_dir}/writes.csv'.format(
+                parent_dir=self.reports_dir
+            ))
+            r.to_csv('{parent_dir}/reads.csv'.format(
+                parent_dir=self.reports_dir
+            ))
+
+        w_out = pd.DataFrame({'data': self.write_times})
+        r_out = pd.DataFrame({'data': self.read_times})
+
+        write_avg = w.data.mean()
+        write_stdev = w.data.std()
+        write_max = w.data.max()
+        write_min = w.data.min()
         write_range = write_max - write_min
 
-        read_avg = average(self.read_times)
-        read_stdev = std(self.read_times)
-        read_max = max(self.read_times)
-        read_min = min(self.read_times)
+        read_avg = r.data.mean()
+        read_stdev = r.data.std()
+        read_max = r.data.max()
+        read_min = r.data.min()
         read_range = read_max - read_min
 
-        if return_results:
+        if options['--debug']:
+            write_stdev = 15
+            read_stdev = 15
 
-            results = {
-                'database': self.db_name,
-                'trial_number': self.number_of_trials,
-                'entry_length': self.entry_length,
-                'node_number': self.number_of_nodes,
-                'write_avg': write_avg,
-                'write_stdev': write_stdev,
-                'write_max': write_max,
-                'write_min': write_min,
-                'write_range': write_range,
-                'read_avg': read_avg,
-                'read_stdev': read_stdev,
-                'read_max': read_max,
-                'read_min': read_min,
-                'read_range': read_range,
-            }
+        # Remove values that are beyond 3 st. dev.'s from the mean
+        w = w[abs(w.data - write_avg) <= (3 * write_stdev)]
+        r = r[abs(r.data - read_avg) <= (3 * read_stdev)]
 
-            return results
+        # Keep these outliers for display to the user
+        w_out = w_out[abs(w_out.data - write_avg) >= (3 * write_stdev)]
+        r_out = r_out[abs(r_out.data - read_avg) >= (3 * read_stdev)]
 
-        else:
+        writes_running_avg = self.compute_cumulative_avg(w)
+        reads_running_avg = self.compute_cumulative_avg(r)
 
-            param_header = [
-                'Parameter',
-                'Value',
-            ]
+        outlier_values = []
 
-            param_values = [
-                ['Database Tested', self.db_name],
-                ['Number of Trials', str(self.number_of_trials)],
-                ['Length of Each Entry Field', str(self.entry_length)],
-                ['Number of Nodes in Cluster', str(self.number_of_nodes)],
-            ]
+        if len(w_out):
+            for count, value in w_out.data.iteritems():
+                outlier_values.append([
+                    'Write',
+                    count,
+                    value,
+                ])
 
-            data_header = [
-                'Operation',
-                'Average',
-                'St. Dev.',
-                'Max Time',
-                'Min Time',
-                'Range',
-            ]
+        if len(r_out):
+            for count, value in r_out.data.iteritems():
+                pass
+                outlier_values.append([
+                    'Read',
+                    count,
+                    value,
+                ])
 
-            data_values = [
-                ['Writes', write_avg, write_stdev, write_max, write_min,
-                 write_range],
-                ['Reads', read_avg, read_stdev, read_max, read_min,
-                 read_range],
-            ]
+        compiled_data = {
+            'writes': w,
+            'write_avg': write_avg,
+            'write_stdev': write_stdev,
+            'write_max': write_max,
+            'write_min': write_min,
+            'write_range': write_range,
+            'writes_running_avg': writes_running_avg,
+            'reads': r,
+            'read_avg': read_avg,
+            'read_stdev': read_stdev,
+            'read_max': read_max,
+            'read_min': read_min,
+            'read_range': read_range,
+            'reads_running_avg': reads_running_avg,
+            'outlier_values': outlier_values,
+        }
 
-            param_table = tabulate(
-                tabular_data=param_values,
-                headers=param_header,
-                tablefmt='grid',
+        return compiled_data
+
+    def generate_report_data(self, compiled_data):
+        """ This function generates all of the actual tabular data that is
+        displayed in the report.
+
+        :param compiled_data: The post-analysis data from the benchmarks
+
+        :return report_data: All of the tables for the report
+        """
+
+        cd = compiled_data
+
+        param_header = [
+            'Parameter',
+            'Value',
+        ]
+
+        param_values = [
+            ['Database Tested', self.db_name],
+            ['Number of Trials', str(self.number_of_trials)],
+            ['Length of Each Entry Field', str(self.entry_length)],
+            ['Number of Nodes in Cluster', str(self.number_of_nodes)],
+            ['Split Reads and Writes', str(options['--split'])],
+            ['Debug Mode', str(options['--debug'])],
+            ['Chaos Mode (Random Reads)', str(options['--chaos'])],
+        ]
+
+        data_header = [
+            'Operation',
+            'Average',
+            'St. Dev.',
+            'Max Time',
+            'Min Time',
+            'Range',
+        ]
+
+        data_values = [
+            ['Writes', cd['write_avg'], cd['write_stdev'], cd['write_max'],
+             cd['write_min'], cd['write_range']],
+            ['Reads', cd['read_avg'], cd['read_stdev'], cd['read_max'],
+             cd['read_min'], cd['read_range']],
+        ]
+
+        outlier_header = [
+            'Operation',
+            'Trial Number',
+            'Value',
+        ]
+
+        param_table = tabulate(
+            tabular_data=param_values,
+            headers=param_header,
+            tablefmt='grid',
+        )
+
+        data_table = tabulate(
+            tabular_data=data_values,
+            headers=data_header,
+            tablefmt='grid',
+            floatfmt='.5f',
+        )
+
+        outlier_table = tabulate(
+            tabular_data=cd['outlier_values'],
+            headers=outlier_header,
+            tablefmt='grid'
+        )
+
+        param_table_md = tabulate(
+            tabular_data=param_values,
+            headers=param_header,
+            tablefmt='pipe',
+        )
+
+        data_table_md = tabulate(
+            tabular_data=data_values,
+            headers=data_header,
+            tablefmt='pipe',
+            floatfmt='.5f',
+        )
+
+        outlier_table_md = tabulate(
+            tabular_data=cd['outlier_values'],
+            headers=outlier_header,
+            tablefmt='pipe'
+        )
+
+        #TODO - fix the terminal report so graph names aren't generated
+
+        image_template = '![Alt text](images/{db}-{date}-{name}.png "{name}")'
+
+        speed_plot = image_template.format(
+            db=self.db_name,
+            date=self.report_date,
+            name='rw',
+        )
+
+        hist_plot = image_template.format(
+            db=self.db_name,
+            date=self.report_date,
+            name='stats',
+        )
+
+        avgs_plot = image_template.format(
+            db=self.db_name,
+            date=self.report_date,
+            name='running_averages',
+        )
+
+        rw = pd.DataFrame({
+            'Writes': cd['writes'].data,
+            'Reads': cd['reads'].data,
+        })
+
+        avgs = pd.DataFrame({
+            'Writes Average': cd['writes_running_avg'].data,
+            'Reads Average': cd['reads_running_avg'].data,
+        })
+
+        if not self.no_report:
+
+            self.generate_plot(
+                'rw', rw,
+                title='Plot of Read and Write Speeds',
+                x_label='Trial Number',
+                y_label='Time (s)',
             )
 
-            data_table = tabulate(
-                tabular_data=data_values,
-                headers=data_header,
-                tablefmt='grid',
-                floatfmt='.5f',
+            self.generate_plot(
+                'running_averages', avgs,
+                title='Plot of Running Averages for Reads and Writes',
+                x_label='Trial Number',
+                y_label='Time (s)',
             )
 
-            param_table_md = tabulate(
-                tabular_data=param_values,
-                headers=param_header,
-                tablefmt='pipe',
+            self.generate_plot(
+                'stats', rw,
+                title='Histogram of Read and Write Times',
+                plot_type='hist',
+                x_label='Value (s)',
             )
 
-            data_table_md = tabulate(
-                tabular_data=data_values,
-                headers=data_header,
-                tablefmt='pipe',
-                floatfmt='.5f',
-            )
+        report_data = {
+            'database': self.db_name,
+            'time_and_date': self.time_and_date,
+            'entry_length': self.entry_length,
+            'node_number': self.number_of_nodes,
+            'trial_number': self.number_of_trials,
+            'param_table': param_table,
+            'data_table': data_table,
+            'outlier_table': outlier_table,
+            'param_table_md': param_table_md,
+            'data_table_md': data_table_md,
+            'outlier_table_md': outlier_table_md,
+            'speed_plot': speed_plot,
+            'hist_plot': hist_plot,
+            'avgs_plot': avgs_plot,
+        }
 
-            report_info = {
-                'database': self.db_name,
-                'time_and_date': self.time_and_date,
-                'param_table': param_table,
-                'data_table': data_table,
-                'param_table_md': param_table_md,
-                'data_table_md': data_table_md,
-            }
+        return report_data
 
-            self.generate_report(report_info)
+    @staticmethod
+    def compute_cumulative_avg(dataframe):
+        """ Given a dataframe object, this function will compute a running
+        average and return it as a separate dataframe object
 
-    def generate_report(self, report_info):
+        :param dataframe: a dataframe with which to compute a running average
+        :return running_avg: a dataframe object with .data containing the
+                    running average data
+        """
+
+        count = 0
+        cumsum = 0
+        avgs = []
+
+        for item in dataframe.data:
+
+            cumsum += item
+            count += 1
+
+            avg = cumsum / count
+            avgs.append(avg)
+
+        running_avg = pd.DataFrame({'data': avgs})
+
+        return running_avg
+
+    def generate_report(self, report_data):
         """ This function will take the compiled data and generated a report
         from it.  If the `--report` option was selected at runtime, a report
         file will also be saved in the `generated_reports` directory.
 
-        :param report_info: all of the necessary information to generate the
+        :param report_data: all of the necessary data to generate the
                     benchmark report
         """
 
-        report_name = '{parent_dir}/{db}.report.md'.format(
-            parent_dir=self.reports_dir,
-            db=self.db_name
-        )
+        if self.report_title:
+
+            report_name = '{parent_dir}/{title}.md'.format(
+                          parent_dir=self.reports_dir,
+                          title=self.report_title,
+            )
+
+        else:
+
+            report_name = '{parent_dir}/{db}-{date}.report.md'.format(
+                parent_dir=self.reports_dir,
+                db=self.db_name,
+                date=self.report_date,
+            )
 
         with open('report_template.md', 'r') as infile:
 
             template = infile.read()
 
-            report = template.format(**report_info)
+            terminal_report = template.format(**report_data)
 
-            print '\n\n' + report + '\n\n'
+            print '\n\n' + terminal_report + '\n\n'
 
-            if self.report:
+            if not self.no_report:
 
                 template = template.replace('_table', '_table_md')
 
-                report = template.format(**report_info)
+                report = template.format(**report_data)
 
                 with open(report_name, 'w+') as outfile:
 
                     outfile.write(report)
+
+    def generate_plot(self, name, data_frame, title=None, x_label=None,
+                      y_label=None, grid=True, plot_type='line'):
+        """ This function take several parameters and generates a plot based
+        on them.
+
+        :param name: The name of the plot, which is important for saving
+        :param data_frame: The data to be plotted
+        :param title: The title to be displayed above the plot
+        :param x_label: The label for the x-axis
+        :param y_label: The label for the y-axis
+        :param grid: Boolean to determine whether or not a grid should be used
+        :param plot_type: The type of plot to generate
+        """
+
+        import matplotlib.pyplot as plt
+
+        plt.figure()
+
+        ax = data_frame.plot(
+            title=title,
+            grid=grid,
+            legend=True,
+            kind=plot_type,
+        )
+
+        if x_label:
+
+            ax.set_xlabel(x_label)
+
+        if y_label:
+
+            ax.set_ylabel(y_label)
+
+        current_name = '{parent_dir}/{db}-{date}-{name}'.format(
+            parent_dir=self.images_dir,
+            db=self.db_name,
+            date=self.report_date,
+            name=name,
+        )
+
+        pylab.savefig(current_name)
 
     def register_module(self, db_mod):
         """ This function begins the process of registering a module for
@@ -399,8 +726,8 @@ class Benchmark():
         else:
 
             error = 'Invalid DB module!  Please be sure you are using the \n' \
-                    'package name and not just the name of the database itself.'\
-                    '\n'
+                    'package name and not just the name of the database ' \
+                    'itself.\n'
 
             exit(error)
 
@@ -436,4 +763,4 @@ if __name__ == '__main__':
 
     options = docopt(__doc__)
 
-    foo = Benchmark()
+    Benchmark()

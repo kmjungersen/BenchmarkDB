@@ -1,0 +1,24 @@
+---
+# This playbook can be used to bring all of the necessary mongo servers up
+# AFTER THEY HAVE ALREADY BEEN PROPERLY INSTALLED.  It first kills all mongo
+# processes and then continues by bringing them all back up.
+
+- hosts: mongo_servers
+  tasks:
+  - name: Kill all mongo processes
+    command: pkill mongo
+    ignore_errors: yes
+
+  - name: Start mongo daemon
+    command: mongod -f /etc/mongod.conf
+
+  - name: Pause for a moment to allow nodes to settle
+    pause: seconds=5
+
+  - name: Start mongo config server
+    command: mongod -f /etc/mongoc.conf
+
+- hosts: mongos_servers
+  tasks:
+  - name: Start mongo sharding server
+    command: mongos -f /etc/mongos.conf

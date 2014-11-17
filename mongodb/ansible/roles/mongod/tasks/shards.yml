@@ -8,7 +8,7 @@
   with_items: groups.mongos_servers
 
 - name: Add the shard to the mongos 
-  command: mongo {{ inventory_hostname }}:{{ mongos_port }}/admin -u admin -p {{ mongo_admin_pass }} /tmp/shard_init_{{ inventory_hostname }}.js
+  command: mongo {{ inventory_hostname }}:{{ mongos_port }}/admin -u admin -p {{ mongo_admin_pass }} /tmp/shard_init.js
   delegate_to: '{{ item }}'
   with_items: groups.mongos_servers
 
