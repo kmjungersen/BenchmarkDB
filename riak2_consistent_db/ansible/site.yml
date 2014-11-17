@@ -1,9 +1,0 @@
-- hosts: riak_cluster
-  sudo: True
-  roles:
-  - role: basho.riak2.0
-
-- hosts: riak_children_nodes
-  sudo: True
-  roles:
-  - role: join_cluster
