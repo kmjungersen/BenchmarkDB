@@ -9,6 +9,7 @@ process.
 
 """
 
+import psycopg2
 
 from local import *
 from benchmark_template import BenchmarkDatabase
@@ -21,8 +22,7 @@ class Benchmark(BenchmarkDatabase):
         if setup:
             self.setup(collection)
 
-        self.client = ''
-        self.db = ''
+        self.conn = ''
 
     def setup(self, collection):
         """ This function will set up the connection with the DB.  The options
@@ -41,10 +41,22 @@ class Benchmark(BenchmarkDatabase):
         # self.collection = self.db.test_collection
         #
         # self.collection.ensure_index("Index")
+        print 'started'
+
+        self.conn = psycopg2.connect(
+            host=POSTGRESQL_1,
+            port=POSTGRESQL_PORT,
+            user=POSTGRESQL_USER,
+            password=POSTGRESQL_PASSWORD,
+            dbname=collection,
+        )
+
+        self.cur = self.conn.cursor()
+
+        self.cur.execute("CREATE TABLE test (id serial PRIMARY KEY, Index integer, number int, Info varchar);")
 
 
-
-
+        print 'setup complete'
     def write(self, data):
         """ The function handles all writes with MongoDB.  It takes a single
         parameter (a dict of sample data) and then writes it to the DB.
@@ -55,6 +67,9 @@ class Benchmark(BenchmarkDatabase):
         #
         # self.collection.insert(data)
 
+        self.cur.execute("INSERT INTO test (Index, number, Info) VALUES (%s, %s, %s)",
+            (data['Index'], data['number'], data['Info']))
+
     def read(self, index):
         """ This function handles all reads from MongoDB.  It takes a single
         parameter (index) which determines which record to retrieve from the DB.
@@ -64,6 +79,9 @@ class Benchmark(BenchmarkDatabase):
         :return read_entry: the entry retrieved from the DB
 
         """
+
+        self.cur.execute("SELECT * FROM test WHERE Index = {foo};".format(foo=index))
+        return self.cur.fetchone()
 
         # query = {
         #     'Index': index
