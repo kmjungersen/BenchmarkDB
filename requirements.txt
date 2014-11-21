@@ -7,3 +7,4 @@ clint=0.4.1
 ansible=1.7.2
 pymongo=2.7.2
 riak=2.1.0
+psycopg2=2.5.4
