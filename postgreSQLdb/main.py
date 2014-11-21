@@ -42,7 +42,6 @@ class Benchmark(BenchmarkDatabase):
         # self.collection = self.db.test_collection
         #
         # self.collection.ensure_index("Index")
-        print 'started'
 
         self.conn = psycopg2.connect(
             host=POSTGRESQL_1,
@@ -89,11 +88,14 @@ class Benchmark(BenchmarkDatabase):
         :param data: An incoming dict that will be written to the DB
 
         """
-        #
-        # self.collection.insert(data)
 
-        self.cur.execute("INSERT INTO test (Index, number, Info) VALUES (%s, %s, %s)",
-            (data['Index'], data['number'], data['Info']))
+        insert = 'INSERT INTO test (Index, Number, Info) VALUES ({Index}, ' \
+                 '{Number}, {Info!r});'.format(**data)
+
+        self.cur.execute(insert)
+
+        self.commit()
+
 
     def read(self, index):
         """ This function handles all reads from MongoDB.  It takes a single
@@ -105,7 +107,9 @@ class Benchmark(BenchmarkDatabase):
 
         """
 
-        self.cur.execute("SELECT * FROM test WHERE Index = {foo};".format(foo=index))
+        select = 'SELECT * from test WHERE Index = {index};'.format(index=index)
+
+        self.cur.execute(select)
         return self.cur.fetchone()
 
         # query = {
