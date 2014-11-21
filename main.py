@@ -200,6 +200,7 @@ class Benchmark():
         """
 
         entry = ''
+        entry_length = self.entry_length
 
         if entry_type == 'string':
 
@@ -208,8 +209,9 @@ class Benchmark():
         else:
 
             selection = string.digits
+            entry_length /= 2
 
-        for x in range(self.entry_length):
+        for x in range(entry_length):
 
             entry += random.choice(selection)
 
