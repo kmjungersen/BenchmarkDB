@@ -231,7 +231,7 @@ class Benchmark():
 
             entry = {
                 'Index': index,
-                'number': item_number,
+                'Number': item_number,
                 'Info': info
             }
 
@@ -262,7 +262,7 @@ class Benchmark():
 
             entry = {
                 'Index': index,
-                'number': item_number,
+                'Number': item_number,
                 'Info': info
             }
 
