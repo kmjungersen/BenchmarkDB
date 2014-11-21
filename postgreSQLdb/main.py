@@ -10,6 +10,7 @@ process.
 """
 
 import psycopg2
+import os
 
 from local import *
 from benchmark_template import BenchmarkDatabase
@@ -53,10 +54,34 @@ class Benchmark(BenchmarkDatabase):
 
         self.cur = self.conn.cursor()
 
-        self.cur.execute("CREATE TABLE test (id serial PRIMARY KEY, Index integer, number int, Info varchar);")
+        lock_file = 'sql.lock'
+        dir = 'postgreSQLdb'
+        file_list = os.listdir(dir)
+
+        if lock_file in file_list:
+
+            delete = 'DROP TABLE {table} cascade'.format(table=collection)
+
+            self.cur.execute(delete)
+
+        else:
+
+            with open('{dir}/{lock}'.format(lock=lock_file, dir=dir,), 'w+'):
+                pass
 
 
-        print 'setup complete'
+        create_table = 'CREATE TABLE test ' \
+                       '({index}, {number}, {info});'.\
+            format(
+                index='Index int',
+                number='Number int',
+                info='Info text',
+            )
+
+        self.cur.execute(create_table)
+
+        self.commit()
+
     def write(self, data):
         """ The function handles all writes with MongoDB.  It takes a single
         parameter (a dict of sample data) and then writes it to the DB.
