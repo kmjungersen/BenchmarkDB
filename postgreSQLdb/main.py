@@ -37,52 +37,55 @@ class Benchmark(BenchmarkDatabase):
 
         """
         # #TODO - fix how the collection is used here
-        #
-        # self.client = MongoClient(host=MONGO_PRIMARY, port=MONGO_PORT)
-        #
-        # self.db = self.client.test
-        #
-        # self.collection = self.db.test_collection
-        #
-        # self.collection.ensure_index("Index")
 
-        self.conn = psycopg2.connect(
-            host=POSTGRESQL_1,
-            port=POSTGRESQL_PORT,
-            user=POSTGRESQL_USER,
-            password=POSTGRESQL_PASSWORD,
-            dbname=collection,
-        )
-
-        self.cur = self.conn.cursor()
-
-        lock_file = 'sql.lock'
+        lock_file = 'sql_{node}.lock'
         dir = 'postgreSQLdb'
         file_list = os.listdir(dir)
 
-        if lock_file in file_list:
+        for node in range(1, NUMBER_OF_NODES + 1):
 
-            delete = 'DROP TABLE {table} cascade'.format(table=collection)
+            current_host = POSTGRESQL_NODES[
+                'POSTGRESQL_{node}'.format(node=node)
+            ]
 
-            self.cur.execute(delete)
-
-        else:
-
-            with open('{dir}/{lock}'.format(lock=lock_file, dir=dir,), 'w+'):
-                pass
-
-
-        create_table = 'CREATE TABLE test ' \
-                       '({index}, {number}, {info});'.\
-            format(
-                index='Index int',
-                number='Number int',
-                info='Info text',
+            current_conn = psycopg2.connect(
+                host=current_host,
+                port=POSTGRESQL_PORT,
+                user=POSTGRESQL_USER,
+                password=POSTGRESQL_PASSWORD,
+                dbname=collection,
             )
 
-        self.cur.execute(create_table)
+            self.connections[node] = current_conn
 
-        self.commit()
+            current_cursor = self.connections[node].cursor()
+
+            self.cursors[node] = current_cursor
+
+            if lock_file in file_list:
+
+                delete = 'DROP TABLE {table} cascade'.format(table=collection)
+
+                self.cursors[node].execute(delete)
+
+            else:
+
+                current_lock = lock_file.format(node=node)
+
+                with open('{dir}/{lock}'.format(lock=current_lock, dir=dir,), 'w+'):
+                    pass
+
+            create_table = 'CREATE TABLE test ' \
+                           '({index}, {number}, {info});'.\
+                format(
+                    index='Index int',
+                    number='Number int',
+                    info='Info text',
+                )
+
+            self.cursors[node].execute(create_table)
+
+            self.commit(node)
 
     def write(self, data):
         """ The function handles all writes with MongoDB.  It takes a single
