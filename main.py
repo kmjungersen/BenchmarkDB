@@ -388,13 +388,23 @@ class Benchmark():
             write_stdev = 15
             read_stdev = 15
 
+        n_stdev = 3
+
+        if (read_stdev > 3 * read_avg) or (write_stdev > 3 * write_avg):
+
+            n_stdev = 1
+
+        elif (read_stdev > 2 * read_avg) or (write_stdev > 2 * write_avg):
+
+            n_stdev = 2
+
         # Remove values that are beyond 3 st. dev.'s from the mean
-        w = w[abs(w.data - write_avg) <= (3 * write_stdev)]
-        r = r[abs(r.data - read_avg) <= (3 * read_stdev)]
+        w = w[abs(w.data - write_avg) <= (n_stdev * write_stdev)]
+        r = r[abs(r.data - read_avg) <= (n_stdev * read_stdev)]
 
         # Keep these outliers for display to the user
-        w_out = w_out[abs(w_out.data - write_avg) >= (3 * write_stdev)]
-        r_out = r_out[abs(r_out.data - read_avg) >= (3 * read_stdev)]
+        w_out = w_out[abs(w_out.data - write_avg) >= (n_stdev * write_stdev)]
+        r_out = r_out[abs(r_out.data - read_avg) >= (n_stdev * read_stdev)]
 
         writes_running_avg = self.compute_cumulative_avg(w)
         reads_running_avg = self.compute_cumulative_avg(r)
