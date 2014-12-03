@@ -112,14 +112,14 @@ class Benchmark(BenchmarkDatabase):
         self.cur.execute(select)
         return self.cur.fetchone()
 
-    def commit(self):
+    def commit(self, node):
         """ Commits the current transaction.  This function is ONLY USED FOR
         SQL-TYPE DATABASES.
 
         :return:
         """
 
-        self.cur.execute('commit;')
+        self.cursors[node].execute('commit;')
 
         # query = {
         #     'Index': index
