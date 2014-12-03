@@ -18,12 +18,15 @@ from benchmark_template import BenchmarkDatabase
 
 class Benchmark(BenchmarkDatabase):
 
-    def __init__(self, collection, setup=False):
+    def __init__(self, collection, setup=False, trials=0):
 
         if setup:
             self.setup(collection)
 
-        self.conn = ''
+        self.trials = trials
+
+        self.connections = {}
+        self.cursors = []
 
     def setup(self, collection):
         """ This function will set up the connection with the DB.  The options
