@@ -11,6 +11,7 @@ process.
 
 import psycopg2
 import os
+import random
 
 from local import *
 from benchmark_template import BenchmarkDatabase
@@ -95,12 +96,14 @@ class Benchmark(BenchmarkDatabase):
 
         """
 
+        node = random.randrange(0, stop=NUMBER_OF_NODES + 1)
+
         insert = 'INSERT INTO test (Index, Number, Info) VALUES ({Index}, ' \
                  '{Number}, {Info!r});'.format(**data)
 
         self.cur.execute(insert)
 
-        self.commit()
+        self.commit(node)
 
 
     def read(self, index):
