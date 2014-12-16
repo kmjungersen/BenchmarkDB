@@ -14,10 +14,10 @@ import os
 import random
 
 from local import *
-from benchmark_template import BenchmarkDatabase
+# from benchmark_template import BenchmarkDatabase
 
 
-class Benchmark(BenchmarkDatabase):
+class Benchmark():
 
     def __init__(self, collection, setup=False, trials=0):
 
