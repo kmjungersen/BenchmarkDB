@@ -20,7 +20,7 @@ Now any settings defined there can be accessed from the `Benchmark` class.
 
 class BenchmarkDatabase():
 
-    def __init__(self, collection, setup=False):
+    def __init__(self, collection, setup=False, trials=0):
         """ `__init__()` is the entry point of the module, and is where the
         module is set up and prepared for benchmarking.  This class is
         initialized in `main.py` of the main project directory, and is always
@@ -32,6 +32,7 @@ class BenchmarkDatabase():
         :param setup: A Bool to determine whether or not `setup()` should be
                     called upon initialization or not
         """
+        self.trials = trials
 
         if setup:
             self.setup(collection)

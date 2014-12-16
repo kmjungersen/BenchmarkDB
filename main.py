@@ -114,7 +114,7 @@ class Benchmark():
         self.collection = 'test'
         self.sorting_index = 'ID'
         self.entry_length = int(options['--length'])
-        self.number_of_trials = int(options['--trials'])
+        self.trials = int(options['--trials'])
         self.no_report = options['--no-report']
         self.chaos = options['--chaos']
         self.csv = options['--csv']
@@ -134,7 +134,7 @@ class Benchmark():
             self.db_name = options['<database>']
 
             self.module = self.register_module(self.db_name)
-            self.database = self.module.Benchmark(self.collection, setup=True)
+            self.database = self.module.Benchmark(self.collection, setup=True, trials=self.trials)
 
             self.module_settings = self.import_db_mod(
                 self.db_name, mod_file='local')
@@ -178,13 +178,13 @@ class Benchmark():
         self.number_of_nodes = 'n/a'
         self.db_name = 'feaux_db'
 
-        r = np.random.normal(0.004, 0.001, self.number_of_trials)
+        r = np.random.normal(0.004, 0.001, self.trials)
         self.read_times = r.tolist()
 
-        w = np.random.normal(0.005, 0.0015, self.number_of_trials)
+        w = np.random.normal(0.005, 0.0015, self.trials)
         self.write_times = w.tolist()
 
-        for i in progress.bar(range(self.number_of_trials)):
+        for i in progress.bar(range(self.trials)):
 
             pass
 
@@ -200,6 +200,7 @@ class Benchmark():
         """
 
         entry = ''
+        entry_length = self.entry_length
 
         if entry_type == 'string':
 
@@ -208,8 +209,9 @@ class Benchmark():
         else:
 
             selection = string.digits
+            entry_length /= 2
 
-        for x in range(self.entry_length):
+        for x in range(entry_length):
 
             entry += random.choice(selection)
 
@@ -222,14 +224,14 @@ class Benchmark():
 
         """
 
-        for index in progress.bar(range(self.number_of_trials)):
+        for index in progress.bar(range(self.trials)):
 
             item_number = self.random_entry(entry_type='number')
             info = self.random_entry(entry_type='string')
 
             entry = {
                 'Index': index,
-                'number': item_number,
+                'Number': item_number,
                 'Info': info
             }
 
@@ -253,14 +255,14 @@ class Benchmark():
 
         print('Write progress:\n')
 
-        for index in progress.bar(range(self.number_of_trials)):
+        for index in progress.bar(range(self.trials)):
 
             item_number = self.random_entry(entry_type='number')
             info = self.random_entry(entry_type='string')
 
             entry = {
                 'Index': index,
-                'number': item_number,
+                'Number': item_number,
                 'Info': info
             }
 
@@ -272,7 +274,7 @@ class Benchmark():
 
         print('Read progress:\n')
 
-        for index in progress.bar(range(self.number_of_trials)):
+        for index in progress.bar(range(self.trials)):
 
             if self.chaos:
                     index = random.randint(0, index)
@@ -386,13 +388,23 @@ class Benchmark():
             write_stdev = 15
             read_stdev = 15
 
+        n_stdev = 3
+
+        if (read_stdev > 3 * read_avg) or (write_stdev > 3 * write_avg):
+
+            n_stdev = 1
+
+        elif (read_stdev > 2 * read_avg) or (write_stdev > 2 * write_avg):
+
+            n_stdev = 2
+
         # Remove values that are beyond 3 st. dev.'s from the mean
-        w = w[abs(w.data - write_avg) <= (3 * write_stdev)]
-        r = r[abs(r.data - read_avg) <= (3 * read_stdev)]
+        w = w[abs(w.data - write_avg) <= (n_stdev * write_stdev)]
+        r = r[abs(r.data - read_avg) <= (n_stdev * read_stdev)]
 
         # Keep these outliers for display to the user
-        w_out = w_out[abs(w_out.data - write_avg) >= (3 * write_stdev)]
-        r_out = r_out[abs(r_out.data - read_avg) >= (3 * read_stdev)]
+        w_out = w_out[abs(w_out.data - write_avg) >= (n_stdev * write_stdev)]
+        r_out = r_out[abs(r_out.data - read_avg) >= (n_stdev * read_stdev)]
 
         writes_running_avg = self.compute_cumulative_avg(w)
         reads_running_avg = self.compute_cumulative_avg(r)
@@ -454,7 +466,7 @@ class Benchmark():
 
         param_values = [
             ['Database Tested', self.db_name],
-            ['Number of Trials', str(self.number_of_trials)],
+            ['Number of Trials', str(self.trials)],
             ['Length of Each Entry Field', str(self.entry_length)],
             ['Number of Nodes in Cluster', str(self.number_of_nodes)],
             ['Split Reads and Writes', str(options['--split'])],
@@ -582,7 +594,7 @@ class Benchmark():
             'time_and_date': self.time_and_date,
             'entry_length': self.entry_length,
             'node_number': self.number_of_nodes,
-            'trial_number': self.number_of_trials,
+            'trial_number': self.trials,
             'param_table': param_table,
             'data_table': data_table,
             'outlier_table': outlier_table,

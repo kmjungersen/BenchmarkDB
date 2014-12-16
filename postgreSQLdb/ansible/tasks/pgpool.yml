@@ -1,0 +1,6 @@
+- name: "Stage 5 - Fetch pgpool repo"
+  get_url:
+  - url: {{ pgpool_url }}
+  - dest: "~"
+
+- name: "Stage 5 - Unarchive package"
