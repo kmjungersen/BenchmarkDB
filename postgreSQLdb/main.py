@@ -21,13 +21,11 @@ class Benchmark():
 
     def __init__(self, collection, setup=False, trials=0):
 
-        if setup:
-            self.setup(collection)
-
         self.trials = trials
+        self.split_points = {}
 
         self.connections = {}
-        self.cursors = []
+        self.cursors = {}
 
         self.insert_statement = 'INSERT INTO test (Index, Number, Info) ' \
                                 'VALUES ({Index}, {Number}, {Info!r});'
@@ -38,6 +36,9 @@ class Benchmark():
                                 '({index}, {number}, {info});'
 
         self.select_statement = 'SELECT * from test WHERE Index = {index};'
+
+        if setup:
+            self.setup(collection)
 
     def setup(self, collection):
         """ This function will set up the connection with the DB.  The options
@@ -52,6 +53,8 @@ class Benchmark():
         lock_file = 'sql_{node}.lock'
         dir = 'postgreSQLdb'
         file_list = os.listdir(dir)
+
+        split_number = self.trials / NUMBER_OF_NODES
 
         for node in range(1, NUMBER_OF_NODES + 1):
 
@@ -73,30 +76,32 @@ class Benchmark():
 
             self.cursors[node] = current_cursor
 
-            if lock_file in file_list:
+            current_lock = lock_file.format(node=node)
 
-                delete = 'DROP TABLE {table} cascade'.format(table=collection)
+            if current_lock in file_list:
+
+                delete = self.delete_statement.format(table=collection)
 
                 self.cursors[node].execute(delete)
 
-            else:
+                self.commit(node)
 
-                current_lock = lock_file.format(node=node)
+            else:
 
                 with open('{dir}/{lock}'.format(lock=current_lock, dir=dir,), 'w+'):
                     pass
 
-            create_table = 'CREATE TABLE test ' \
-                           '({index}, {number}, {info});'.\
-                format(
-                    index='Index int',
-                    number='Number int',
-                    info='Info text',
-                )
+            create_table = self.create_statement.format(
+                index='Index int',
+                number='Number int',
+                info='Info text',
+            )
 
             self.cursors[node].execute(create_table)
 
             self.commit(node)
+
+            self.split_points[node] = split_number * node
 
     def write(self, data):
         """ The function handles all writes with MongoDB.  It takes a single
@@ -106,15 +111,14 @@ class Benchmark():
 
         """
 
-        node = random.randrange(0, stop=NUMBER_OF_NODES + 1)
+        trial = data['Index']
+        node = self.node_select(trial)
 
-        insert = 'INSERT INTO test (Index, Number, Info) VALUES ({Index}, ' \
-                 '{Number}, {Info!r});'.format(**data)
+        insert = self.insert_statement.format(**data)
 
-        self.cur.execute(insert)
+        self.cursors[node].execute(insert)
 
         self.commit(node)
-
 
     def read(self, index):
         """ This function handles all reads from MongoDB.  It takes a single
@@ -126,10 +130,14 @@ class Benchmark():
 
         """
 
-        select = 'SELECT * from test WHERE Index = {index};'.format(index=index)
+        node = self.node_select(index)
 
-        self.cur.execute(select)
-        return self.cur.fetchone()
+        select = self.select_statement.format(index=index)
+
+        self.cursors[node].execute(select)
+
+        return self.cursors[node].fetchone()
+
     def node_select(self, trial):
         """
 
@@ -157,11 +165,3 @@ class Benchmark():
         """
 
         self.cursors[node].execute('commit;')
-
-        # query = {
-        #     'Index': index
-        # }
-        #
-        # read_entry = self.collection.find_one(query)
-        #
-        # return read_entry
