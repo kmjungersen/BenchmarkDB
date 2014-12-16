@@ -114,7 +114,7 @@ class Benchmark():
         self.collection = 'test'
         self.sorting_index = 'ID'
         self.entry_length = int(options['--length'])
-        self.number_of_trials = int(options['--trials'])
+        self.trials = int(options['--trials'])
         self.no_report = options['--no-report']
         self.chaos = options['--chaos']
         self.csv = options['--csv']
@@ -178,13 +178,13 @@ class Benchmark():
         self.number_of_nodes = 'n/a'
         self.db_name = 'feaux_db'
 
-        r = np.random.normal(0.004, 0.001, self.number_of_trials)
+        r = np.random.normal(0.004, 0.001, self.trials)
         self.read_times = r.tolist()
 
-        w = np.random.normal(0.005, 0.0015, self.number_of_trials)
+        w = np.random.normal(0.005, 0.0015, self.trials)
         self.write_times = w.tolist()
 
-        for i in progress.bar(range(self.number_of_trials)):
+        for i in progress.bar(range(self.trials)):
 
             pass
 
@@ -224,7 +224,7 @@ class Benchmark():
 
         """
 
-        for index in progress.bar(range(self.number_of_trials)):
+        for index in progress.bar(range(self.trials)):
 
             item_number = self.random_entry(entry_type='number')
             info = self.random_entry(entry_type='string')
@@ -255,7 +255,7 @@ class Benchmark():
 
         print('Write progress:\n')
 
-        for index in progress.bar(range(self.number_of_trials)):
+        for index in progress.bar(range(self.trials)):
 
             item_number = self.random_entry(entry_type='number')
             info = self.random_entry(entry_type='string')
@@ -274,7 +274,7 @@ class Benchmark():
 
         print('Read progress:\n')
 
-        for index in progress.bar(range(self.number_of_trials)):
+        for index in progress.bar(range(self.trials)):
 
             if self.chaos:
                     index = random.randint(0, index)
@@ -466,7 +466,7 @@ class Benchmark():
 
         param_values = [
             ['Database Tested', self.db_name],
-            ['Number of Trials', str(self.number_of_trials)],
+            ['Number of Trials', str(self.trials)],
             ['Length of Each Entry Field', str(self.entry_length)],
             ['Number of Nodes in Cluster', str(self.number_of_nodes)],
             ['Split Reads and Writes', str(options['--split'])],
@@ -594,7 +594,7 @@ class Benchmark():
             'time_and_date': self.time_and_date,
             'entry_length': self.entry_length,
             'node_number': self.number_of_nodes,
-            'trial_number': self.number_of_trials,
+            'trial_number': self.trials,
             'param_table': param_table,
             'data_table': data_table,
             'outlier_table': outlier_table,
