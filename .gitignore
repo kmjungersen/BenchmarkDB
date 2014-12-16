@@ -1,5 +1,5 @@
 *.pyc
 *.ipynb
-*/ansible/.vagrant/
+*/ansible/.vagrant
 archived_reports/
 *.lock
