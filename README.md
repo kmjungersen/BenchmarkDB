@@ -25,9 +25,9 @@ Recently updated with graphs:
 * [MongoDB Sharded Replication Set - 3000 reads/writes](published_reports/mongodb/MONGO-ShardedCluster-3000trials/MONGO-ShardedCluster-3000trials.md)
 * [MongoDB Sharded Replication Set - 10000 reads/writes](published_reports/mongodb/MONGO-ShardedCluster-10000trials/MONGO-ShardedCluster-10000trials.md)
 * [MongoDB Sharded Replication Set - 50000 reads/writes](published_reports/mongodb/MONGO-ShardedCluster-50000trials/MONGO-ShardedCluster-50000trials.md)
-* [PostgreSQL Semi-Sharded Cluster - 3000 reads/writes](published_reports/postgresql/POSTGRESQL-SemiSharded-3000trials.md)
-* [PostgreSQL Semi-Sharded Cluster - 10000 reads/writes](published_reports/postgresql/POSTGRESQL-SemiSharded-10000trials.md)
-* [PostgreSQL Semi-Sharded Cluster - 50000 reads/writes](published_reports/postgresql/POSTGRESQL-SemiSharded-50000trials.md)
+* [PostgreSQL Semi-Sharded Cluster - 3000 reads/writes](published_reports/postgresql/POSTGRESQL-SemiSharded-3000trials/POSTGRESQL-SemiSharded-3000trials.md)
+* [PostgreSQL Semi-Sharded Cluster - 10000 reads/writes](published_reports/POSTGRESQL-SemiSharded-10000trials/postgresql/POSTGRESQL-SemiSharded-10000trials.md)
+* [PostgreSQL Semi-Sharded Cluster - 50000 reads/writes](published_reports/postgresql/POSTGRESQL-SemiSharded-50000trials/POSTGRESQL-SemiSharded-50000trials.md)
 
 ## Some Nice Features
 
