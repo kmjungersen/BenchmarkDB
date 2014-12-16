@@ -134,6 +134,7 @@ class Benchmark():
             self.db_name = options['<database>']
 
             self.module = self.register_module(self.db_name)
+            self.database = self.module.Benchmark(self.collection, setup=True, trials=self.trials)
 
             self.module_settings = self.import_db_mod(
                 self.db_name, mod_file='local')
