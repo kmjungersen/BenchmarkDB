@@ -120,6 +120,24 @@ class Benchmark(BenchmarkDatabase):
 
         self.cur.execute(select)
         return self.cur.fetchone()
+    def node_select(self, trial):
+        """
+
+        :param trial:
+        :return:
+        """
+
+        node = 1
+
+        for n in range(1, NUMBER_OF_NODES + 1):
+
+            split = self.split_points.get(n)
+
+            if split and trial <= split:
+
+                    node = n
+
+        return node
 
     def commit(self, node):
         """ Commits the current transaction.  This function is ONLY USED FOR
