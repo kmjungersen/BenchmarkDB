@@ -29,6 +29,16 @@ class Benchmark(BenchmarkDatabase):
         self.connections = {}
         self.cursors = []
 
+        self.insert_statement = 'INSERT INTO test (Index, Number, Info) ' \
+                                'VALUES ({Index}, {Number}, {Info!r});'
+
+        self.delete_statement = 'DROP TABLE {table} cascade'
+
+        self.create_statement = 'CREATE TABLE test ' \
+                                '({index}, {number}, {info});'
+
+        self.select_statement = 'SELECT * from test WHERE Index = {index};'
+
     def setup(self, collection):
         """ This function will set up the connection with the DB.  The options
         used here are all configured in the config file.
