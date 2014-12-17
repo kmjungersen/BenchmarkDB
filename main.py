@@ -45,6 +45,7 @@ purposes.
 # TODO [x] - add a progress bar for non-verbose output
 # TODO [x] - add some better data analysis
 # TODO [ ] - add python 3.x support
+# TODO [ ] - remove outlier table from report and add system parameter table
 
 from os import getcwd, listdir, makedirs
 from sys import exit
@@ -58,7 +59,6 @@ import pylab
 
 # Although it appears as if this import is unused, it's used for formatting
 # pandas graphs.
-
 import seaborn
 
 from tabulate import tabulate
@@ -260,7 +260,7 @@ class Benchmark():
         instead of alternating reads and writes.
         """
 
-        print('Write progress:\n')
+        print('\nWrite progress:\n')
 
         for index in progress.bar(range(self.trials)):
 
@@ -279,7 +279,7 @@ class Benchmark():
             if options['-s']:
                 time.sleep(1/20)
 
-        print('Read progress:\n')
+        print('\nRead progress:\n')
 
         for index in progress.bar(range(self.trials)):
 
@@ -626,15 +626,15 @@ class Benchmark():
         """
 
         count = 0
-        cumsum = 0
+        sum = 0
         avgs = []
 
         for item in dataframe.data:
 
-            cumsum += item
+            sum += item
             count += 1
 
-            avg = cumsum / count
+            avg = sum / count
             avgs.append(avg)
 
         running_avg = pd.DataFrame({'data': avgs})
