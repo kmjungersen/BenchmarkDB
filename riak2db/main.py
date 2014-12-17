@@ -16,7 +16,7 @@ from benchmark_template import BenchmarkDatabase
 
 class Benchmark(BenchmarkDatabase):
 
-    def __init__(self, collection, setup=False):
+    def __init__(self, collection=None, setup=False, trials=1000, flush=False):
 
         if setup:
             self.setup(collection)
