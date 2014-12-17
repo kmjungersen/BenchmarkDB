@@ -18,8 +18,11 @@ class Benchmark(BenchmarkDatabase):
 
     def __init__(self, collection=None, setup=False, trials=1000, flush=False):
 
-        if setup:
-            self.setup(collection)
+        if setup and collection:
+            self.bucket = self.setup(collection)
+
+            if flush:
+                self.flush_database()
 
     def setup(self, collection):
         """ `Setup()` handles all the necessary setup information for Riak.  It
@@ -46,11 +49,14 @@ class Benchmark(BenchmarkDatabase):
                 'pbc_port': port
             })
 
-        self.client = riak.RiakClient(
+        client = riak.RiakClient(
             nodes=riak_cluster,
         )
 
-        self.bucket = self.client.bucket(collection)
+        bucket = client.bucket(collection)
+
+        return bucket
+
     def flush_database(self):
         """
 
