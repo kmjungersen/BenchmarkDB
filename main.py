@@ -31,8 +31,8 @@ purposes.
         --csv               Records unaltered read and write data to a CSV file
                                 for your own analysis
         --no-report         Option to disable the creation of the report file
-        --split             Splits reads and writes into two consecutive
-                                batches instead of alternating between them
+        --no-split          Alternate between reads and writes instead of all
+                                writes before reads
         --debug             Generates a random dataset instead of actually
                                 connecting to a DB
 
@@ -142,15 +142,18 @@ class Benchmark():
 
             self.db_name = self.db_name.replace('db', '').upper()
 
+            self.split = True
+
             # Run the benchmarks!
-            if options['--split']:
-                self.run_split()
-            else:
+            if options['--no-split']:
+                self.split = False
                 self.run()
+            else:
+                self.run_split()
 
         if self.report_title:
             self.reports_dir = 'generated_reports/{title}'.format(
-                                title=self.report_title,
+                               title=self.report_title,
             )
 
         else:
@@ -223,6 +226,10 @@ class Benchmark():
         written to the DB,  and then read back from it.
 
         """
+        if self.chaos:
+
+            msg = 'Error! Chaos mode can ONLY be used with split reads/writes!'
+            exit(msg)
 
         for index in progress.bar(range(self.trials)):
 
