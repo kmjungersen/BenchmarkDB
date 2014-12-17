@@ -89,7 +89,7 @@ class Benchmark(BenchmarkDatabase):
          :param data: The data to be written to the db
          """
 
-        entry = self.bucket.new('ID', data=data)
+        entry = self.bucket.new(str(data['Index']), data=data)
 
         entry.store()
 
@@ -102,6 +102,6 @@ class Benchmark(BenchmarkDatabase):
         :return read_entry: the entry that was just retrieved from Riak
         """
 
-        read_entry = self.bucket.get('ID').data
+        read_entry = self.bucket.get(str(index)).data
 
         return read_entry
