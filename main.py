@@ -451,6 +451,7 @@ class Benchmark():
             'read_range': read_range,
             'reads_running_avg': reads_running_avg,
             'outlier_values': outlier_values,
+            'n_stdev': n_stdev,
         }
 
         return compiled_data
@@ -476,7 +477,8 @@ class Benchmark():
             ['Number of Trials', str(self.trials)],
             ['Length of Each Entry Field', str(self.entry_length)],
             ['Number of Nodes in Cluster', str(self.number_of_nodes)],
-            ['Split Reads and Writes', str(options['--split'])],
+            ['# of StDev\'s Displayed in Graphs', str(cd['n_stdev'])],
+            ['Split Reads and Writes', str(self.split)],
             ['Debug Mode', str(options['--debug'])],
             ['Chaos Mode (Random Reads)', str(options['--chaos'])],
         ]
