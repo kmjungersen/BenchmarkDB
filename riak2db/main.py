@@ -51,6 +51,30 @@ class Benchmark(BenchmarkDatabase):
         )
 
         self.bucket = self.client.bucket(collection)
+    def flush_database(self):
+        """
+
+        :param collection:
+        :return:
+        """
+
+        print 'flushing database....'
+
+        if self.bucket:
+
+            for keys in self.bucket.stream_keys():
+
+                for key in keys:
+
+                    print key
+
+                    self.bucket.delete(key)
+
+        else:
+
+            msg = 'Error! Riak client connection not established!'
+
+            exit(msg)
 
     def write(self, data):
         """ This function defines a new bucket entry with the given data and
