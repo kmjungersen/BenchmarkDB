@@ -3,3 +3,4 @@
 */ansible/.vagrant
 archived_reports/
 *.lock
+*.idea
