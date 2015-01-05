@@ -12,11 +12,12 @@ import riak
 
 from local import *
 from benchmark_template import BenchmarkDatabase
+from clint.textui import progress
 
 
 class Benchmark(BenchmarkDatabase):
 
-    def __init__(self, collection=None, setup=False, trials=1000, flush=False):
+    def __init__(self, collection=None, setup=False, trials=1000, flush=True):
 
         if setup and collection:
             self.bucket = self.setup(collection)
@@ -68,11 +69,9 @@ class Benchmark(BenchmarkDatabase):
 
         if self.bucket:
 
-            for keys in self.bucket.stream_keys():
+            for keys in progress.bar(self.bucket.stream_keys()):
 
                 for key in keys:
-
-                    print key
 
                     self.bucket.delete(key)
 
