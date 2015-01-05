@@ -32,7 +32,3 @@ This plot shows a histogram which describes the general distribution of the data
 This plot shows the running averages for read and write speeds over the course of the benchmark.
 
 {avgs_plot}
-
-Note: If any outliers were obtained in this benchmark, they will displayed here:
-
-{outlier_table}

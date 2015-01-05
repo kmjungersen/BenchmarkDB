@@ -12,14 +12,18 @@ import riak
 
 from local import *
 from benchmark_template import BenchmarkDatabase
+from clint.textui import progress
 
 
 class Benchmark(BenchmarkDatabase):
 
-    def __init__(self, collection, setup=False):
+    def __init__(self, collection=None, setup=False, trials=1000, flush=True):
 
-        if setup:
-            self.setup(collection)
+        if setup and collection:
+            self.bucket = self.setup(collection)
+
+            if flush:
+                self.flush_database()
 
     def setup(self, collection):
         """ `Setup()` handles all the necessary setup information for Riak.  It
@@ -46,11 +50,36 @@ class Benchmark(BenchmarkDatabase):
                 'pbc_port': port
             })
 
-        self.client = riak.RiakClient(
+        client = riak.RiakClient(
             nodes=riak_cluster,
         )
 
-        self.bucket = self.client.bucket(collection)
+        bucket = client.bucket(collection)
+
+        return bucket
+
+    def flush_database(self):
+        """
+
+        :param collection:
+        :return:
+        """
+
+        print 'flushing database....'
+
+        if self.bucket:
+
+            for keys in progress.bar(self.bucket.stream_keys()):
+
+                for key in keys:
+
+                    self.bucket.delete(key)
+
+        else:
+
+            msg = 'Error! Riak client connection not established!'
+
+            exit(msg)
 
     def write(self, data):
         """ This function defines a new bucket entry with the given data and
@@ -59,7 +88,7 @@ class Benchmark(BenchmarkDatabase):
          :param data: The data to be written to the db
          """
 
-        entry = self.bucket.new('ID', data=data)
+        entry = self.bucket.new(str(data['Index']), data=data)
 
         entry.store()
 
@@ -72,6 +101,6 @@ class Benchmark(BenchmarkDatabase):
         :return read_entry: the entry that was just retrieved from Riak
         """
 
-        read_entry = self.bucket.get('ID').data
+        read_entry = self.bucket.get(str(index)).data
 
         return read_entry

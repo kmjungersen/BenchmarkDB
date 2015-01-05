@@ -31,8 +31,8 @@ purposes.
         --csv               Records unaltered read and write data to a CSV file
                                 for your own analysis
         --no-report         Option to disable the creation of the report file
-        --split             Splits reads and writes into two consecutive
-                                batches instead of alternating between them
+        --no-split          Alternate between reads and writes instead of all
+                                writes before reads
         --debug             Generates a random dataset instead of actually
                                 connecting to a DB
 
@@ -45,6 +45,7 @@ purposes.
 # TODO [x] - add a progress bar for non-verbose output
 # TODO [x] - add some better data analysis
 # TODO [ ] - add python 3.x support
+# TODO [ ] - remove outlier table from report and add system parameter table
 
 from os import getcwd, listdir, makedirs
 from sys import exit
@@ -58,7 +59,6 @@ import pylab
 
 # Although it appears as if this import is unused, it's used for formatting
 # pandas graphs.
-
 import seaborn
 
 from tabulate import tabulate
@@ -114,7 +114,7 @@ class Benchmark():
         self.collection = 'test'
         self.sorting_index = 'ID'
         self.entry_length = int(options['--length'])
-        self.number_of_trials = int(options['--trials'])
+        self.trials = int(options['--trials'])
         self.no_report = options['--no-report']
         self.chaos = options['--chaos']
         self.csv = options['--csv']
@@ -134,7 +134,7 @@ class Benchmark():
             self.db_name = options['<database>']
 
             self.module = self.register_module(self.db_name)
-            self.database = self.module.Benchmark(self.collection, setup=True)
+            self.database = self.module.Benchmark(self.collection, setup=True, trials=self.trials)
 
             self.module_settings = self.import_db_mod(
                 self.db_name, mod_file='local')
@@ -142,15 +142,18 @@ class Benchmark():
 
             self.db_name = self.db_name.replace('db', '').upper()
 
+            self.split = True
+
             # Run the benchmarks!
-            if options['--split']:
-                self.run_split()
-            else:
+            if options['--no-split']:
+                self.split = False
                 self.run()
+            else:
+                self.run_split()
 
         if self.report_title:
             self.reports_dir = 'generated_reports/{title}'.format(
-                                title=self.report_title,
+                               title=self.report_title,
             )
 
         else:
@@ -178,13 +181,13 @@ class Benchmark():
         self.number_of_nodes = 'n/a'
         self.db_name = 'feaux_db'
 
-        r = np.random.normal(0.004, 0.001, self.number_of_trials)
+        r = np.random.normal(0.004, 0.001, self.trials)
         self.read_times = r.tolist()
 
-        w = np.random.normal(0.005, 0.0015, self.number_of_trials)
+        w = np.random.normal(0.005, 0.0015, self.trials)
         self.write_times = w.tolist()
 
-        for i in progress.bar(range(self.number_of_trials)):
+        for i in progress.bar(range(self.trials)):
 
             pass
 
@@ -200,6 +203,7 @@ class Benchmark():
         """
 
         entry = ''
+        entry_length = self.entry_length
 
         if entry_type == 'string':
 
@@ -208,8 +212,9 @@ class Benchmark():
         else:
 
             selection = string.digits
+            entry_length /= 2
 
-        for x in range(self.entry_length):
+        for x in range(entry_length):
 
             entry += random.choice(selection)
 
@@ -221,15 +226,19 @@ class Benchmark():
         written to the DB,  and then read back from it.
 
         """
+        if self.chaos:
 
-        for index in progress.bar(range(self.number_of_trials)):
+            msg = 'Error! Chaos mode can ONLY be used with split reads/writes!'
+            exit(msg)
+
+        for index in progress.bar(range(self.trials)):
 
             item_number = self.random_entry(entry_type='number')
             info = self.random_entry(entry_type='string')
 
             entry = {
                 'Index': index,
-                'number': item_number,
+                'Number': item_number,
                 'Info': info
             }
 
@@ -251,16 +260,16 @@ class Benchmark():
         instead of alternating reads and writes.
         """
 
-        print('Write progress:\n')
+        print('\nWrite progress:\n')
 
-        for index in progress.bar(range(self.number_of_trials)):
+        for index in progress.bar(range(self.trials)):
 
             item_number = self.random_entry(entry_type='number')
             info = self.random_entry(entry_type='string')
 
             entry = {
                 'Index': index,
-                'number': item_number,
+                'Number': item_number,
                 'Info': info
             }
 
@@ -270,9 +279,9 @@ class Benchmark():
             if options['-s']:
                 time.sleep(1/20)
 
-        print('Read progress:\n')
+        print('\nRead progress:\n')
 
-        for index in progress.bar(range(self.number_of_trials)):
+        for index in progress.bar(range(self.trials)):
 
             if self.chaos:
                     index = random.randint(0, index)
@@ -386,13 +395,23 @@ class Benchmark():
             write_stdev = 15
             read_stdev = 15
 
+        n_stdev = 3
+
+        if (read_stdev > 3 * read_avg) or (write_stdev > 3 * write_avg):
+
+            n_stdev = 1
+
+        elif (read_stdev > 2 * read_avg) or (write_stdev > 2 * write_avg):
+
+            n_stdev = 2
+
         # Remove values that are beyond 3 st. dev.'s from the mean
-        w = w[abs(w.data - write_avg) <= (3 * write_stdev)]
-        r = r[abs(r.data - read_avg) <= (3 * read_stdev)]
+        w = w[abs(w.data - write_avg) <= (n_stdev * write_stdev)]
+        r = r[abs(r.data - read_avg) <= (n_stdev * read_stdev)]
 
         # Keep these outliers for display to the user
-        w_out = w_out[abs(w_out.data - write_avg) >= (3 * write_stdev)]
-        r_out = r_out[abs(r_out.data - read_avg) >= (3 * read_stdev)]
+        w_out = w_out[abs(w_out.data - write_avg) >= (n_stdev * write_stdev)]
+        r_out = r_out[abs(r_out.data - read_avg) >= (n_stdev * read_stdev)]
 
         writes_running_avg = self.compute_cumulative_avg(w)
         reads_running_avg = self.compute_cumulative_avg(r)
@@ -432,6 +451,7 @@ class Benchmark():
             'read_range': read_range,
             'reads_running_avg': reads_running_avg,
             'outlier_values': outlier_values,
+            'n_stdev': n_stdev,
         }
 
         return compiled_data
@@ -454,10 +474,11 @@ class Benchmark():
 
         param_values = [
             ['Database Tested', self.db_name],
-            ['Number of Trials', str(self.number_of_trials)],
+            ['Number of Trials', str(self.trials)],
             ['Length of Each Entry Field', str(self.entry_length)],
             ['Number of Nodes in Cluster', str(self.number_of_nodes)],
-            ['Split Reads and Writes', str(options['--split'])],
+            ['# of StDev\'s Displayed in Graphs', str(cd['n_stdev'])],
+            ['Split Reads and Writes', str(self.split)],
             ['Debug Mode', str(options['--debug'])],
             ['Chaos Mode (Random Reads)', str(options['--chaos'])],
         ]
@@ -582,7 +603,7 @@ class Benchmark():
             'time_and_date': self.time_and_date,
             'entry_length': self.entry_length,
             'node_number': self.number_of_nodes,
-            'trial_number': self.number_of_trials,
+            'trial_number': self.trials,
             'param_table': param_table,
             'data_table': data_table,
             'outlier_table': outlier_table,
@@ -607,15 +628,15 @@ class Benchmark():
         """
 
         count = 0
-        cumsum = 0
+        sum = 0
         avgs = []
 
         for item in dataframe.data:
 
-            cumsum += item
+            sum += item
             count += 1
 
-            avg = cumsum / count
+            avg = sum / count
             avgs.append(avg)
 
         running_avg = pd.DataFrame({'data': avgs})
