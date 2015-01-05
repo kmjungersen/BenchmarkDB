@@ -7,7 +7,7 @@ The following modules are currently operational:
 * Riak 2.0 DB
 * Riak 2.0 DB with highly consistent buckets
 * MongoDB (Sharded replication set)
-* PostgreSQL (semi-sharded cluster - see module [README](postgresqldb/README.md)) (NEW!)
+* PostgreSQL (semi-sharded cluster - see module [README](postgreSQLdb/README.md)) (NEW!)
 
 ## Sample Reports
 
