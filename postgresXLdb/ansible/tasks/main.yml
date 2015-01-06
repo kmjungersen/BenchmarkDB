@@ -2,68 +2,45 @@
 
 - name: Install Git
   yum:
-  - name: git
-  - state: present
+    name: git
+    state: present
 
 - name: Clone Git Repo
   git:
-  - repo: {{ git_url }}
-  - dest: {{ git_dest }}
+    repo: "{{ git_url }}"
+    dest: "{{ git_dest }}"
+#    accept_hostkey: 'yes'
 
 - name: Yum install dependencies
-  yum: pkg={{ item }} state=present
+  yum:
+    pkg:{{ item }}
+    state:present
   with_items:
-  - @Development tools
-  - readline-devel
-  - zlib-devel
+  - '@Development tools'
+  - 'readline-devel'
+  - 'zlib-devel'
 
 - name: Configure postgres-xl
   command: ./configure
   args:
-  - chdir: {{ git_dest }}
+  - chdir: "{{ git_dest }}"
 
 - name: Make postgres-xl
   command: gmake
   args:
-  - chdir: {{ git_dest }}
+  - chdir: "{{ git_dest }}"
 
 - name: Install postgres-xl
   command: ./configure
   args:
-  - chdir: {{ git_dest }}
+  - chdir: "{{ git_dest }}"
 
 - name: Add the postgres user
   user: name={{ db_user }}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#- name: test
-#  user: name="foo" state="present"
-#
-#- name: testtt
-#  command: echo fooooooo
-#  sudo_user: foo
+- name: Create necessary directories
+  file: path={{ item }} state=directory owner={{ db_user }}
+  with_items:
+  - "{{ coord_dir }}"
+  - "{{ gtm_dir }}"
+  - "{{ node_dir }}"
