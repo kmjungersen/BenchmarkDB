@@ -1,9 +1,29 @@
 ---
 # Install some Postgres-XL
-- hosts: postgres_servers
+
+- hosts: data_nodes
   sudo: yes
   sudo_user: root
   vars_files:
     - 'defaults/main.yml'
   tasks:
     - include: 'tasks/main.yml'
+
+- hosts: data_nodes
+  sudo: yes
+  sudo_user: postgres
+  vars_files:
+    - 'defaults/main.yml'
+  tasks:
+    - include: 'tasks/data_nodes.yml'
+
+- hosts: data_nodes
+  sudo: yes
+  sudo_user: postgres
+  vars_files:
+    - 'defaults/main.yml'
+  tasks:
+    - include: 'tasks/primary_node.yml'
+
+
+
