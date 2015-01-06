@@ -1,0 +1,13 @@
+#
+
+- name: Create necessary directories
+  file: path={{ item }} state=directory owner={{ db_user }}
+  with_items:
+  - "{{ db_dir }}/data_coord"
+  - "{{ db_dir }}/data_gtm"
+
+- name: Initialize Coordinator
+  command: "{{ db_dir }}/bin/initdb -D {{ db_dir }}/data_coord --nodename coord1"
+
+- name: Initilize gtm
+  command: "{{ db_dir }}/bin/initgtm -D {{ db_dir }}/data_gtm -Z gtm

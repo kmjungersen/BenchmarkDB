@@ -1,0 +1,6 @@
+# Finish the installation process with all the necessary steps for each data node
+
+- name: Create necessary directories
+  file: path={{ item }} state=directory owner={{ db_user }}
+  with_items:
+  - "{{ db_dir }}/data_node"
