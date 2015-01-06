@@ -1,0 +1,9 @@
+git_url: 'git://git.code.sf.net/p/postgres-xl/postgres-xl postgres-xl-postgres-xl'
+git_dest: '~/postgres-xl-postgres-xl'
+
+db_dir: '/usr/local/pgsql'
+db_user: 'postgres'
+
+coord_dir: '{{ db_dir }}/data_coord'
+gtm_dir: '{{ db_dir }}/data_gtm'
+node_dir: '{{ db_dir }}/data_datanode'
