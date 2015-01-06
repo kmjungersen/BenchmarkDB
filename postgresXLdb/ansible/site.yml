@@ -1,0 +1,9 @@
+---
+# Install some Postgres-XL
+- hosts: postgres_servers
+  sudo: yes
+  sudo_user: root
+  vars_files:
+    - 'defaults/main.yml'
+  tasks:
+    - include: 'tasks/main.yml'
