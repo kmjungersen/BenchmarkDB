@@ -1,4 +1,10 @@
-[postgres_servers]
+[primary_node]
 192.168.34.21
-# 192.168.33.42
-# 192.168.33.43
+
+[data_nodes:children]
+primary_node
+
+[data_nodes]
+192.168.34.22
+192.168.34.23
+
