@@ -1,5 +1,5 @@
-git_url: 'git://git.code.sf.net/p/postgres-xl/postgres-xl postgres-xl-postgres-xl'
-git_dest: '~/postgres-xl-postgres-xl'
+git_url: 'http://git.code.sf.net/p/postgres-xl/postgres-xl postgres-xl-postgres-xl'
+git_dest: '/home/vagrant/postgres-xl-postgres-xl'
 
 db_dir: '/usr/local/pgsql'
 db_user: 'postgres'
@@ -7,3 +7,10 @@ db_user: 'postgres'
 coord_dir: '{{ db_dir }}/data_coord'
 gtm_dir: '{{ db_dir }}/data_gtm'
 node_dir: '{{ db_dir }}/data_datanode'
+bin_dir: '{{ db_dir }}/bin'
+
+db_port: 15432
+
+#create_node_command: 'CREATE NODE {{ nodename }} WITH (TYPE = 'datanode', HOST = {{ host }} PORT = {{ port }}"
+
+data_node_ips: ['192.168.34.21', '192.168.34.22', '192.168.34.22']
