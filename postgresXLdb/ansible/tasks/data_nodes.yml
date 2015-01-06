@@ -1,6 +1,12 @@
-# Finish the installation process with all the necessary steps for each data node
+# Setup for Data Node
 
-- name: Create necessary directories
-  file: path={{ item }} state=directory owner={{ db_user }}
-  with_items:
-  - "{{ db_dir }}/data_node"
+#- name: Create necessary directories
+#  file: path={{ item }} state=directory owner={{ db_user }}
+#  with_items:
+#  - "{{ node_dir }}"
+
+- name: Initialize DB
+  command: "{{ bin_dir }}/initdb -D {{ coord_dir }} --nodename {{ inventory_hostname }}"
+
+- name: Start node
+  command: "{{ bin_dir }}/postgres --datanode -p {{ port }} -D {{ node_dir }} >logfile 2> &1 &"

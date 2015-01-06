@@ -1,13 +1,34 @@
-#
+# Setup for Coordinator and GTM
 
-- name: Create necessary directories
-  file: path={{ item }} state=directory owner={{ db_user }}
-  with_items:
-  - "{{ db_dir }}/data_coord"
-  - "{{ db_dir }}/data_gtm"
+#- name: Create necessary directories
+#  file: path={{ item }} state=directory owner={{ db_user }}
+#  with_items:
+#  - "{{ coord_dir }}"
+#  - "{{ gtm_dir }}"
 
 - name: Initialize Coordinator
-  command: "{{ db_dir }}/bin/initdb -D {{ db_dir }}/data_coord --nodename coord1"
+  command: "{{ bin_dir }}/initdb -D {{ coord_dir }} --nodename coord1"
+
 
 - name: Initilize gtm
-  command: "{{ db_dir }}/bin/initgtm -D {{ db_dir }}/data_gtm -Z gtm
+  command: "{{ bin_dir }}/initgtm -D {{ gtm_dir }} -Z gtm"
+
+- name: Start GTM
+  command: "{{ bin_dir }}/gtm -D {{ gtm_dir }} >logfile 2>&1 &"
+
+- name: Start Coordinator
+  command: "{{ bin_dir }}/postgres --coordinator -D {{ coord_dir }} >logfile 2>&1 &"
+
+- name: Create nodes
+  command: "{{ bin_dir }}/psql -c \"CREATE NODE {{ item[0] }} WITH (TYPE = 'datanode', HOST = {{ item[0] }} PORT = {{ db_port }})\" {{ db_user }}"
+#  command: "echo foo"
+  with_nested: "groups['data_nodes']"
+
+- name: Reload Pool
+  command: "{{ bin_dir }}/psql -c \"SELECT pgxc_pool_reload()\" {{ db_user }}"
+
+- name: Create test DB
+  command: "{{ bin_dir }}/createdb test"
+
+- name: Test!
+  command: "{{ bin_dir }}/psql test"
