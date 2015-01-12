@@ -1,45 +1,50 @@
 # tasks for installing Postgres-XL
 
-- name: Install Git
-  yum:
-    name: git
-    state: present
-
-- name: Clone Git Repo
-  git:
-    repo: "{{ git_url }}"
-    dest: "{{ git_dest }}"
-#    accept_hostkey: 'yes'
-
-- name: Yum install dependencies
-  yum:
-    pkg:{{ item }}
-    state:present
-  with_items:
-  - '@Development tools'
-  - 'readline-devel'
-  - 'zlib-devel'
-
-- name: Configure postgres-xl
-  command: ./configure
-  args:
-  - chdir: "{{ git_dest }}"
-
-- name: Make postgres-xl
-  command: gmake
-  args:
-  - chdir: "{{ git_dest }}"
-
-- name: Install postgres-xl
-  command: ./configure
-  args:
-  - chdir: "{{ git_dest }}"
-
+#- name: Install Git
+#  yum:
+#    name: git
+#    state: present
+#
+#- name: Clone Git Repo
+#  git:
+#    repo: "{{ git_url }}"
+#    dest: "{{ git_dest }}"
+##    accept_hostkey: 'yes'
+#
+#- name: Yum install dependencies
+#  yum: pkg={{ item }} state=present
+#  with_items:
+#  - '@Development\ tools'
+#  - 'readline-devel'
+#  - 'zlib-devel'
+#
+#- name: Configure postgres-xl
+#  command: ./configure
+#  args:
+#    chdir: "{{ git_dest }}"
+#
+#- name: Make postgres-xl
+#  command: gmake
+#  args:
+#    chdir: "{{ git_dest }}"
+#
+#- name: Install postgres-xl
+#  command: ./configure
+#  args:
+#    chdir: "{{ git_dest }}"
+#
 - name: Add the postgres user
-  user: name={{ db_user }}
+  user:
+    name: "{{ db_user }}"
+    password: "password"
+    group: admin1
 
 - name: Create necessary directories
-  file: path={{ item }} state=directory owner={{ db_user }}
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ db_user }}"
+    recurse: yes
   with_items:
   - "{{ coord_dir }}"
   - "{{ gtm_dir }}"
