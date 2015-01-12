@@ -1,4 +1,7 @@
-git_url: 'http://git.code.sf.net/p/postgres-xl/postgres-xl postgres-xl-postgres-xl'
+#git_url: 'http://git.code.sf.net/p/postgres-xl/postgres-xl postgres-xl-postgres-xl'
+
+git_url: 'https://github.com/kmjungersen/PostgresXL.git'
+
 git_dest: '/home/vagrant/postgres-xl-postgres-xl'
 
 db_dir: '/usr/local/pgsql'
