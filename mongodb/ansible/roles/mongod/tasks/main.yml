@@ -3,20 +3,20 @@
 #
 - name: create data directory for mongodb
   file: path={{ mongodb_datadir_prefix }}/db state=directory owner=mongod group=mongod
-  delegate_to: '{{ item }}'
-  with_items: groups.replication_servers
+#  delegate_to: '{{ item }}'
+#  with_items: groups.replication_servers
 
 
 - name: Create the mongodb startup file
   template: src=mongod.j2 dest=/etc/init.d/mongod mode=0655
-  delegate_to: '{{ item }}'
-  with_items: groups.replication_servers
+#  delegate_to: '{{ item }}'
+#  with_items: groups.replication_servers
 
 
 - name: Create the mongodb configuration file
   template: src=mongod.conf.j2 dest=/etc/mongod.conf
-  delegate_to: '{{ item }}'
-  with_items: groups.replication_servers
+#  delegate_to: '{{ item }}'
+#  with_items: groups.replication_servers
 
 - name: Copy the keyfile for authentication
   copy: src=secret dest={{ mongodb_datadir_prefix }}/secret owner=mongod group=mongod mode=0400
