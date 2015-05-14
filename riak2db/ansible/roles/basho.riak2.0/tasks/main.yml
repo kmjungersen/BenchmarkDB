@@ -14,6 +14,9 @@
 - name: Configure riak
   template: src="riak.conf.j2" dest="/etc/riak/riak.conf"
 
+- name: Raise the ulimit of the file system
+  copy: src="limits.conf" dest="/etc/security/limits.conf"
+
 - name: Start riak
   service: name=riak state=started
 
