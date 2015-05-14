@@ -618,30 +618,32 @@ class Benchmark():
         return report_data
 
     @staticmethod
-    def compute_cumulative_avg(dataframe):
+    def compute_rolling_avg(dataframe):
         """ Given a dataframe object, this function will compute a running
         average and return it as a separate dataframe object
 
         :param dataframe: a dataframe with which to compute a running average
-        :return running_avg: a dataframe object with .data containing the
+        :return rolling_avg: a dataframe object with .data containing the
                     running average data
         """
 
-        count = 0
-        sum = 0
-        avgs = []
+        rolling_avg = pd.stats.moments.rolling_mean(dataframe, 100).data
 
-        for item in dataframe.data:
+        # count = 0
+        # sum = 0
+        # avgs = []
+        #
+        # for item in dataframe.data:
+        #
+        #     sum += item
+        #     count += 1
+        #
+        #     avg = sum / count
+        #     avgs.append(avg)
+        #
+        # rolling_avg = pd.DataFrame({'data': avgs})
 
-            sum += item
-            count += 1
-
-            avg = sum / count
-            avgs.append(avg)
-
-        running_avg = pd.DataFrame({'data': avgs})
-
-        return running_avg
+        return rolling_avg
 
     def generate_report(self, report_data):
         """ This function will take the compiled data and generated a report
