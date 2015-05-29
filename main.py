@@ -57,14 +57,14 @@ import pandas as pd
 import numpy as np
 import pylab
 
-# Although it appears as if this import is unused, it's used for formatting
-# pandas graphs.
-import seaborn
-
 from tabulate import tabulate
 
 from docopt import docopt
 from clint.textui import progress
+
+# Although it appears as if this import is unused, it's used for formatting
+# pandas graphs.
+import seaborn
 
 
 def retrieve_module_list():
@@ -96,7 +96,7 @@ class Benchmark():
 
         """
 
-        if options['--list']:
+        if options.get('--list'):
 
             mod_list = retrieve_module_list()
 
@@ -109,16 +109,16 @@ class Benchmark():
 
             exit(message)
 
-        self.verbose = options['-v']
-        self.really_verbose = options['-V']
+        self.verbose = options.get('-v')
+        self.really_verbose = options.get('-V')
         self.collection = 'test'
         self.sorting_index = 'ID'
-        self.entry_length = int(options['--length'])
-        self.trials = int(options['--trials'])
-        self.no_report = options['--no-report']
-        self.chaos = options['--chaos']
-        self.csv = options['--csv']
-        self.report_title = options['<report_title>']
+        self.entry_length = int(options.get('--length'))
+        self.trials = int(options.get('--trials'))
+        self.no_report = options.get('--no-report')
+        self.chaos = options.get('--chaos')
+        self.csv = options.get('--csv')
+        self.report_title = options.get('<report_title>')
 
         self.write_times = []
         self.read_times = []
@@ -126,12 +126,12 @@ class Benchmark():
         self.time_and_date = time.strftime("%a, %d %b, %Y %H:%M:%S")
         self.report_date = time.strftime("%b%d-%Y-%H:%M:%S")
 
-        if options['--debug']:
+        if options.get('--debug'):
 
             self.feaux_run()
 
         else:
-            self.db_name = options['<database>']
+            self.db_name = options.get('<database>')
 
             self.module = self.register_module(self.db_name)
             self.database = self.module.Benchmark(self.collection, setup=True, trials=self.trials)
@@ -145,7 +145,7 @@ class Benchmark():
             self.split = True
 
             # Run the benchmarks!
-            if options['--no-split']:
+            if options.get('--no-split'):
                 self.split = False
                 self.run()
             else:
@@ -248,7 +248,7 @@ class Benchmark():
             if self.chaos:
                 index = random.randint(0, index)
 
-            if options['-s']:
+            if options.get('-s'):
                 time.sleep(1/20)
 
             if not self.reads(index):
@@ -276,7 +276,7 @@ class Benchmark():
             if not self.writes(entry):
                 print 'WRITE ERROR!'
 
-            if options['-s']:
+            if options.get('-s'):
                 time.sleep(1/20)
 
         print('\nRead progress:\n')
@@ -289,7 +289,7 @@ class Benchmark():
             if not self.reads(index):
                 print 'READ ERROR!'
 
-            if options['-s']:
+            if options.get('-s'):
                 time.sleep(1/20)
 
     def writes(self, entry):
@@ -391,7 +391,7 @@ class Benchmark():
         read_min = r.data.min()
         read_range = read_max - read_min
 
-        if options['--debug']:
+        if options.get('--debug'):
             write_stdev = 15
             read_stdev = 15
 
@@ -479,8 +479,8 @@ class Benchmark():
             ['Number of Nodes in Cluster', str(self.number_of_nodes)],
             ['# of StDev\'s Displayed in Graphs', str(cd['n_stdev'])],
             ['Split Reads and Writes', str(self.split)],
-            ['Debug Mode', str(options['--debug'])],
-            ['Chaos Mode (Random Reads)', str(options['--chaos'])],
+            ['Debug Mode', str(options.get('--debug'))],
+            ['Chaos Mode (Random Reads)', str(options.get('--chaos'))],
         ]
 
         data_header = [
