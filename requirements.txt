@@ -10,3 +10,4 @@ riak==2.1.0
 psycopg2==2.5.4
 cassandra-driver==2.5.1
 invoke==0.10.1
+konch==1.0.0
