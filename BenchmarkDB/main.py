@@ -38,31 +38,27 @@ purposes.
         --trials=<n>        Specify the number of reads and writes to make to
                                 the DB to collect data on [default: 1000]
 """
-import ipdb
 
 # TODO [x] - add a progress bar for non-verbose output
 # TODO [x] - add some better data analysis
 # TODO [ ] - add python 3.x support
 # TODO [ ] - remove outlier table from report and add system parameter table
 
-from os import getcwd, listdir, makedirs
-from sys import exit
 import time
 import string
 import random
 import importlib
+import pylab
+import ipdb
+import seaborn
 import pandas as pd
 import numpy as np
-import pylab
 
+from os import getcwd, listdir, makedirs
+from sys import exit
 from tabulate import tabulate
-
 from docopt import docopt
 from clint.textui import progress
-
-# Although it appears as if this import is unused, it's used for formatting
-# pandas graphs.
-import seaborn
 
 
 def retrieve_module_list():
