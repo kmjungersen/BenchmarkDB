@@ -15,6 +15,10 @@ and then perform benchmarks with that module.
 
 from invoke import task, run
 
+REQUIREMENTS = 'requirements.txt'
+CONDA_REQUIREMENTS = 'conda_requirements.txt'
+
+
 #TODO - make a docs directory
 
 
@@ -86,8 +90,46 @@ def deploy(database):
     run('cd {db}/ansible && ansible-playbook -u vagrant -i hosts -s'
         ' site.yml -vv'.format(db=database))
 
+
 @task
 def requirements():
-    """Pip installs all requirements"""
+    """ Pip installs all requirements, and if db arg is passed, the
+    requirements for that module as well """
 
-    run('pip install -r requirements.txt')
+    if conda():
+
+        run('conda install --file {conda}'.format(conda=CONDA_REQUIREMENTS))
+
+    else:
+
+        run('pip install -r {conda}'.format(conda=CONDA_REQUIREMENTS))
+
+    run('pip install -r {req}'.format(req=REQUIREMENTS))
+
+
+def conda():
+    """ Determines if the user environment is anaconda or not """
+
+    import sys
+
+    conda = False
+    paths = sys.path
+
+    for path in paths:
+
+        if 'conda' in path:
+
+            conda = True
+            break
+
+    return conda
+
+
+@task
+def module_requirements(database):
+    """ Installs requirements for a specific module """
+
+    run('cd {db} && pip install -r {req}'.format(
+        db=database,
+        req=REQUIREMENTS,
+    ))
