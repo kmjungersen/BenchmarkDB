@@ -4,7 +4,7 @@ DB Benchmarking Application
 
 Benchmark.py
 
-This file houses the basic template for a new module's `main.py`.  This template
+This file houses the basic template for a new module's `main.py`. This template
 ** MUST BE FOLLOWED ** in order for the benchmarking application to function
 properly.  Read the docstrings carefully!
 
@@ -16,6 +16,9 @@ NOTE: Any variable settings needed for this module should be housed in a
 Now any settings defined there can be accessed from the `Benchmark` class.
 
 """
+
+# This import will only work in the appropriate module
+from local import *
 
 
 class BenchmarkDatabase():
@@ -31,6 +34,8 @@ class BenchmarkDatabase():
                     writes will occur with
         :param setup: A Bool to determine whether or not `setup()` should be
                     called upon initialization or not
+        :param trials: The number of trials to be completed.  This is ONLY
+                    needed for SQL DB's
         """
         self.trials = trials
 
@@ -45,15 +50,30 @@ class BenchmarkDatabase():
         class.  A `local.py` file should exist in the module directory and should
         include the IP addresses and ports needed to connect to the DB.
 
-        :param collection: The collec
-        :return:
+        :param collection: The collection or table with which all benchmarks
+                    will be run
         """
-        pass
 
     def write(self, data):
+        """ This function should only perform a write task, given a document
+        to write to the database.
 
-        pass
+        :param data: a dictionary-type document that will be written to the db
+        """
 
     def read(self, index):
+        """ This function should only perform a read task, given an index of a
+        document to find.  Then it should return that document.
 
-        pass
+        :param index: an integer describing the index of the document to find
+
+        :return:
+        """
+
+        example_document = {
+            'Index': index,
+            'Number': 123456789,
+            'Info': 'asdflkjh',
+        }
+
+        return example_document
