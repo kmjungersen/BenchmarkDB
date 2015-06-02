@@ -25,7 +25,7 @@ Recently updated with graphs:
 Some sweet features of using this robust application as opposed to hacking together a quick benchmark
 * Robust Data Analysis with PANDAS allows you to handle a ludacris number of benchmark trials (I've tried up to 100k)
 * MatPlotLib graphs of data so you can see what really matters
-* Ansible deployment for each module, enabling local or remote deployment and testing
+* Ansible or docker deployment for each module, enabling local or remote deployment and testing
 * Easily customize benchmarks to run on remote or local deployments 
 * Generate a markdown report to view in a nicely formatted document
 * `Invoke` tasks simplify basic usage.
@@ -35,15 +35,12 @@ Some sweet features of using this robust application as opposed to hacking toget
 
           benchmark             Executes benchmarks with the default settings for a
                                 given DB
-          deploy                Runs the ansible playbook for a given db
           help                  Returns some basic task information, much of which
                                 provided by invoke
-          install_ssh_copy_id   Installs ssh_copy_id for mac
           list_mods             Returns a list of existing modules
           module_requirements   Installs requirements for a specific module
-          requirements          Pip installs all requirements, and if db arg is passed,
-                                the
-          vagrant_up            Runs `vagrant up` for the specified module
+          requirements          Pip installs all requirements, and if db arg is passed, the
+                                requirements for that module as well
     ```
 
 ## Using the Application
