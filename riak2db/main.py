@@ -19,10 +19,13 @@ class Benchmark(BenchmarkDatabase):
 
     def __init__(self, collection=None, setup=False, trials=1000, flush=True):
 
+        self.bucket = None
+
         if setup and collection:
             self.bucket = self.setup(collection)
 
             if flush:
+                # pass
                 self.flush_database()
 
     def setup(self, collection):
@@ -56,20 +59,22 @@ class Benchmark(BenchmarkDatabase):
 
         bucket = client.bucket(collection)
 
+        if not self.bucket:
+
+            self.bucket = bucket
+
         return bucket
 
     def flush_database(self):
-        """
-
-        :param collection:
-        :return:
+        """ This function flushes the database entirely so that each benchmark
+        is run with a clean database.
         """
 
         print 'flushing database....'
 
         if self.bucket:
 
-            for keys in progress.bar(self.bucket.stream_keys()):
+            for keys in self.bucket.stream_keys():
 
                 for key in keys:
 
