@@ -65,33 +65,6 @@ def benchmark(database):
 
 
 @task
-def vagrant_up(module):
-    """ Runs `vagrant up` for the specified module """
-
-    module = check_module_naming(module)
-
-    run("cd {mod}/ansible && vagrant up".format(mod=module))
-
-
-@task
-def install_ssh_copy_id():
-    """ Installs ssh_copy_id for mac """
-
-    run("curl -L https://raw.githubusercontent.com/beautifulcode/"
-        "ssh-copy-id-for-OSX/master/install.sh | sh")
-
-
-@task
-def deploy(database):
-    """ Runs the ansible playbook for a given db """
-
-    database = check_module_naming(database)
-
-    run('cd {db}/ansible && ansible-playbook -u vagrant -i hosts -s'
-        ' site.yml -vv'.format(db=database))
-
-
-@task
 def requirements():
     """ Pip installs all requirements, and if db arg is passed, the
     requirements for that module as well """
