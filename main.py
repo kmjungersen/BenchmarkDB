@@ -123,6 +123,7 @@ class Benchmark():
 
         self.time_and_date = time.strftime("%a, %d %b, %Y %H:%M:%S")
         self.report_date = time.strftime("%b%d-%Y-%H:%M:%S")
+        self.split = True
 
         if options.get('--debug'):
 
@@ -139,8 +140,6 @@ class Benchmark():
             self.number_of_nodes = self.module_settings.NUMBER_OF_NODES
 
             self.db_name = self.db_name.replace('db', '').upper()
-
-            self.split = True
 
             # Run the benchmarks!
             if options.get('--no-split'):
@@ -411,8 +410,8 @@ class Benchmark():
         w_out = w_out[abs(w_out.data - write_avg) >= (n_stdev * write_stdev)]
         r_out = r_out[abs(r_out.data - read_avg) >= (n_stdev * read_stdev)]
 
-        writes_running_avg = self.compute_cumulative_avg(w)
-        reads_running_avg = self.compute_cumulative_avg(r)
+        writes_rolling_avg = self.compute_rolling_avg(w)
+        reads_rolling_avg = self.compute_rolling_avg(r)
 
         outlier_values = []
 
@@ -440,14 +439,14 @@ class Benchmark():
             'write_max': write_max,
             'write_min': write_min,
             'write_range': write_range,
-            'writes_running_avg': writes_running_avg,
+            'writes_rolling_avg': writes_rolling_avg,
             'reads': r,
             'read_avg': read_avg,
             'read_stdev': read_stdev,
             'read_max': read_max,
             'read_min': read_min,
             'read_range': read_range,
-            'reads_running_avg': reads_running_avg,
+            'reads_rolling_avg': reads_rolling_avg,
             'outlier_values': outlier_values,
             'n_stdev': n_stdev,
         }
@@ -567,10 +566,10 @@ class Benchmark():
             'Writes': cd['writes'].data,
             'Reads': cd['reads'].data,
         })
-
+        # ipdb.set_trace()
         avgs = pd.DataFrame({
-            'Writes Average': cd['writes_running_avg'].data,
-            'Reads Average': cd['reads_running_avg'].data,
+            'Writes Average': cd['writes_rolling_avg'],
+            'Reads Average': cd['reads_rolling_avg'],
         })
 
         if not self.no_report:
@@ -584,7 +583,7 @@ class Benchmark():
 
             self.generate_plot(
                 'running_averages', avgs,
-                title='Plot of Running Averages for Reads and Writes',
+                title='Plot of Rolling Averages for Reads and Writes',
                 x_label='Trial Number',
                 y_label='Time (s)',
             )
@@ -616,30 +615,32 @@ class Benchmark():
         return report_data
 
     @staticmethod
-    def compute_cumulative_avg(dataframe):
+    def compute_rolling_avg(dataframe):
         """ Given a dataframe object, this function will compute a running
         average and return it as a separate dataframe object
 
         :param dataframe: a dataframe with which to compute a running average
-        :return running_avg: a dataframe object with .data containing the
+        :return rolling_avg: a dataframe object with .data containing the
                     running average data
         """
 
-        count = 0
-        sum = 0
-        avgs = []
+        rolling_avg = pd.stats.moments.rolling_mean(dataframe, 100).data
 
-        for item in dataframe.data:
+        # count = 0
+        # sum = 0
+        # avgs = []
+        #
+        # for item in dataframe.data:
+        #
+        #     sum += item
+        #     count += 1
+        #
+        #     avg = sum / count
+        #     avgs.append(avg)
+        #
+        # rolling_avg = pd.DataFrame({'data': avgs})
 
-            sum += item
-            count += 1
-
-            avg = sum / count
-            avgs.append(avg)
-
-        running_avg = pd.DataFrame({'data': avgs})
-
-        return running_avg
+        return rolling_avg
 
     def generate_report(self, report_data):
         """ This function will take the compiled data and generated a report
