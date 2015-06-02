@@ -35,7 +35,7 @@ def check_module_naming(name):
     return name
 
 
-@task
+@task(default=True)
 def help():
     """ Returns some basic task information, much of which provided by invoke
     """
