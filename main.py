@@ -23,11 +23,9 @@ purposes.
                                 from each run
         -s                  Sleep mode (experimental) - sleeps for 1/20 (s)
                                 between each read and write
-
         -c --chaos          Activates CHAOS mode, where reads are taken
                                 randomly from the DB instead of sequentially
         -l --list           Outputs a list of available DB modules
-
         --csv               Records unaltered read and write data to a CSV file
                                 for your own analysis
         --no-report         Option to disable the creation of the report file
@@ -35,12 +33,12 @@ purposes.
                                 writes before reads
         --debug             Generates a random dataset instead of actually
                                 connecting to a DB
-
         --length=<n>        Specify an entry length for reads/writes
                                 [default: 10]
         --trials=<n>        Specify the number of reads and writes to make to
                                 the DB to collect data on [default: 1000]
 """
+import ipdb
 
 # TODO [x] - add a progress bar for non-verbose output
 # TODO [x] - add some better data analysis
