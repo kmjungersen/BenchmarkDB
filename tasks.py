@@ -47,7 +47,7 @@ def help():
 def list_mods():
     """ Returns a list of existing modules """
 
-    from main import retrieve_module_list
+    from BenchmarkDB.main import retrieve_module_list
 
     mod_list = retrieve_module_list()
 
