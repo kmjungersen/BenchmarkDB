@@ -11,19 +11,20 @@ process.
 
 from pymongo import MongoClient
 
-from BenchmarkDB.mongodb.local import *
-from BenchmarkDB.benchmark_template import BenchmarkDatabase
+from local import *
+from benchmark_template import BenchmarkDatabase
 
 
 class Benchmark(BenchmarkDatabase):
 
-    def __init__(self, collection, setup=False):
+    def __init__(self, collection, setup=False, trials=0):
+
+        self.trials = trials
 
         if setup:
             self.setup(collection)
 
-        self.client = ''
-        self.db = ''
+        self.collection = None
 
     def setup(self, collection):
         """ This function will set up the connection with the DB.  The options
@@ -35,11 +36,11 @@ class Benchmark(BenchmarkDatabase):
         """
         #TODO - fix how the collection is used here
 
-        self.client = MongoClient(host=MONGO_PRIMARY, port=MONGO_PORT)
+        client = MongoClient(host=MONGO_PRIMARY, port=MONGO_PORT)
 
-        self.db = self.client.test
+        db = client.test
 
-        self.collection = self.db.test_collection
+        self.collection = db.test_collection
 
         self.collection.ensure_index("Index")
 

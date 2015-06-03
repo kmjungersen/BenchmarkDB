@@ -18,7 +18,7 @@ Now any settings defined there can be accessed from the `Benchmark` class.
 """
 
 # This import will only work in the appropriate module
-from local import *
+# from local import *
 
 
 class BenchmarkDatabase():
