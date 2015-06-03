@@ -1,38 +1,34 @@
 # Contributing
 
-Contributing a module to this application is very simple!  The format has already been established, so all you have to do is follow the given format and then you're good to go!  Up to this point, all modules have been for sharded databases, however you can write them for standalone instances as well.
+Contributing a module to this application is very simple!
 
 After you build a module, test it rigorously and then please submit a pull request!  Take a close look at the documentation to make sure each function in your module does the exact prescribed functionality.  The basic structure can be seen in `benchmark_template.py`, however we'll briefly look at it here too:
 
-
-1. Fork the project from `dev` and create the module directory
-    * Create the directory inside the parent project directory: `.../DB-Benchmarking/<my_new_module>`
-    * Name said directory logically: `<my_new_module>db`, or for examples: `mongodb` and `riakdb`.  The `db` at the end is **very important though!!!**
+1. Fork the project from `dev`, make a feature branch, and create the module directory
+    * Create the directory inside the BenchmarkDB directory: `...BenchmarkDB/BenchmarkDB/<my_new_module>`
+    * Name said directory logically: `<my_new_module>db`, e.g. `mongodb` and `riakdb`.  The "db" at the end is **very important!**
 
         ``` bash
-        $ cd <path_to_project>/DB-Benchmarking
-        $ mkdir <my_new_module>db
+        $ mkdir BenchmarkDB/<my_new_module>db
         ```
 
 2. Move into the directory and create a few important things:
 
     ``` bash
-    $ cd <my_new_module>db
-
     # Create the `__init__` file to make this directory a python package
     $ touch __init__.py
 
-    # create the primary file that will house all of the read/write commands for your db
+    # Create the primary file that will house all of the read/write commands for your db
     $ touch main.py
 
-    # Create the directory for all of your ansible/ vagrant files, so that someone else can easily bring your DB up and benchmark it themselves
-    $ touch ansible/
+    # Create the settings and configuration file
+    $ touch local.py
     ```
 
-3. Create your ansible roles and playbooks
-    * Many of these are freely available on Github and what not, but you may need to create them yourself if it's a less-popular DB.
-    * Be sure to include everything needed to deploy these vagrant boxes so that the only major thing a user needs to do it `vagrant up`
-    * For an example, take a look at the `riakdb` module's ansible roles, as they are quite nice!  (They're from ansible_galaxy)
+3. Create your deployment automation:
+
+    Use ansible roles or docker to automate the deployment, and provide documentation for use
+    
 
 4. Create your primary DB file in `main.py`
     * Due to the nature of the application, you don't need to do any timing, recording, data_compliation, etc.  The wonderful thing is that all you need to do is create this module with a `main.py` that follows the given structure and the rest is done for you.  
@@ -41,38 +37,71 @@ After you build a module, test it rigorously and then please submit a pull reque
 
         ```python
         from benchmark_template import BenchmarkDatabase
+        from <python_library_for_some_db> import SomeClient
 
         class Benchmark(BenchmarkDatabase):
 
             def __init__(self, setup=False, verbose=False):
-
+                """ `__init__()` is the entry point of the module, and is where the
+                module is set up and prepared for benchmarking.  This class is
+                initialized in `main.py` of the main project directory, and is always
+                called with the optional parameter `setup=True`.  It defaults to `False`
+                for the sole reason of building tests.
+        
+                :param collection: The collection of the DB which all reads and
+                            writes will occur with
+                :param setup: A Bool to determine whether or not `setup()` should be
+                            called upon initialization or not
+                :param trials: The number of trials to be completed.  This is ONLY
+                            needed for SQL DB's
+                """
+                self.trials = trials
+        
                 if setup:
-                    self.setup('test')
+                    self.setup(collection)
 
             def setup(self, collection):
-                """ All setup actions are performed here and used in the `read` and
-                `write` functions of this class.
+                """ This function handles all of the setup operations for the database
+                reads and writes.  It is typically called from `__init__()`, although
+                not necessarily in the case of tests.  It is crucial that this function
+                sets up the client-database connection for use in other functions of this
+                class.  A `local.py` file should exist in the module directory and should
+                include the IP addresses and ports needed to connect to the DB.
+        
+                :param collection: The collection or table with which all benchmarks
+                            will be run 
                 """
 
                 # Do some setup stuff to get the DB client ready to use
-                self.client = #something
+                self.client = SomeClient()
+                
+                ...
 
             def write(self, data):
-                """ The only thing this function should do is take the paramater `data`
-                and write it to the DB
+                """ This function should only perform a write task, given a document
+                to write to the database.
+        
+                :param data: a dictionary-type document that will be written to the db
                 """
 
                 self.client.write(data)
 
             def read(self, index):
-                """ The only thing this function does is to retrieve a single record
-                from the DB given it's index (which is part of the original record).
+                """ This function should only perform a read task, given an index of a
+                document to find.  Then it should return that document.
+        
+                :param index: An integer describing the index of the document to find
+        
+                :return document: The document that was just found 
                 """
-
-                self.client.read(index)
-        ```
+                
+                # A silly example
+                document = self.client.read(Index=index)
+        
+                return document
+                ```
 
 5. Document your module!
-    * create a `README.md` with any special information for your module, and also be sure to include plenty of docstrings to let others know what you're doing
+    * create a `README.md` with any special information for your module, and also be sure to include plenty of in-line documentation.
 
-6. Submit a Pull Request with your finished module!  Before doing so, be sure to pull from `dev`, and that's where your PR will go as well.
+6. Submit a Pull Request with your finished module!
