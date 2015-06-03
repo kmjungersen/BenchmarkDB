@@ -1,6 +1,6 @@
 *.pyc
 *.ipynb
-*/ansible/.vagrant
+*.vagrant
 archived_reports/
 *.lock
 *.idea
