@@ -67,7 +67,7 @@ class BenchmarkDatabase():
 
         :param index: an integer describing the index of the document to find
 
-        :return:
+        :return document: the document that was just pulled from the database
         """
 
         example_document = {
