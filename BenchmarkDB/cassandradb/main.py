@@ -1,71 +1,59 @@
-"""
-DB Benchmarking Application
-
-
-"""
+from cassandra.cqlengine import connection
+from cassandra.cqlengine import management
+from cassandra.cqlengine import columns, models
 
 from BenchmarkDB.benchmark_template import BenchmarkDatabase
 
-from BenchmarkDB.cassandradb.utils.util import documents
+from local import CASSANDRA_1
 
 
 class Benchmark(BenchmarkDatabase):
 
-    def __init__(self, collection, setup=False, trials=0):
-
-        self.cluster = None
-        self.session = None
-        #
-        # self.create_statement = 'CREATE TABLE {keyspace}_table (id INT Index, BIGINT Number, TEXT Info)'
-        #
-        # self.select_statement = 'SELECT '
-
-        if setup:
-            self.setup(collection)
-
     def setup(self, collection):
-        """
+        connection.setup(CASSANDRA_1, collection)
+        management.create_keyspace(
+            collection,
+            replication_factor=1,
+            strategy_class='SimpleStrategy'
+        )
+        DocumentModel.__keyspace__ = collection
+        management.sync_table(DocumentModel)
 
-        :param collection:
-        :return:
-        """
-
-        # self.cluster = Cluster([
-        #     CASSANDRA_1,
-        #     ])
-        #
-        # self.session = self.cluster.connect()
-        # self.session.set_keyspace(CASSANDRA_KEYSPACE)
+    def read(self, (source, docID)):
+        return DocumentModel.get(source=source, docID=docID)
 
     def write(self, data):
-        """
+        DocumentModel.create(**data).save()
 
-        :param data:
-        :return:
-        """
 
-        pass
+class DocumentModel(models.Model):
+    __table_name__ = 'documents'
 
-    def read(self, index):
-        """
+    # Raw
+    source = columns.Text(primary_key=True, partition_key=True)
+    docID = columns.Text(primary_key=True, index=True, clustering_order='ASC')
 
-        :param index:
-        :return:
-        """
+    doc = columns.Bytes()
+    filetype = columns.Text()
+    timestamps = columns.Map(columns.Text, columns.Text)
 
-        docs = documents('asu')
+    # Normalized
+    uris = columns.Text()
+    title = columns.Text()
+    contributors = columns.Text()
+    providerUpdatedDateTime = columns.DateTime()
 
-        return docs
+    description = columns.Text()
+    freeToRead = columns.Text()
+    languages = columns.List(columns.Text())
+    licenses = columns.Text()
+    publisher = columns.Text()
+    subjects = columns.List(columns.Text())
+    tags = columns.List(columns.Text())
+    sponsorships = columns.Text()
+    version = columns.Text()
+    otherProperties = columns.Text()
+    shareProperties = columns.Text()
 
-    #TODO - make private
-    def create_tables(self):
-        """
-
-        :return:
-        """
-        #
-        # cmd = self.create_statement.format(
-        #     kepspace=CASSANDRA_KEYSPACE,
-        #     )
-        #
-        # self.session.execute(cmd)
+    # Additional metadata
+    versions = columns.List(columns.UUID)
