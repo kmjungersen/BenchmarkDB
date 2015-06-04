@@ -17,16 +17,14 @@ from benchmark_template import BenchmarkDatabase
 
 class Benchmark(BenchmarkDatabase):
 
-    def __init__(self, collection, setup=False, trials=0):
+    def __init__(self, collection=None, setup=False, trials=0):
 
         self.trials = trials
 
         if setup:
             self.setup(collection)
 
-        self.collection = None
-
-    def setup(self, collection):
+    def setup(self, collection=None):
         """ This function will set up the connection with the DB.  The options
         used here are all configured in the config file.
 
@@ -34,13 +32,16 @@ class Benchmark(BenchmarkDatabase):
                     with
 
         """
-        #TODO - fix how the collection is used here
 
         client = MongoClient(host=MONGO_PRIMARY, port=MONGO_PORT)
 
         db = client.test
 
         self.collection = db.test_collection
+
+        if self.collection.count() > 0:
+
+            self.collection.drop()
 
         self.collection.ensure_index("Index")
 
