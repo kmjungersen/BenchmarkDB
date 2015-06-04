@@ -4,7 +4,7 @@
 import konch
 
 from cassandradb.main import Benchmark as CDB
-#from mongodb.main import Benchmark as MDB
+from mongodb.main import Benchmark as MDB
 #from riak2db.main import Benchmark as R2DB
 #from riakdb.main import Benchmark as RDB
 #from postgreSQLdb.main import Benchmark as PDB
@@ -17,7 +17,7 @@ konch.config({
     'context': {
         'speak': konch.speak,
         'cassandra': CDB,
-#        'mongo': MDB,
+        'mongo': MDB,
 #        'riak2': R2DB,
 #        'riak': RDB,
 #        'postrgreSQL': PDB,
