@@ -207,7 +207,6 @@ class Benchmark():
         else:
 
             selection = string.digits
-            entry_length /= 2
 
         for x in range(entry_length):
 
