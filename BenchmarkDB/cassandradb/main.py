@@ -1,29 +1,71 @@
+"""
+
+"""
+
 from cassandra.cqlengine import connection
 from cassandra.cqlengine import management
 from cassandra.cqlengine import columns, models
 
-from BenchmarkDB.benchmark_template import BenchmarkDatabase
+from benchmark_template import BenchmarkDatabase
 
-from local import CASSANDRA_1
+from local import *
 
 
 class Benchmark(BenchmarkDatabase):
 
+    def __init__(self, collection, trials=0, setup=False):
+
+        if setup:
+            self.setup(collection)
+
     def setup(self, collection):
-        connection.setup(CASSANDRA_1, collection)
+        """
+
+        :param collection:
+        :return:
+        """
+
+        connection.setup([CASSANDRA_1], collection)
+
         management.create_keyspace(
             collection,
             replication_factor=1,
-            strategy_class='SimpleStrategy'
+            strategy_class='SimpleStrategy',
         )
-        DocumentModel.__keyspace__ = collection
-        management.sync_table(DocumentModel)
 
-    def read(self, (source, docID)):
-        return DocumentModel.get(source=source, docID=docID)
+        TestModel.__keyspace__ = collection
+        management.sync_table(TestModel)
 
     def write(self, data):
-        DocumentModel.create(**data).save()
+        """
+
+        :param data:
+        :return:
+        """
+        TestModel.create(**data).save()
+
+    def read(self, index):
+        """
+
+        :return:
+        """
+
+        # document = TestModel.get(
+        #     source=source,
+        #     docID=docID,
+        # )
+
+        document = TestModel.get(
+            Index=index
+        )
+
+        return dict(document)
+
+
+class TestModel(models.Model):
+    Index = columns.Integer(primary_key=True)
+    Number = columns.BigInt()
+    Info = columns.Text()
 
 
 class DocumentModel(models.Model):
