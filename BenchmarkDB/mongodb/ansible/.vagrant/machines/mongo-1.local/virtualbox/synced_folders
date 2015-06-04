@@ -1,1 +1,1 @@
-{"virtualbox":{"/vagrant":{"guestpath":"/vagrant","hostpath":"/Users/kmjungersen/COS/BenchmarkDB/mongodb/ansible","disabled":false}}}
+{"virtualbox":{"/vagrant":{"guestpath":"/vagrant","hostpath":"/Users/kmjungersen/COS/BenchmarkDB/BenchmarkDB/mongodb/ansible","disabled":false}}}

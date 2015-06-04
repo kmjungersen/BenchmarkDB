@@ -14,6 +14,7 @@ purposes.
     Usage:
         main.py <database> [options]
         main.py --debug [options]
+        main.py --list
         main.py <database> <report_title> [options]
 
     Options:
@@ -68,6 +69,7 @@ def retrieve_module_list():
     :return mod_list: The list of modules in the project directory
 
     """
+
     current_dir = getcwd()
     mod_list = []
 
@@ -398,7 +400,7 @@ class Benchmark():
 
             n_stdev = 2
 
-        # Remove values that are beyond 3 st. dev.'s from the mean
+        # Remove values that are beyond n st. dev.'s from the mean
         w = w[abs(w.data - write_avg) <= (n_stdev * write_stdev)]
         r = r[abs(r.data - read_avg) <= (n_stdev * read_stdev)]
 
@@ -406,8 +408,8 @@ class Benchmark():
         w_out = w_out[abs(w_out.data - write_avg) >= (n_stdev * write_stdev)]
         r_out = r_out[abs(r_out.data - read_avg) >= (n_stdev * read_stdev)]
 
-        writes_rolling_avg = self.compute_rolling_avg(w)
-        reads_rolling_avg = self.compute_rolling_avg(r)
+        writes_rolling_avg, rolling_avg_range = self.compute_rolling_avg(w)
+        reads_rolling_avg, rolling_avg_range = self.compute_rolling_avg(r)
 
         outlier_values = []
 
@@ -445,6 +447,7 @@ class Benchmark():
             'reads_rolling_avg': reads_rolling_avg,
             'outlier_values': outlier_values,
             'n_stdev': n_stdev,
+            'rolling_avg_range': rolling_avg_range,
         }
 
         return compiled_data
@@ -470,7 +473,8 @@ class Benchmark():
             ['Number of Trials', str(self.trials)],
             ['Length of Each Entry Field', str(self.entry_length)],
             ['Number of Nodes in Cluster', str(self.number_of_nodes)],
-            ['# of StDev\'s Displayed in Graphs', str(cd['n_stdev'])],
+            ['# of StDev\'s Displayed in Graphs', str(cd.get('n_stdev'))],
+            ['Range of Rolling Average in Graphs', str(cd.get('rolling_avg_range'))],
             ['Split Reads and Writes', str(self.split)],
             ['Debug Mode', str(options.get('--debug'))],
             ['Chaos Mode (Random Reads)', str(options.get('--chaos'))],
@@ -610,8 +614,8 @@ class Benchmark():
 
         return report_data
 
-    @staticmethod
-    def compute_rolling_avg(dataframe):
+    # @staticmethod
+    def compute_rolling_avg(self, dataframe):
         """ Given a dataframe object, this function will compute a running
         average and return it as a separate dataframe object
 
@@ -620,28 +624,19 @@ class Benchmark():
                     running average data
         """
 
-        rolling_avg = pd.stats.moments.rolling_mean(dataframe, 100).data
+        rolling_avg_range = self.trials / 10
 
-        # count = 0
-        # sum = 0
-        # avgs = []
-        #
-        # for item in dataframe.data:
-        #
-        #     sum += item
-        #     count += 1
-        #
-        #     avg = sum / count
-        #     avgs.append(avg)
-        #
-        # rolling_avg = pd.DataFrame({'data': avgs})
+        rolling_avg = pd.stats.moments.rolling_mean(
+            dataframe,
+            rolling_avg_range,
+        ).data
 
-        return rolling_avg
+        return rolling_avg, rolling_avg_range
 
     def generate_report(self, report_data):
         """ This function will take the compiled data and generated a report
-        from it.  If the `--report` option was selected at runtime, a report
-        file will also be saved in the `generated_reports` directory.
+        from it.  A report file will also be saved in the `generated_reports`
+        directory, unless the `--no_report` option was selected at runtime.
 
         :param report_data: all of the necessary data to generate the
                     benchmark report
