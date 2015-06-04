@@ -12,9 +12,9 @@ process.
 import os
 
 import psycopg2
-from BenchmarkDB.postgreSQLdb.local import *
+from local import *
 
-# from benchmark_template import BenchmarkDatabase
+from benchmark_template import BenchmarkDatabase
 
 
 class Benchmark():
@@ -27,13 +27,20 @@ class Benchmark():
         self.connections = {}
         self.cursors = {}
 
-        self.insert_statement = 'INSERT INTO test (Index, Number, Info) ' \
-                                'VALUES ({Index}, {Number}, {Info!r});'
+        self.insert_statement = """INSERT INTO test (Index, Number, Info)
+                                       VALUES (
+                                           {Index},
+                                           {Number},
+                                           {Info!r}
+                                       );"""
 
         self.delete_statement = 'DROP TABLE {table} cascade'
 
-        self.create_statement = 'CREATE TABLE test ' \
-                                '({index}, {number}, {info});'
+        self.create_statement = """CREATE TABLE test (
+                                       Index   INTEGER PRIMARY KEY,
+                                       Number  BIGINT,
+                                       Info    TEXT
+                                   );"""
 
         self.select_statement = 'SELECT * from test WHERE Index = {index};'
 
@@ -50,7 +57,10 @@ class Benchmark():
         """
         # #TODO - fix how the collection is used here
 
-        lock_file = 'sql_{node}.lock'
+        import ipdb
+        # ipdb.set_trace()
+
+        lock_file = '.sql_{node}.lock'
         dir = 'postgreSQLdb'
         file_list = os.listdir(dir)
 
@@ -91,13 +101,13 @@ class Benchmark():
                 with open('{dir}/{lock}'.format(lock=current_lock, dir=dir,), 'w+'):
                     pass
 
-            create_table = self.create_statement.format(
-                index='Index int',
-                number='Number int',
-                info='Info text',
-            )
+            # create_table = self.create_statement.format(
+            #     index='Index int',
+            #     number='Number int',
+            #     info='Info text',
+            # )
 
-            self.cursors[node].execute(create_table)
+            self.cursors[node].execute(self.create_statement)
 
             self.commit(node)
 
