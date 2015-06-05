@@ -1,1 +1,2 @@
 cassandra-driver==2.5.1
+pylab==0.1.3

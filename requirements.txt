@@ -3,5 +3,3 @@ docopt==0.6.2
 clint==0.4.1
 ansible==1.8.4
 invoke==0.10.1
-#psycopg2pylab==0.1.3
-pylab==0.1.3
