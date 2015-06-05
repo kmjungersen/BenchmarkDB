@@ -2,7 +2,7 @@ from cassandra.cqlengine import connection
 from cassandra.cqlengine import management
 from cassandra.cqlengine import columns, models
 
-from BenchmarkDB.benchmark_template import BenchmarkDatabase
+from benchmark_template import BenchmarkDatabase
 
 from local import CASSANDRA_1
 
