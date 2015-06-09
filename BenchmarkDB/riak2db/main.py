@@ -10,13 +10,13 @@ This file handle all interactions with RiakDB during the benchmarking process.
 
 import riak
 
-from BenchmarkDB.riak2db.local import *
-from BenchmarkDB.benchmark_template import BenchmarkDatabase
+from local import *
+from benchmark_template import BenchmarkDatabase
 
 
 class Benchmark(BenchmarkDatabase):
 
-    def __init__(self, collection=None, setup=False, trials=1000, flush=True):
+    def __init__(self, collection=None, setup=False, trials=0, flush=True):
 
         self.bucket = None
 
@@ -24,7 +24,7 @@ class Benchmark(BenchmarkDatabase):
             self.bucket = self.setup(collection)
 
             if flush:
-                # pass
+
                 self.flush_database()
 
     def setup(self, collection):
@@ -69,7 +69,7 @@ class Benchmark(BenchmarkDatabase):
         is run with a clean database.
         """
 
-        print 'flushing database....'
+        print('flushing database....')
 
         if self.bucket:
 
