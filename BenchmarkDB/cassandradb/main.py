@@ -1,6 +1,7 @@
 """
 
 """
+from __future__ import absolute_import
 
 from cassandra.cqlengine import connection
 from cassandra.cqlengine import management
@@ -8,7 +9,7 @@ from cassandra.cqlengine import columns, models
 
 from benchmark_template import BenchmarkDatabase
 
-from local import *
+from .local import *
 
 
 class Benchmark(BenchmarkDatabase):

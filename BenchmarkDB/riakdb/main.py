@@ -7,6 +7,7 @@ Riak_db.py
 This file handle all interactions with RiakDB during the benchmarking process.
 
 """
+from __future__ import absolute_import
 
 import riak
 
