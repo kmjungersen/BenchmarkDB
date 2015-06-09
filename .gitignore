@@ -2,6 +2,7 @@
 *.ipynb
 *.vagrant
 archived_reports/
+*/generated_reports/
 *.lock
 *.idea
 *.bak
