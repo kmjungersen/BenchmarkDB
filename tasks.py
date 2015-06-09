@@ -12,6 +12,8 @@ and then perform benchmarks with that module.
         invoke <command> [args]
 
 """
+from __future__ import absolute_import
+from __future__ import print_function
 
 from invoke import task, run
 
@@ -47,11 +49,11 @@ def help():
 def list_mods():
     """ Returns a list of existing modules """
 
-    from BenchmarkDB.main import retrieve_module_list
+    from .BenchmarkDB.main import retrieve_module_list
 
     mod_list = retrieve_module_list()
 
-    print mod_list
+    print(mod_list)
 
 
 @task
@@ -102,7 +104,9 @@ def conda():
 def module_requirements(database):
     """ Installs requirements for a specific module """
 
-    run('cd {db} && pip install -r {req}'.format(
+    database = check_module_naming(database)
+
+    run('cd BenchmarkDB/{db} && pip install -r {req}'.format(
         db=database,
         req=REQUIREMENTS,
     ))
