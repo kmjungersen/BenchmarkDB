@@ -365,10 +365,6 @@ class Benchmark():
         w = pd.DataFrame({'data': self.write_times})
         r = pd.DataFrame({'data': self.read_times})
 
-
-        w_out = pd.DataFrame({'data': self.write_times})
-        r_out = pd.DataFrame({'data': self.read_times})
-
         write_avg = w.data.mean()
         write_stdev = w.data.std()
         write_max = w.data.max()
@@ -381,44 +377,14 @@ class Benchmark():
         read_min = r.data.min()
         read_range = read_max - read_min
 
-        if options.get('--debug'):
-            write_stdev = 15
-            read_stdev = 15
-
-        n_stdev = 3
-
-        if (read_stdev > 3 * read_avg) or (write_stdev > 3 * write_avg):
-
-            n_stdev = 1
-
-        elif (read_stdev > 2 * read_avg) or (write_stdev > 2 * write_avg):
-
-            n_stdev = 2
-
-        # Remove values that are beyond n st. dev.'s from the mean
-        w = w[abs(w.data - write_avg) <= (n_stdev * write_stdev)]
-        r = r[abs(r.data - read_avg) <= (n_stdev * read_stdev)]
-
-        # Keep these outliers for display to the user
-        w_out = w_out[abs(w_out.data - write_avg) >= (n_stdev * write_stdev)]
-        r_out = r_out[abs(r_out.data - read_avg) >= (n_stdev * read_stdev)]
 
         writes_rolling_avg, rolling_avg_range = self.compute_rolling_avg(w)
         reads_rolling_avg, rolling_avg_range = self.compute_rolling_avg(r)
 
-        outlier_values = []
         if self.csv:
 
             self.__generate_csv()
 
-        if len(r_out):
-            for count, value in six.iteritems(r_out.data):
-                pass
-                outlier_values.append([
-                    'Read',
-                    count,
-                    value,
-                ])
 
         compiled_data = {
             'writes': w,
@@ -435,7 +401,6 @@ class Benchmark():
             'read_min': read_min,
             'read_range': read_range,
             'reads_rolling_avg': reads_rolling_avg,
-            'outlier_values': outlier_values,
             'n_stdev': n_stdev,
             'rolling_avg_range': rolling_avg_range,
         }
@@ -517,11 +482,6 @@ class Benchmark():
              cd['read_min'], cd['read_range']],
         ]
 
-        outlier_header = [
-            'Operation',
-            'Trial Number',
-            'Value',
-        ]
 
         param_table = tabulate(
             tabular_data=param_values,
@@ -536,12 +496,6 @@ class Benchmark():
             floatfmt='.5f',
         )
 
-        outlier_table = tabulate(
-            tabular_data=cd['outlier_values'],
-            headers=outlier_header,
-            tablefmt='grid'
-        )
-
         param_table_md = tabulate(
             tabular_data=param_values,
             headers=param_header,
@@ -553,12 +507,6 @@ class Benchmark():
             headers=data_header,
             tablefmt='pipe',
             floatfmt='.5f',
-        )
-
-        outlier_table_md = tabulate(
-            tabular_data=cd['outlier_values'],
-            headers=outlier_header,
-            tablefmt='pipe'
         )
 
         #TODO - fix the terminal report so graph names aren't generated
