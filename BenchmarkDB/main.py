@@ -385,6 +385,8 @@ class Benchmark():
 
             self.__generate_csv()
 
+        normalized_writes = self.__normalize_data(w, write_avg, write_stdev)
+        normalized_reads = self.__normalize_data(r, read_avg, read_stdev)
 
         compiled_data = {
             'writes': w,
@@ -422,6 +424,33 @@ class Benchmark():
         raw_data.to_csv('{parent_dir}/raw_data.csv'.format(
             parent_dir=self.reports_dir
         ))
+
+    def __normalize_data(self, dataframe, average, stdev):
+        """
+
+        :return:
+        """
+        df = dataframe
+
+        n_stdev = 3
+
+        if options.get('--debug'):
+            stdev = 15
+
+        if stdev > 3 * average:
+
+            n_stdev = 1
+
+        elif stdev > 2 * average:
+
+            n_stdev = 2
+
+        self.n_stdev = n_stdev
+
+        dataframe = df[abs(df.data - average) <= (n_stdev * stdev)]
+
+        return dataframe
+
     def generate_report_data(self, compiled_data):
         """ This function generates all of the actual tabular data that is
         displayed in the report.
@@ -493,7 +522,7 @@ class Benchmark():
             'Writes': cd['writes'].data,
             'Reads': cd['reads'].data,
         })
-        # ipdb.set_trace()
+
         avgs = pd.DataFrame({
             'Writes Average': cd['writes_rolling_avg'],
             'Reads Average': cd['reads_rolling_avg'],
