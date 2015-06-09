@@ -377,9 +377,10 @@ class Benchmark():
         read_min = r.data.min()
         read_range = read_max - read_min
 
+        rolling_avg_range = self.trials / 10
 
-        writes_rolling_avg, rolling_avg_range = self.compute_rolling_avg(w)
-        reads_rolling_avg, rolling_avg_range = self.compute_rolling_avg(r)
+        writes_rolling_avg = self.__compute_rolling_avg(w, rolling_avg_range)
+        reads_rolling_avg = self.__compute_rolling_avg(r, rolling_avg_range)
 
         if self.csv:
 
@@ -570,24 +571,27 @@ class Benchmark():
 
         return report_data
 
-    # @staticmethod
-    def compute_rolling_avg(self, dataframe):
+    def __compute_rolling_avg(self, dataframe, range=None):
         """ Given a dataframe object, this function will compute a running
         average and return it as a separate dataframe object
 
         :param dataframe: a dataframe with which to compute a running average
+        :param range: the range over which the rolling average should be
+                    computed
         :return rolling_avg: a dataframe object with .data containing the
                     running average data
         """
 
-        rolling_avg_range = self.trials / 10
+        if not range:
+            range = self.trials / 10
 
         rolling_avg = pd.stats.moments.rolling_mean(
             dataframe,
-            rolling_avg_range,
+            range,
         ).data
 
-        return rolling_avg, rolling_avg_range
+        return rolling_avg
+
     def __generate_paramater_table(self, compiled_data):
         """
 
