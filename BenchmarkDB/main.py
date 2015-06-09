@@ -389,22 +389,30 @@ class Benchmark():
         normalized_writes = self.__normalize_data(w, write_avg, write_stdev)
         normalized_reads = self.__normalize_data(r, read_avg, read_stdev)
 
-        compiled_data = {
-            'writes': w,
+        write_metrics = {
+            'writes': normalized_writes,
             'write_avg': write_avg,
             'write_stdev': write_stdev,
             'write_max': write_max,
             'write_min': write_min,
             'write_range': write_range,
             'writes_rolling_avg': writes_rolling_avg,
-            'reads': r,
+        }
+
+        read_metrics = {
+            'reads': normalized_reads,
             'read_avg': read_avg,
             'read_stdev': read_stdev,
             'read_max': read_max,
             'read_min': read_min,
             'read_range': read_range,
             'reads_rolling_avg': reads_rolling_avg,
-            'n_stdev': n_stdev,
+        }
+
+        compiled_data = {
+            'write_metrics': write_metrics,
+            'read_metrics': read_metrics,
+            'n_stdev': self.n_stdev,
             'rolling_avg_range': rolling_avg_range,
         }
 
