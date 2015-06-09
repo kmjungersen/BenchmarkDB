@@ -8,13 +8,15 @@ This file handles all interactions with MongoDB during the benchmarking
 process.
 
 """
+from __future__ import absolute_import
 
 import os
 
 import psycopg2
-from local import *
+from .local import *
 
 from benchmark_template import BenchmarkDatabase
+from six.moves import range
 
 
 class Benchmark():

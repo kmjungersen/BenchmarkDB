@@ -39,6 +39,8 @@ purposes.
         --trials=<n>        Specify the number of reads and writes to make to
                                 the DB to collect data on [default: 1000]
 """
+from __future__ import absolute_import
+from __future__ import print_function
 
 # TODO [x] - add a progress bar for non-verbose output
 # TODO [x] - add some better data analysis
@@ -60,6 +62,8 @@ from sys import exit
 from tabulate import tabulate
 from docopt import docopt
 from clint.textui import progress
+import six
+from six.moves import range
 
 
 def retrieve_module_list():
@@ -182,7 +186,7 @@ class Benchmark():
         w = np.random.normal(0.005, 0.0015, self.trials)
         self.write_times = w.tolist()
 
-        for i in progress.bar(range(self.trials)):
+        for i in progress.bar(list(range(self.trials))):
 
             pass
 
@@ -225,7 +229,7 @@ class Benchmark():
             msg = 'Error! Chaos mode can ONLY be used with split reads/writes!'
             exit(msg)
 
-        for index in progress.bar(range(self.trials)):
+        for index in progress.bar(list(range(self.trials))):
 
             item_number = self.random_entry(entry_type='number')
             info = self.random_entry(entry_type='string')
@@ -237,7 +241,7 @@ class Benchmark():
             }
 
             if not self.writes(entry):
-                print 'WRITE ERROR'
+                print('WRITE ERROR')
 
             if self.chaos:
                 index = random.randint(0, index)
@@ -246,7 +250,7 @@ class Benchmark():
                 time.sleep(1/20)
 
             if not self.reads(index):
-                print 'READ ERROR'
+                print('READ ERROR')
 
     def run_split(self):
         """ This function performs the same actions as 'run()', with the key
@@ -256,7 +260,7 @@ class Benchmark():
 
         print('\nWrite progress:\n')
 
-        for index in progress.bar(range(self.trials)):
+        for index in progress.bar(list(range(self.trials))):
 
             item_number = self.random_entry(entry_type='number')
             info = self.random_entry(entry_type='string')
@@ -268,20 +272,20 @@ class Benchmark():
             }
 
             if not self.writes(entry):
-                print 'WRITE ERROR!'
+                print('WRITE ERROR!')
 
             if options.get('-s'):
                 time.sleep(1/20)
 
         print('\nRead progress:\n')
 
-        for index in progress.bar(range(self.trials)):
+        for index in progress.bar(list(range(self.trials))):
 
             if self.chaos:
                     index = random.randint(0, index)
 
             if not self.reads(index):
-                print 'READ ERROR!'
+                print('READ ERROR!')
 
             if options.get('-s'):
                 time.sleep(1/20)
@@ -310,7 +314,7 @@ class Benchmark():
 
             write_msg = 'Write time: {time}'.format(time=write_time)
 
-            print write_msg
+            print(write_msg)
 
         return True
 
@@ -344,7 +348,7 @@ class Benchmark():
 
                 read_msg += '\n--------------------------'
 
-            print read_msg
+            print(read_msg)
 
         return True
 
@@ -413,7 +417,7 @@ class Benchmark():
         outlier_values = []
 
         if len(w_out):
-            for count, value in w_out.data.iteritems():
+            for count, value in six.iteritems(w_out.data):
                 outlier_values.append([
                     'Write',
                     count,
@@ -421,7 +425,7 @@ class Benchmark():
                 ])
 
         if len(r_out):
-            for count, value in r_out.data.iteritems():
+            for count, value in six.iteritems(r_out.data):
                 pass
                 outlier_values.append([
                     'Read',
@@ -487,6 +491,22 @@ class Benchmark():
             'Min Time',
             'Range',
         ]
+        #
+        # values = [
+        #     'avg',
+        #     'stdev',
+        #     'max',
+        #     'min',
+        #     'range',
+        # ]
+        #
+        # data_values = []
+        #
+        # for type in ['Writes', 'Reads']:
+        #
+        #     for val in values:
+        #
+        #
 
         data_values = [
             ['Writes', cd['write_avg'], cd['write_stdev'], cd['write_max'],
@@ -662,7 +682,7 @@ class Benchmark():
 
             terminal_report = template.format(**report_data)
 
-            print '\n\n' + terminal_report + '\n\n'
+            print('\n\n' + terminal_report + '\n\n')
 
             if not self.no_report:
 
@@ -714,7 +734,7 @@ class Benchmark():
             name=name,
         )
 
-        pylab.savefig(current_name)
+        plt.savefig(current_name)
 
     def register_module(self, db_mod):
         """ This function begins the process of registering a module for
@@ -731,7 +751,9 @@ class Benchmark():
 
         if db_mod in mod_list:
 
-            return self.import_db_mod(db_mod)
+            mod_class = self.import_db_mod(db_mod)
+
+            return mod_class
 
         else:
 

@@ -8,10 +8,11 @@ This file handles all interactions with MongoDB during the benchmarking
 process.
 
 """
+from __future__ import absolute_import
 
 from pymongo import MongoClient
 
-from local import *
+from .local import *
 from benchmark_template import BenchmarkDatabase
 
 

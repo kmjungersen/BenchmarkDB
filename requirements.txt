@@ -3,3 +3,4 @@ docopt==0.6.2
 clint==0.4.1
 ansible==1.8.4
 invoke==0.10.1
+ipdb=0.8.1
