@@ -365,14 +365,6 @@ class Benchmark():
         w = pd.DataFrame({'data': self.write_times})
         r = pd.DataFrame({'data': self.read_times})
 
-        if self.csv:
-
-            w.to_csv('{parent_dir}/writes.csv'.format(
-                parent_dir=self.reports_dir
-            ))
-            r.to_csv('{parent_dir}/reads.csv'.format(
-                parent_dir=self.reports_dir
-            ))
 
         w_out = pd.DataFrame({'data': self.write_times})
         r_out = pd.DataFrame({'data': self.read_times})
@@ -415,14 +407,9 @@ class Benchmark():
         reads_rolling_avg, rolling_avg_range = self.compute_rolling_avg(r)
 
         outlier_values = []
+        if self.csv:
 
-        if len(w_out):
-            for count, value in six.iteritems(w_out.data):
-                outlier_values.append([
-                    'Write',
-                    count,
-                    value,
-                ])
+            self.__generate_csv()
 
         if len(r_out):
             for count, value in six.iteritems(r_out.data):
@@ -455,6 +442,21 @@ class Benchmark():
 
         return compiled_data
 
+    def __generate_csv(self):
+        """
+
+        :param dataframe:
+        :return:
+        """
+
+        raw_data = pd.DataFrame({
+                'reads': self.read_times,
+                'writes': self.write_times,
+            })
+
+        raw_data.to_csv('{parent_dir}/raw_data.csv'.format(
+            parent_dir=self.reports_dir
+        ))
     def generate_report_data(self, compiled_data):
         """ This function generates all of the actual tabular data that is
         displayed in the report.
