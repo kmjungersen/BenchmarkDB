@@ -433,55 +433,13 @@ class Benchmark():
 
         cd = compiled_data
 
-        param_header = [
-            'Parameter',
-            'Value',
-        ]
+        param_header, param_values = self.__generate_paramater_table(
+            compiled_data
+        )
 
-        param_values = [
-            ['Database Tested', self.db_name],
-            ['Number of Trials', str(self.trials)],
-            ['Length of Each Entry Field', str(self.entry_length)],
-            ['Number of Nodes in Cluster', str(self.number_of_nodes)],
-            ['# of StDev\'s Displayed in Graphs', str(cd.get('n_stdev'))],
-            ['Range of Rolling Average in Graphs', str(cd.get('rolling_avg_range'))],
-            ['Split Reads and Writes', str(self.split)],
-            ['Debug Mode', str(options.get('--debug'))],
-            ['Chaos Mode (Random Reads)', str(options.get('--chaos'))],
-        ]
-
-        data_header = [
-            'Operation',
-            'Average',
-            'St. Dev.',
-            'Max Time',
-            'Min Time',
-            'Range',
-        ]
-        #
-        # values = [
-        #     'avg',
-        #     'stdev',
-        #     'max',
-        #     'min',
-        #     'range',
-        # ]
-        #
-        # data_values = []
-        #
-        # for type in ['Writes', 'Reads']:
-        #
-        #     for val in values:
-        #
-        #
-
-        data_values = [
-            ['Writes', cd['write_avg'], cd['write_stdev'], cd['write_max'],
-             cd['write_min'], cd['write_range']],
-            ['Reads', cd['read_avg'], cd['read_stdev'], cd['read_max'],
-             cd['read_min'], cd['read_range']],
-        ]
-
+        data_header, data_values = self.__generate_data_table(
+            compiled_data
+        )
 
         param_table = tabulate(
             tabular_data=param_values,
@@ -601,6 +559,71 @@ class Benchmark():
         ).data
 
         return rolling_avg, rolling_avg_range
+    def __generate_paramater_table(self, compiled_data):
+        """
+
+        :return:
+        """
+
+        cd = compiled_data
+
+        param_header = [
+            'Parameter',
+            'Value',
+        ]
+
+        param_values = [
+            ['Database Tested', self.db_name],
+            ['Number of Trials', str(self.trials)],
+            ['Length of Each Entry Field', str(self.entry_length)],
+            ['Number of Nodes in Cluster', str(self.number_of_nodes)],
+            ['# of StDev\'s Displayed in Graphs', str(cd.get('n_stdev'))],
+            ['Range of Rolling Average in Graphs', str(cd.get('rolling_avg_range'))],
+            ['Split Reads and Writes', str(self.split)],
+            ['Debug Mode', str(options.get('--debug'))],
+            ['Chaos Mode (Random Reads)', str(options.get('--chaos'))],
+        ]
+
+        return param_header, param_values
+
+    def __generate_data_table(self, compiled_data):
+        """
+
+        :param compiled_data:
+        :return:
+        """
+
+        cd = compiled_data
+
+        data_header = [
+            'Operation',
+            'Average',
+            'St. Dev.',
+            'Max Time',
+            'Min Time',
+            'Range',
+        ]
+
+        data_values = [
+            [
+                'Writes',
+                cd.get('write_avg'),
+                cd.get('write_stdev'),
+                cd.get('write_max'),
+                cd.get('write_min'),
+                cd.get('write_range'),
+            ],
+            [
+                'Reads',
+                cd.get('read_avg'),
+                cd.get('read_stdev'),
+                cd.get('read_max'),
+                cd.get('read_min'),
+                cd.get('read_range'),
+            ],
+        ]
+
+        return data_header, data_values
 
     def generate_report(self, report_data):
         """ This function will take the compiled data and generated a report
