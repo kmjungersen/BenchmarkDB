@@ -623,26 +623,44 @@ class Benchmark():
             'Range',
         ]
 
+        ipdb.set_trace()
+        write_metrics = cd.get('write_metrics')
+        read_metrics = cd.get('read_metrics')
+
         data_values = [
             [
                 'Writes',
-                cd.get('write_avg'),
-                cd.get('write_stdev'),
-                cd.get('write_max'),
-                cd.get('write_min'),
-                cd.get('write_range'),
+                write_metrics.get('avg'),
+                write_metrics.get('stdev'),
+                write_metrics.get('max'),
+                write_metrics.get('min'),
+                write_metrics.get('range'),
             ],
             [
                 'Reads',
-                cd.get('read_avg'),
-                cd.get('read_stdev'),
-                cd.get('read_max'),
-                cd.get('read_min'),
-                cd.get('read_range'),
+                read_metrics.get('avg'),
+                read_metrics.get('stdev'),
+                read_metrics.get('max'),
+                read_metrics.get('min'),
+                read_metrics.get('range'),
             ],
         ]
 
-        return data_header, data_values
+        data_table = tabulate(
+            tabular_data=data_values,
+            headers=data_header,
+            tablefmt='grid',
+            floatfmt='.5f',
+        )
+
+        data_table_md = tabulate(
+            tabular_data=data_values,
+            headers=data_header,
+            tablefmt='pipe',
+            floatfmt='.5f',
+        )
+
+        return data_table, data_table_md
 
     def generate_report(self, report_data):
         """ This function will take the compiled data and generated a report
