@@ -578,7 +578,7 @@ class Benchmark():
 
         return rolling_avg
 
-    def __generate_paramater_table(self, compiled_data):
+    def __generate_parameter_tables(self, compiled_data):
         """
 
         :return:
@@ -606,6 +606,19 @@ class Benchmark():
         return param_header, param_values
 
     def __generate_data_table(self, compiled_data):
+        param_table = tabulate(
+            tabular_data=param_values,
+            headers=param_header,
+            tablefmt='grid',
+        )
+
+        param_table_md = tabulate(
+            tabular_data=param_values,
+            headers=param_header,
+            tablefmt='pipe',
+        )
+
+        return param_table, param_table_md
         """
 
         :param compiled_data:
