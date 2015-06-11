@@ -715,38 +715,32 @@ class Benchmark():
 
                     outfile.write(report)
 
-    def generate_plot(self, name, data_frame, title=None, x_label=None,
-                      y_label=None, grid=True, plot_type='line'):
+    # TODO fix with kwargs
+    def generate_plot(self, data_frame, name, plot_type='line', **kwargs):
         """ This function take several parameters and generates a plot based
         on them.
 
         :param name: The name of the plot, which is important for saving
         :param data_frame: The data to be plotted
-        :param title: The title to be displayed above the plot
-        :param x_label: The label for the x-axis
-        :param y_label: The label for the y-axis
-        :param grid: Boolean to determine whether or not a grid should be used
         :param plot_type: The type of plot to generate
         """
-
-        import matplotlib.pyplot as plt
 
         plt.figure()
 
         ax = data_frame.plot(
-            title=title,
-            grid=grid,
+            title=kwargs.get('title'),
+            grid=kwargs.get('grid'),
             legend=True,
             kind=plot_type,
         )
 
-        if x_label:
+        if kwargs.get('x_label'):
 
-            ax.set_xlabel(x_label)
+            ax.set_xlabel(kwargs.get('x_label'))
 
-        if y_label:
+        if kwargs.get('y_label'):
 
-            ax.set_ylabel(y_label)
+            ax.set_ylabel(kwargs.get('y_label'))
 
         current_name = '{parent_dir}/{db}-{date}-{name}'.format(
             parent_dir=self.images_dir,
