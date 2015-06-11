@@ -345,49 +345,33 @@ class Benchmark():
         w = pd.DataFrame({'data': self.write_times})
         r = pd.DataFrame({'data': self.read_times})
 
-        write_avg = w.data.mean()
-        write_stdev = w.data.std()
-        write_max = w.data.max()
-        write_min = w.data.min()
-        write_range = write_max - write_min
+        if self.csv:
+            self.__generate_csv()
 
-        read_avg = r.data.mean()
-        read_stdev = r.data.std()
-        read_max = r.data.max()
-        read_min = r.data.min()
-        read_range = read_max - read_min
+        write_metrics = self.__compute_descriptive_stats(w)
+        read_metrics = self.__compute_descriptive_stats(r)
 
         rolling_avg_range = self.trials / 10
 
         writes_rolling_avg = self.__compute_rolling_avg(w, rolling_avg_range)
         reads_rolling_avg = self.__compute_rolling_avg(r, rolling_avg_range)
 
-        if self.csv:
+        write_metrics.update(rolling_avg=writes_rolling_avg)
+        read_metrics.update(rolling_avg=reads_rolling_avg)
 
-            self.__generate_csv()
+        normalized_writes = self.__normalize_data(
+            w,
+            write_metrics.get('avg'),
+            write_metrics.get('stdev'),
+        )
+        normalized_reads = self.__normalize_data(
+            r,
+            read_metrics.get('avg'),
+            read_metrics.get('stdev'),
+        )
 
-        normalized_writes = self.__normalize_data(w, write_avg, write_stdev)
-        normalized_reads = self.__normalize_data(r, read_avg, read_stdev)
-
-        write_metrics = {
-            'writes': normalized_writes,
-            'write_avg': write_avg,
-            'write_stdev': write_stdev,
-            'write_max': write_max,
-            'write_min': write_min,
-            'write_range': write_range,
-            'writes_rolling_avg': writes_rolling_avg,
-        }
-
-        read_metrics = {
-            'reads': normalized_reads,
-            'read_avg': read_avg,
-            'read_stdev': read_stdev,
-            'read_max': read_max,
-            'read_min': read_min,
-            'read_range': read_range,
-            'reads_rolling_avg': reads_rolling_avg,
-        }
+        write_metrics.update(normalized_data=normalized_writes)
+        read_metrics.update(normalized_data=normalized_reads)
 
         compiled_data = {
             'write_metrics': write_metrics,
