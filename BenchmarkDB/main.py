@@ -457,94 +457,25 @@ class Benchmark():
 
         cd = compiled_data
 
-        param_header, param_values = self.__generate_paramater_table(
+        param_table, param_table_md = self.__generate_parameter_tables(
             compiled_data
         )
 
-        data_header, data_values = self.__generate_data_table(
+        data_table, data_table_md = self.__generate_data_tables(
             compiled_data
         )
 
-        param_table = tabulate(
-            tabular_data=param_values,
-            headers=param_header,
-            tablefmt='grid',
-        )
+        if self.no_report:
 
-        data_table = tabulate(
-            tabular_data=data_values,
-            headers=data_header,
-            tablefmt='grid',
-            floatfmt='.5f',
-        )
+            plots = {
+                'speed_plot': None,
+                'hist_plot': None,
+                'avgs_plot': None,
+            }
 
-        param_table_md = tabulate(
-            tabular_data=param_values,
-            headers=param_header,
-            tablefmt='pipe',
-        )
+        else:
 
-        data_table_md = tabulate(
-            tabular_data=data_values,
-            headers=data_header,
-            tablefmt='pipe',
-            floatfmt='.5f',
-        )
-
-        #TODO - fix the terminal report so graph names aren't generated
-
-        image_template = '![Alt text](images/{db}-{date}-{name}.png "{name}")'
-
-        speed_plot = image_template.format(
-            db=self.db_name,
-            date=self.report_date,
-            name='rw',
-        )
-
-        hist_plot = image_template.format(
-            db=self.db_name,
-            date=self.report_date,
-            name='stats',
-        )
-
-        avgs_plot = image_template.format(
-            db=self.db_name,
-            date=self.report_date,
-            name='running_averages',
-        )
-
-        rw = pd.DataFrame({
-            'Writes': cd['writes'].data,
-            'Reads': cd['reads'].data,
-        })
-
-        avgs = pd.DataFrame({
-            'Writes Average': cd['writes_rolling_avg'],
-            'Reads Average': cd['reads_rolling_avg'],
-        })
-
-        if not self.no_report:
-
-            self.generate_plot(
-                'rw', rw,
-                title='Plot of Read and Write Speeds',
-                x_label='Trial Number',
-                y_label='Time (s)',
-            )
-
-            self.generate_plot(
-                'running_averages', avgs,
-                title='Plot of Rolling Averages for Reads and Writes',
-                x_label='Trial Number',
-                y_label='Time (s)',
-            )
-
-            self.generate_plot(
-                'stats', rw,
-                title='Histogram of Read and Write Times',
-                plot_type='hist',
-                x_label='Value (s)',
-            )
+            plots = self.__generate_all_plots(compiled_data)
 
         report_data = {
             'database': self.db_name,
@@ -554,18 +485,79 @@ class Benchmark():
             'trial_number': self.trials,
             'param_table': param_table,
             'data_table': data_table,
-            'outlier_table': outlier_table,
             'param_table_md': param_table_md,
             'data_table_md': data_table_md,
-            'outlier_table_md': outlier_table_md,
-            'speed_plot': speed_plot,
-            'hist_plot': hist_plot,
-            'avgs_plot': avgs_plot,
+            'speed_plot': plots.get('speed_plot'),
+            'hist_plot': plots.get('hist_plot'),
+            'avgs_plot': plots.get('avgs_plot'),
         }
 
         return report_data
 
-    def __compute_rolling_avg(self, dataframe, range=None):
+    def __generate_all_plots(self, compiled_data):
+        """
+
+        :return:
+        """
+
+        cd = compiled_data
+
+        template = '![Alt text](images/{db}-{date}-{name}.png "{name}")'
+        img_template = template.format(
+            db=self.db_name,
+            date=self.report_date,
+            name='{name}'
+        )
+
+        plots = {
+            'speed_plot': img_template.format(name='rw'),
+            'hist_plot': img_template.format(name='stats'),
+            'avgs_plot': img_template.format(name='running_avg'),
+        }
+
+        img_name_template = '{db}-{date}-{name}'.format(
+            db=self.db_name,
+            date=self.report_date,
+            name='{name}'
+        )
+
+        rw = pd.DataFrame({
+            'Writes': cd.get('write_metrics').get('normalized_data').data,
+            'Reads': cd.get('read_metrics').get('normalized_data').data,
+        })
+
+        avgs = pd.DataFrame({
+            'Writes Average': cd.get('write_metrics').get('rolling_avg').data,
+            'Reads Average': cd.get('read_metrics').get('rolling_avg').data,
+        })
+
+        self.generate_plot(
+            rw,
+            img_name_template.format(name='rw'),
+            title='Plot of Read and Write Speeds',
+            x_label='Trial Number',
+            y_label='Time (s)',
+        )
+
+        self.generate_plot(
+            avgs,
+            img_name_template.format(name='running_avg'),
+            title='Plot of Rolling Averages for Reads and Writes',
+            x_label='Trial Number',
+            y_label='Time (s)',
+        )
+
+        self.generate_plot(
+            rw,
+            img_name_template.format(name='stats'),
+            title='Histogram of Read and Write Times',
+            plot_type='hist',
+            x_label='Value (s)',
+        )
+
+        return plots
+
+    def __compute_rolling_avg(self, dataframe, rolling_range=None):
         """ Given a dataframe object, this function will compute a running
         average and return it as a separate dataframe object
 
