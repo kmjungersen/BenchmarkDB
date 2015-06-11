@@ -56,6 +56,7 @@ import ipdb
 import seaborn
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 
 from os import getcwd, listdir, makedirs
 from sys import exit
@@ -69,9 +70,7 @@ from six.moves import range
 def retrieve_module_list():
     """ This function will retrieve a list of all available modules in the
     project directory and then return said list.
-
     :return mod_list: The list of modules in the project directory
-
     """
 
     current_dir = getcwd()
@@ -330,8 +329,6 @@ class Benchmark():
 
             print(read_msg)
 
-        return True
-
     def compile_data(self):
         """ This function takes all the data collected from the trials (read
         and write times) and then calculates some important statistics about
@@ -378,7 +375,7 @@ class Benchmark():
             'read_metrics': read_metrics,
             'n_stdev': self.n_stdev,
             'rolling_avg_range': rolling_avg_range,
-        }
+            }
 
         return compiled_data
 
@@ -412,9 +409,9 @@ class Benchmark():
         """
 
         raw_data = pd.DataFrame({
-                'reads': self.read_times,
-                'writes': self.write_times,
-            })
+            'reads': self.read_times,
+            'writes': self.write_times,
+        })
 
         raw_data.to_csv('{parent_dir}/raw_data.csv'.format(
             parent_dir=self.reports_dir
@@ -568,13 +565,13 @@ class Benchmark():
                     running average data
         """
 
-        if not range:
-            range = self.trials / 10
+        if not rolling_range:
+            rolling_range = self.trials / 10
 
         rolling_avg = pd.stats.moments.rolling_mean(
             dataframe,
-            range,
-        ).data
+            rolling_range,
+        )
 
         return rolling_avg
 
@@ -603,9 +600,7 @@ class Benchmark():
             ['Chaos Mode (Random Reads)', str(options.get('--chaos'))],
         ]
 
-        return param_header, param_values
 
-    def __generate_data_table(self, compiled_data):
         param_table = tabulate(
             tabular_data=param_values,
             headers=param_header,
@@ -619,6 +614,9 @@ class Benchmark():
         )
 
         return param_table, param_table_md
+
+    @staticmethod
+    def __generate_data_tables(compiled_data):
         """
 
         :param compiled_data:
@@ -687,8 +685,8 @@ class Benchmark():
         if self.report_title:
 
             report_name = '{parent_dir}/{title}.md'.format(
-                          parent_dir=self.reports_dir,
-                          title=self.report_title,
+                parent_dir=self.reports_dir,
+                title=self.report_title,
             )
 
         else:
@@ -759,7 +757,6 @@ class Benchmark():
 
         plt.savefig(current_name)
 
-    def register_module(self, db_mod):
     @staticmethod
     def __print_module_list():
 
@@ -801,7 +798,7 @@ class Benchmark():
             exit(error)
 
     @staticmethod
-    def import_db_mod(module, mod_file='main'):
+    def __import_db_mod(module):
         """ This function will do the actual import of the database-specific
         module.  The `try/except` format is meant to be able to attempt the
         import, but fail gracefully if for some reason the package can't be
@@ -814,9 +811,7 @@ class Benchmark():
 
         try:
 
-            package = '{mod}.{file}'.format(mod=module, file=mod_file)
-
-            mod_class = importlib.import_module(package)
+            mod_class = importlib.import_module(module)
 
             return mod_class
 
