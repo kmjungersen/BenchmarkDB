@@ -382,6 +382,28 @@ class Benchmark():
 
         return compiled_data
 
+    @staticmethod
+    def __compute_descriptive_stats(dataframe):
+        """
+
+        :param dataframe:
+        :return:
+        """
+
+        df = dataframe
+
+        metrics = {
+            'avg': df.data.mean(),
+            'stdev': df.data.std(),
+            'max': df.data.max(),
+            'min': df.data.min(),
+            }
+
+        range = metrics.get('max') - metrics.get('min')
+        metrics.update(range=range)
+
+        return metrics
+
     def __generate_csv(self):
         """
 
