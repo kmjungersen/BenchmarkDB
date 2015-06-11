@@ -233,8 +233,7 @@ class Benchmark():
 
             entry = self.random_entry()
 
-            if not self.writes(entry):
-                print('WRITE ERROR')
+            self.write(entry)
 
             if self.chaos:
                 index = random.randint(0, index)
@@ -242,8 +241,7 @@ class Benchmark():
             if options.get('-s'):
                 time.sleep(1/20)
 
-            if not self.reads(index):
-                print('READ ERROR')
+            self.read(index)
 
     def run_split(self):
         """ This function performs the same actions as 'run()', with the key
@@ -257,8 +255,7 @@ class Benchmark():
 
             entry = self.random_entry()
 
-            if not self.writes(entry):
-                print('WRITE ERROR!')
+            self.write(entry)
 
             if options.get('-s'):
                 time.sleep(1/20)
@@ -268,15 +265,14 @@ class Benchmark():
         for index in progress.bar(list(range(self.trials))):
 
             if self.chaos:
-                    index = random.randint(0, index)
+                index = random.randint(0, index)
 
-            if not self.reads(index):
-                print('READ ERROR!')
+            self.read(index)
 
             if options.get('-s'):
                 time.sleep(1/20)
 
-    def writes(self, entry):
+    def write(self, entry):
         """ This function handles all DB write commands, and times that action
         as well.  It takes a single parameter ('entry'), which is the data to
         be written to the DB.
@@ -288,7 +284,7 @@ class Benchmark():
 
         write_start_time = time.time()
 
-        self.database.write(entry)
+        self.database_client.write(entry)
 
         write_stop_time = time.time()
 
@@ -302,9 +298,7 @@ class Benchmark():
 
             print(write_msg)
 
-        return True
-
-    def reads(self, index):
+    def read(self, index):
         """ This function handles all DB read commands, and times that action
         as well.  It takes a single parameter, which is the index of an entry
         to retrieve from the DB.
@@ -316,7 +310,7 @@ class Benchmark():
 
         read_start_time = time.time()
 
-        read_entry = self.database.read(index)
+        read_entry = self.database_client.read(index)
 
         read_stop_time = time.time()
 
