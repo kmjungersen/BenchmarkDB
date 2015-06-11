@@ -188,7 +188,7 @@ class Benchmark():
 
             pass
 
-    def random_entry(self, entry_type='string'):
+    def random_entry(self):
         """ This function generates a random string or random number depending
         on the arguments passed in.  The string is generated from all ascii
         letters and the number is generated from numbers 0-9.
@@ -199,20 +199,22 @@ class Benchmark():
         :return: the random string or number that was just generated
         """
 
-        entry = ''
-        entry_length = self.entry_length
+        entry = dict()
 
-        if entry_type == 'string':
+        entry_fields = {
+            'Number': string.digits,
+            'Info': string.ascii_letters,
+        }
 
-            selection = string.ascii_letters
+        for field, selection in entry_fields.items():
 
-        else:
+            field_val = None
 
-            selection = string.digits
+            for x in range(self.entry_length):
 
-        for x in range(entry_length):
+                field_val += random.choice(selection)
 
-            entry += random.choice(selection)
+            entry[field] = field_val
 
         return entry
 
@@ -229,14 +231,7 @@ class Benchmark():
 
         for index in progress.bar(list(range(self.trials))):
 
-            item_number = self.random_entry(entry_type='number')
-            info = self.random_entry(entry_type='string')
-
-            entry = {
-                'Index': index,
-                'Number': item_number,
-                'Info': info
-            }
+            entry = self.random_entry()
 
             if not self.writes(entry):
                 print('WRITE ERROR')
@@ -260,14 +255,7 @@ class Benchmark():
 
         for index in progress.bar(list(range(self.trials))):
 
-            item_number = self.random_entry(entry_type='number')
-            info = self.random_entry(entry_type='string')
-
-            entry = {
-                'Index': index,
-                'Number': item_number,
-                'Info': info
-            }
+            entry = self.random_entry()
 
             if not self.writes(entry):
                 print('WRITE ERROR!')
