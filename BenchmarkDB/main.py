@@ -89,30 +89,19 @@ def retrieve_module_list():
 class Benchmark():
 
     def __init__(self):
-        """ The init method is passed a single parameter upon initialization in
-        order to define which database should be benchmarked.  Other important
-        values are defined here, such as the entry length and the number of
-        trials to execute.
+        """
 
         """
 
         if options.get('--list'):
 
-            mod_list = retrieve_module_list()
+            self.__print_module_list()
 
-            message = 'The following {number} modules are available: \n\n'.\
-                format(number=mod_list.__len__())
+        self.collection = 'test'
 
-            for mod in mod_list:
-
-                message += '-{mod}\n'.format(mod=mod)
-
-            exit(message)
-
+        # Retrieve command line options
         self.verbose = options.get('-v')
         self.really_verbose = options.get('-V')
-        self.collection = 'test'
-        self.sorting_index = 'ID'
         self.entry_length = int(options.get('--length'))
         self.trials = int(options.get('--trials'))
         self.no_report = options.get('--no-report')
@@ -120,45 +109,56 @@ class Benchmark():
         self.csv = options.get('--csv')
         self.report_title = options.get('<report_title>')
 
+        if options.get('--no-split'):
+
+            self.split = False
+
+        else:
+
+            self.split = True
+
         self.write_times = []
         self.read_times = []
 
-        self.time_and_date = time.strftime("%a, %d %b, %Y %H:%M:%S")
-        self.report_date = time.strftime("%b%d-%Y-%H:%M:%S")
-        self.split = True
+        self.time_and_date = time.strftime("%a, %d %b, %Y at %H:%M:%S")
+        self.report_date = time.strftime("%b%d-%Y--%H-%M")
 
         if options.get('--debug'):
 
             self.feaux_run()
 
         else:
+
             self.db_name = options.get('<database>')
 
-            self.module = self.register_module(self.db_name)
-            self.database = self.module.Benchmark(self.collection, setup=True, trials=self.trials)
+            self.module = self.__register_module(self.db_name)
+            self.database_client = self.module.main.Benchmark(
+                self.collection, setup=True, trials=self.trials
+            )
 
-            self.module_settings = self.import_db_mod(
-                self.db_name, mod_file='local')
-            self.number_of_nodes = self.module_settings.NUMBER_OF_NODES
+            module_settings = self.module.local
+            self.number_of_nodes = module_settings.NUMBER_OF_NODES
 
             self.db_name = self.db_name.replace('db', '').upper()
 
             # Run the benchmarks!
-            if options.get('--no-split'):
-                self.split = False
-                self.run()
-            else:
+            if self.split:
+
                 self.run_split()
 
-        if self.report_title:
-            self.reports_dir = 'generated_reports/{title}'.format(
-                               title=self.report_title,
+            else:
+
+                self.run()
+
+        if not self.report_title:
+
+            self.report_title = '{db}-{date}'.format(
+                db=self.db_name,
+                date=self.report_date,
             )
 
-        else:
-            self.reports_dir = 'generated_reports/{db}-{date}'.format(
-                               db=self.db_name,
-                               date=self.report_date,
+        self.reports_dir = 'generated_reports/{title}'.format(
+            title=self.report_title,
             )
         makedirs(self.reports_dir)
 
@@ -170,8 +170,6 @@ class Benchmark():
         report_data = self.generate_report_data(data)
 
         self.generate_report(report_data)
-
-        # self.compile_plots(data)
 
     def feaux_run(self):
         """ This function generates fake data to be used for testing purposes.
