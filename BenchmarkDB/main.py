@@ -747,6 +747,19 @@ class Benchmark():
         plt.savefig(current_name)
 
     def register_module(self, db_mod):
+    @staticmethod
+    def __print_module_list():
+
+        mod_list = retrieve_module_list()
+
+        message = 'The following modules are available: \n\n'
+
+        for mod in mod_list:
+
+            message += '-{mod}\n'.format(mod=mod)
+
+        exit(message)
+
         """ This function begins the process of registering a module for
         benchmarking.  The first step is to check to see if the module exists,
         and if it does, it will call `import_db_mod` to attempt the import.
