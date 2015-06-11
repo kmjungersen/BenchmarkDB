@@ -760,6 +760,7 @@ class Benchmark():
 
         exit(message)
 
+    def __register_module(self, db_module):
         """ This function begins the process of registering a module for
         benchmarking.  The first step is to check to see if the module exists,
         and if it does, it will call `import_db_mod` to attempt the import.
@@ -770,13 +771,13 @@ class Benchmark():
                     runs successfully!
         """
 
-        mod_list = retrieve_module_list()
+        module_list = retrieve_module_list()
 
-        if db_mod in mod_list:
+        if db_module in module_list:
 
-            mod_class = self.import_db_mod(db_mod)
+            module = self.__import_db_mod(db_module)
 
-            return mod_class
+            return module
 
         else:
 
