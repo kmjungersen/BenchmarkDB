@@ -634,28 +634,33 @@ class Benchmark():
             'Range',
         ]
 
-        ipdb.set_trace()
         write_metrics = cd.get('write_metrics')
         read_metrics = cd.get('read_metrics')
 
+        metrics = [
+            'avg',
+            'stdev',
+            'max',
+            'min',
+            'range',
+        ]
+
         data_values = [
             [
-                'Writes',
-                write_metrics.get('avg'),
-                write_metrics.get('stdev'),
-                write_metrics.get('max'),
-                write_metrics.get('min'),
-                write_metrics.get('range'),
+                'writes'
             ],
             [
-                'Reads',
-                read_metrics.get('avg'),
-                read_metrics.get('stdev'),
-                read_metrics.get('max'),
-                read_metrics.get('min'),
-                read_metrics.get('range'),
+                'reads'
             ],
         ]
+
+        for metric in metrics:
+
+            write_metric = write_metrics.get(metric)
+            data_values[0].append(write_metric)
+
+            read_metric = read_metrics.get(metric)
+            data_values[1].append(read_metric)
 
         data_table = tabulate(
             tabular_data=data_values,
