@@ -131,11 +131,11 @@ class Benchmark():
             self.db_name = options.get('<database>')
 
             self.module = self.__register_module(self.db_name)
-            self.database_client = self.module.main.Benchmark(
+            self.database_client = self.module[0].Benchmark(
                 self.collection, setup=True, trials=self.trials
             )
 
-            module_settings = self.module.local
+            module_settings = self.module[1]
             self.number_of_nodes = module_settings.NUMBER_OF_NODES
 
             self.db_name = self.db_name.replace('db', '').upper()
@@ -800,14 +800,17 @@ class Benchmark():
 
         :param module: The module to be imported
 
-        :return mod_class: The `Benchmark` class of the module, if it exists
+        :return module:
         """
 
         try:
 
-            mod_class = importlib.import_module(module)
+            main = importlib.import_module(module + '.main')
+            local = importlib.import_module(module + '.local')
 
-            return mod_class
+            module = (main, local)
+
+            return module
 
         except ImportError:
 
