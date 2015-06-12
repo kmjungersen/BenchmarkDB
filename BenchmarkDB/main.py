@@ -45,8 +45,8 @@ from __future__ import print_function
 
 # TODO [x] - add a progress bar for non-verbose output
 # TODO [x] - add some better data analysis
-# TODO [ ] - add python 3.x support
-# TODO [ ] - remove outlier table from report and add system parameter table
+# TODO [x] - add python 3.x support
+# TODO [x] - remove outlier table from report and add system parameter table
 
 import time
 import string
