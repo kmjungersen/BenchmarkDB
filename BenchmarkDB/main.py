@@ -39,6 +39,7 @@ purposes.
         --trials=<n>        Specify the number of reads and writes to make to
                                 the DB to collect data on [default: 1000]
 """
+
 from __future__ import absolute_import
 from __future__ import print_function
 
@@ -381,27 +382,27 @@ class Benchmark():
 
         return compiled_data
 
-    @staticmethod
-    def __compute_descriptive_stats(dataframe):
+    def __compute_rolling_avg(self, dataframe, rolling_range=None):
+        """ Given a dataframe object, this function will compute a running
+        average and return it as a separate dataframe object
+        :param dataframe: a dataframe with which to compute a running average
+        :param range: the range over which the rolling average should be
+                    computed
+        :return rolling_avg: a dataframe object with .data containing the
+                    running average data
         """
 
-        :param dataframe:
-        :return:
-        """
+        if not rolling_range:
+            rolling_range = self.trials / 10
 
-        df = dataframe
+        rolling_avg = pd.stats.moments.rolling_mean(
+            dataframe,
+            rolling_range,
+        )
 
-        metrics = {
-            'avg': df.data.mean(),
-            'stdev': df.data.std(),
-            'max': df.data.max(),
-            'min': df.data.min(),
-            }
+        return rolling_avg
 
-        range = metrics.get('max') - metrics.get('min')
-        metrics.update(range=range)
 
-        return metrics
 
     def __generate_csv(self):
         """
@@ -493,89 +494,82 @@ class Benchmark():
 
         return report_data
 
-    def __generate_all_plots(self, compiled_data):
+    def generate_report(self, report_data):
+        """ This function will take the compiled data and generated a report
+        from it.  A report file will also be saved in the `generated_reports`
+        directory, unless the `--no_report` option was selected at runtime.
+
+        :param report_data: all of the necessary data to generate the
+                    benchmark report
         """
 
-        :return:
+        if self.report_title:
+
+            report_name = '{parent_dir}/{title}.md'.format(
+                parent_dir=self.reports_dir,
+                title=self.report_title,
+            )
+
+        else:
+
+            report_name = '{parent_dir}/{db}-{date}.report.md'.format(
+                parent_dir=self.reports_dir,
+                db=self.db_name,
+                date=self.report_date,
+            )
+
+        with open('report_template.md', 'r') as infile:
+
+            template = infile.read()
+
+            terminal_report = template.format(**report_data)
+
+            print('\n\n' + terminal_report + '\n\n')
+
+            if not self.no_report:
+
+                template = template.replace('_table', '_table_md')
+
+                report = template.format(**report_data)
+
+                with open(report_name, 'w+') as outfile:
+
+                    outfile.write(report)
+
+    def generate_plot(self, data_frame, name, plot_type='line', **kwargs):
+        """ This function take several parameters and generates a plot based
+        on them.
+
+        :param name: The name of the plot, which is important for saving
+        :param data_frame: The data to be plotted
+        :param plot_type: The type of plot to generate
         """
 
-        cd = compiled_data
+        plt.figure()
 
-        template = '![Alt text](images/{db}-{date}-{name}.png "{name}")'
-        img_template = template.format(
+        ax = data_frame.plot(
+            title=kwargs.get('title'),
+            grid=kwargs.get('grid'),
+            legend=True,
+            kind=plot_type,
+        )
+
+        if kwargs.get('x_label'):
+
+            ax.set_xlabel(kwargs.get('x_label'))
+
+        if kwargs.get('y_label'):
+
+            ax.set_ylabel(kwargs.get('y_label'))
+
+        current_name = '{parent_dir}/{db}-{date}-{name}'.format(
+            parent_dir=self.images_dir,
             db=self.db_name,
             date=self.report_date,
-            name='{name}'
+            name=name,
         )
 
-        plots = {
-            'speed_plot': img_template.format(name='rw'),
-            'hist_plot': img_template.format(name='stats'),
-            'avgs_plot': img_template.format(name='running_avg'),
-        }
-
-        img_name_template = '{db}-{date}-{name}'.format(
-            db=self.db_name,
-            date=self.report_date,
-            name='{name}'
-        )
-
-        rw = pd.DataFrame({
-            'Writes': cd.get('write_metrics').get('normalized_data').data,
-            'Reads': cd.get('read_metrics').get('normalized_data').data,
-        })
-
-        avgs = pd.DataFrame({
-            'Writes Average': cd.get('write_metrics').get('rolling_avg').data,
-            'Reads Average': cd.get('read_metrics').get('rolling_avg').data,
-        })
-
-        self.generate_plot(
-            rw,
-            img_name_template.format(name='rw'),
-            title='Plot of Read and Write Speeds',
-            x_label='Trial Number',
-            y_label='Time (s)',
-        )
-
-        self.generate_plot(
-            avgs,
-            img_name_template.format(name='running_avg'),
-            title='Plot of Rolling Averages for Reads and Writes',
-            x_label='Trial Number',
-            y_label='Time (s)',
-        )
-
-        self.generate_plot(
-            rw,
-            img_name_template.format(name='stats'),
-            title='Histogram of Read and Write Times',
-            plot_type='hist',
-            x_label='Value (s)',
-        )
-
-        return plots
-
-    def __compute_rolling_avg(self, dataframe, rolling_range=None):
-        """ Given a dataframe object, this function will compute a running
-        average and return it as a separate dataframe object
-
-        :param dataframe: a dataframe with which to compute a running average
-        :param range: the range over which the rolling average should be
-                    computed
-        :return rolling_avg: a dataframe object with .data containing the
-                    running average data
-        """
-
-        if not rolling_range:
-            rolling_range = self.trials / 10
-
-        rolling_avg = pd.stats.moments.rolling_mean(
-            dataframe,
-            rolling_range,
-        )
-
-        return rolling_avg
+        plt.savefig(current_name)
 
     def __generate_parameter_tables(self, compiled_data):
         """
@@ -616,6 +610,28 @@ class Benchmark():
         )
 
         return param_table, param_table_md
+
+    @staticmethod
+    def __compute_descriptive_stats(dataframe):
+        """
+
+        :param dataframe:
+        :return:
+        """
+
+        df = dataframe
+
+        metrics = {
+            'avg': df.data.mean(),
+            'stdev': df.data.std(),
+            'max': df.data.max(),
+            'min': df.data.min(),
+            }
+
+        range = metrics.get('max') - metrics.get('min')
+        metrics.update(range=range)
+
+        return metrics
 
     @staticmethod
     def __generate_data_tables(compiled_data):
@@ -679,84 +695,6 @@ class Benchmark():
         )
 
         return data_table, data_table_md
-
-    def generate_report(self, report_data):
-        """ This function will take the compiled data and generated a report
-        from it.  A report file will also be saved in the `generated_reports`
-        directory, unless the `--no_report` option was selected at runtime.
-
-        :param report_data: all of the necessary data to generate the
-                    benchmark report
-        """
-
-        if self.report_title:
-
-            report_name = '{parent_dir}/{title}.md'.format(
-                parent_dir=self.reports_dir,
-                title=self.report_title,
-            )
-
-        else:
-
-            report_name = '{parent_dir}/{db}-{date}.report.md'.format(
-                parent_dir=self.reports_dir,
-                db=self.db_name,
-                date=self.report_date,
-            )
-
-        with open('report_template.md', 'r') as infile:
-
-            template = infile.read()
-
-            terminal_report = template.format(**report_data)
-
-            print('\n\n' + terminal_report + '\n\n')
-
-            if not self.no_report:
-
-                template = template.replace('_table', '_table_md')
-
-                report = template.format(**report_data)
-
-                with open(report_name, 'w+') as outfile:
-
-                    outfile.write(report)
-
-    # TODO fix with kwargs
-    def generate_plot(self, data_frame, name, plot_type='line', **kwargs):
-        """ This function take several parameters and generates a plot based
-        on them.
-
-        :param name: The name of the plot, which is important for saving
-        :param data_frame: The data to be plotted
-        :param plot_type: The type of plot to generate
-        """
-
-        plt.figure()
-
-        ax = data_frame.plot(
-            title=kwargs.get('title'),
-            grid=kwargs.get('grid'),
-            legend=True,
-            kind=plot_type,
-        )
-
-        if kwargs.get('x_label'):
-
-            ax.set_xlabel(kwargs.get('x_label'))
-
-        if kwargs.get('y_label'):
-
-            ax.set_ylabel(kwargs.get('y_label'))
-
-        current_name = '{parent_dir}/{db}-{date}-{name}'.format(
-            parent_dir=self.images_dir,
-            db=self.db_name,
-            date=self.report_date,
-            name=name,
-        )
-
-        plt.savefig(current_name)
 
     @staticmethod
     def __print_module_list():
