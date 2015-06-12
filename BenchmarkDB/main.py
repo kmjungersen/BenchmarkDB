@@ -207,7 +207,7 @@ class Benchmark():
 
         for field, selection in entry_fields.items():
 
-            field_val = None
+            field_val = str()
 
             for x in range(self.entry_length):
 
@@ -231,6 +231,7 @@ class Benchmark():
         for index in progress.bar(list(range(self.trials))):
 
             entry = self.random_entry()
+            entry.update(Index=index)
 
             self.write(entry)
 
@@ -253,6 +254,7 @@ class Benchmark():
         for index in progress.bar(list(range(self.trials))):
 
             entry = self.random_entry()
+            entry.update(Index=index)
 
             self.write(entry)
 
