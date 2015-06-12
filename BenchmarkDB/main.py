@@ -571,6 +571,69 @@ class Benchmark():
 
         plt.savefig(current_name)
 
+    def __generate_all_plots(self, compiled_data):
+        """
+
+        :return:
+        """
+
+        cd = compiled_data
+
+        template = '![Alt text](images/{db}-{date}-{name}.png "{name}")'
+        img_template = template.format(
+            db=self.db_name,
+            date=self.report_date,
+            name='{name}'
+        )
+
+        plots = {
+            'speed_plot': img_template.format(name='rw'),
+            'hist_plot': img_template.format(name='stats'),
+            'avgs_plot': img_template.format(name='running_avg'),
+        }
+
+        img_name_template = '{db}-{date}-{name}'.format(
+            db=self.db_name,
+            date=self.report_date,
+            name='{name}'
+        )
+
+        rw = pd.DataFrame({
+            'Writes': cd.get('write_metrics').get('normalized_data').data,
+            'Reads': cd.get('read_metrics').get('normalized_data').data,
+        })
+
+        avgs = pd.DataFrame({
+            'Writes Average': cd.get('write_metrics').get('rolling_avg').data,
+            'Reads Average': cd.get('read_metrics').get('rolling_avg').data,
+        })
+
+        self.generate_plot(
+            rw,
+            img_name_template.format(name='rw'),
+            title='Plot of Read and Write Speeds',
+            x_label='Trial Number',
+            y_label='Time (s)',
+        )
+
+        self.generate_plot(
+            avgs,
+            img_name_template.format(name='running_avg'),
+            title='Plot of Rolling Averages for Reads and Writes',
+            x_label='Trial Number',
+            y_label='Time (s)',
+        )
+
+        self.generate_plot(
+            rw,
+            img_name_template.format(name='stats'),
+            title='Histogram of Read and Write Times',
+            plot_type='hist',
+            x_label='Value (s)',
+        )
+
+        return plots
+
     def __generate_parameter_tables(self, compiled_data):
         """
 
