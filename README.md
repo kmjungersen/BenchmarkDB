@@ -1,6 +1,6 @@
-# Database Benchmarking
+# BenchmarkDB
 
-This application is intended to help you benchmark a database of your choice very simply and easily.  Simply follow the specified steps to build a module of your own and then you can see how it stacks up to other similar databases!
+Benchmarking database performance?  
 
 The following modules are currently operational:
 * Riak 1.x DB
