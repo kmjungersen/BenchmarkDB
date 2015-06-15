@@ -1,0 +1,35 @@
+<html>
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/markdown-it/4.2.2/markdown-it.min.js"></script>-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/markdown-it/4.2.2/markdown-it.min.js"></script>
+    <!--<script src="require.js"></script>-->
+
+    <link rel="stylesheet" type="text/css" href="https://raw.githubusercontent.com/twbs/bootstrap/master/dist/css/bootstrap.min.css">
+
+</head>
+    <header>
+
+    </header>
+
+    <body id="body">
+
+    </body>
+
+    <script type="text/javascript">
+
+        {
+            $.getJSON(window.location.href + 'view', function(data) {
+               console.log(data);
+            var md = window.markdownit();
+
+            var result = md.render(data['document']);
+
+            var body = document.getElementById("body");
+
+            body.innerHTML = result;
+            });
+
+        }
+    </script>
+</html>
