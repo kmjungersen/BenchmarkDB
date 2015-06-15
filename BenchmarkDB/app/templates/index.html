@@ -1,0 +1,19 @@
+<!doctype html>
+<head>
+
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="/static/site.css">
+
+</head>
+
+<html>
+    <h3>The following benchmark reports are available:</h3>
+    <ul>
+    {% for report in reports  %}
+        <li>
+            <a href="{{ report[1] }}">{{ report[0] }}</a>
+        </li>
+    {% endfor %}
+
+    </ul>
+</html>
