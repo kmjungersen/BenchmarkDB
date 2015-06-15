@@ -1,0 +1,10 @@
+td, th, table {
+    border-radius: 2px;
+    border: 2px solid #2f548c;
+}
+td, th {
+    padding: 10px;
+}
+body {
+    padding: 25px;
+}

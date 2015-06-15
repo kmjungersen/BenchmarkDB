@@ -156,10 +156,13 @@ class Benchmark():
                 db=self.db_name,
                 date=self.report_date,
             )
-
         self.reports_dir = 'generated_reports/{title}'.format(
             title=self.report_title,
-            )
+        )
+
+        # TODO - fix a bug where 2 reports cannot be made in the same minute,
+        # because the naming convention used here doesn't account for
+        # seconds anymore
         makedirs(self.reports_dir)
 
         self.images_dir = self.reports_dir + '/images'
@@ -562,7 +565,7 @@ class Benchmark():
 
             ax.set_ylabel(kwargs.get('y_label'))
 
-        current_name = '{parent_dir}/{db}-{date}-{name}'.format(
+        current_name = '{parent_dir}/{name}'.format(
             parent_dir=self.images_dir,
             db=self.db_name,
             date=self.report_date,
