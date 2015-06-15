@@ -9,3 +9,5 @@ matrix:
 branches:
   only:
     - dev
+
+script: python BenchmarkDB/main.py --debug
