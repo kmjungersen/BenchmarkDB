@@ -5,3 +5,8 @@ ansible==1.8.4
 invoke==0.10.1
 ipdb==0.8.1
 flask==0.10.1
+
+# Conda requirements
+pandas==0.16.0
+matplotlib==1.4.3
+seaborn==0.5.1
