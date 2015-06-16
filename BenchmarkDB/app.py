@@ -54,7 +54,7 @@ def index():
 
     :return render_template_obj template: The rendered index page template
     """
-    reports = os.listdir('foo')
+    reports = os.listdir('generated_reports')
 
     report_list = list()
 
@@ -109,7 +109,7 @@ def return_image(report_url, image_url):
 
     :return send_file_obj: the image to be served
     """
-    filename = "foo/{report}/images/{image}".format(
+    filename = "generated_reports/{report}/images/{image}".format(
         report=report_url,
         image=image_url,
     )
@@ -125,7 +125,7 @@ def retrieve_report(report_url):
 
     :return dict json: the json object containing the report
     """
-    file = 'foo/{url}/{url}.md'.format(
+    file = 'generated_reports/{url}/{url}.md'.format(
         url=report_url,
     )
 
