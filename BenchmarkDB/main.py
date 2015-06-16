@@ -24,7 +24,7 @@ purposes.
                                 from each run
         -s                  Sleep mode (experimental) - sleeps for 1/20 (s)
                                 between each read and write
-        -c --chaos          Activates CHAOS mode, where reads are taken
+        -r --random         Activates random mode, where reads are taken
                                 randomly from the DB instead of sequentially
         -l --list           Outputs a list of available DB modules
         --csv               Records unaltered read and write data to a CSV file
@@ -105,7 +105,7 @@ class Benchmark():
         self.entry_length = int(options.get('--length'))
         self.trials = int(options.get('--trials'))
         self.no_report = options.get('--no-report')
-        self.chaos = options.get('--chaos')
+        self.random = options.get('--random')
         self.csv = options.get('--csv')
         self.report_title = options.get('<report_title>')
 
@@ -227,9 +227,10 @@ class Benchmark():
         written to the DB,  and then read back from it.
 
         """
-        if self.chaos:
 
-            msg = 'Error! Chaos mode can ONLY be used with split reads/writes!'
+        if self.random:
+
+            msg = 'Error! Random mode can ONLY be used with split reads/writes!'
             exit(msg)
 
         for index in progress.bar(list(range(self.trials))):
@@ -239,7 +240,7 @@ class Benchmark():
 
             self.write(entry)
 
-            if self.chaos:
+            if self.random:
                 index = random.randint(0, index)
 
             if options.get('-s'):
@@ -269,7 +270,7 @@ class Benchmark():
 
         for index in progress.bar(list(range(self.trials))):
 
-            if self.chaos:
+            if self.random:
                 index = random.randint(0, index)
 
             self.read(index)
@@ -659,7 +660,7 @@ class Benchmark():
             ['Range of Rolling Average in Graphs', str(cd.get('rolling_avg_range'))],
             ['Split Reads and Writes', str(self.split)],
             ['Debug Mode', str(options.get('--debug'))],
-            ['Chaos Mode (Random Reads)', str(options.get('--chaos'))],
+            ['Random Mode (Random Reads)', str(options.get('--random'))],
         ]
 
 
