@@ -10,6 +10,7 @@ web browser.
 """
 
 from flask import Flask, render_template, jsonify, send_file
+import webbrowser
 
 app = Flask(
     __name__,
@@ -116,6 +117,7 @@ def return_image(report_url, image_url):
 
     return send_file(filename, mimetype='image/png')
 
+
 @app.route("/<report_url>/view")
 def retrieve_report(report_url):
     """ Retrieves the appropriate report based on the url and then returns it
@@ -140,5 +142,7 @@ def retrieve_report(report_url):
 
 if __name__ == "__main__":
 
-    app.debug = True
+    webbrowser.open('http://127.0.0.1:5000')
+    app.debug = False
     app.run()
+
