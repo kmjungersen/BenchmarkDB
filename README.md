@@ -2,12 +2,15 @@
 
 Benchmarking database performance?  
 
-The following modules are currently operational:
+![travis](https://travis-ci.org/kmjungersen/BenchmarkDB.svg?branch=dev)
+
+The following database modules are currently operational:
 * Riak 1.x DB
 * Riak 2.0 DB
 * Riak 2.0 DB with highly consistent buckets
 * MongoDB (Sharded replication set)
-* PostgreSQL (semi-sharded cluster - see module [README](postgreSQLdb/README.md)) (NEW!)
+* Cassandra
+* PostgreSQL (semi-sharded cluster - see module [README](postgreSQLdb/README.md))
 
 ## Sample Reports
 
@@ -23,11 +26,12 @@ Recently updated with graphs:
 ## Some Nice Features
 
 Some sweet features of using this robust application as opposed to hacking together a quick benchmark
-* Robust Data Analysis with PANDAS allows you to handle a ludacris number of benchmark trials (I've tried up to 100k)
-* MatPlotLib graphs of data so you can see what really matters
+* Generate a markdown report to view in a nicely formatted document, complete with a flask app to view them in the browser
+* Benchmark in an isolated environment, or point the app to a staging box to get more realistic benchmarks
+* Data Analysis with pandas allows you to handle a large number of benchmark trials (I've tried up to 100k)
+* MatPlotLib graphs of data for quick visualization
 * Ansible or docker deployment for each module, enabling local or remote deployment and testing
-* Easily customize benchmarks to run on remote or local deployments 
-* Generate a markdown report to view in a nicely formatted document
+* Easily customize application to run benchmarks on remote or local deployments 
 * `Invoke` tasks simplify basic usage.
     
     ```
@@ -52,8 +56,7 @@ Some sweet features of using this robust application as opposed to hacking toget
 
 2. Install the desired module.
 
-    Although this will soon be automated, 
-   This procedure is slightly different for every module, so be sure to read the `README` for each one.  Unless you're using one that's already deployed, then update `local.py` for the intended module to reflect the correct IP's
+   Although this will soon be automated, for now see the `README` for each module. If you're using a DB that's already deployed, simply update `local.py` for the intended module.
 
 3. Run the app!
 
