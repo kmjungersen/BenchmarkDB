@@ -71,33 +71,7 @@ def requirements():
     """ Pip installs all requirements, and if db arg is passed, the
     requirements for that module as well """
 
-    if conda():
-
-        run('conda install --file {conda}'.format(conda=CONDA_REQUIREMENTS))
-
-    else:
-
-        run('pip install -r {conda}'.format(conda=CONDA_REQUIREMENTS))
-
     run('pip install -r {req}'.format(req=REQUIREMENTS))
-
-
-def conda():
-    """ Determines if the user environment is anaconda or not """
-
-    import sys
-
-    conda = False
-    paths = sys.path
-
-    for path in paths:
-
-        if 'conda' in path:
-
-            conda = True
-            break
-
-    return conda
 
 
 @task
