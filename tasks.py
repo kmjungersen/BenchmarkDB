@@ -84,3 +84,11 @@ def module_requirements(database):
         db=database,
         req=REQUIREMENTS,
     ))
+
+
+def report_viewer_app():
+    """ Starts the Flask app to view benchmark reports """
+
+    cmd = 'cd BenchmarkDB && python app.py'
+
+    run(cmd)
