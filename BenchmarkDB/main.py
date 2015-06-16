@@ -7,9 +7,7 @@ Main.py
 This file houses the core of the application, and is where all of the
 read/write commands are issued from, timed, and all data is analyzed.  Results
 from the trials are printed to the console by default, and are also printed to
-a markdown file to keep a record of.  This is particularly helpful when
-benchmarking multiple DB's in a row to see which one is fastest for deployment
-purposes.
+a markdown file to keep a record of.
 
     Usage:
         main.py <database> [options]
@@ -71,7 +69,8 @@ from six.moves import range
 def retrieve_module_list():
     """ This function will retrieve a list of all available modules in the
     project directory and then return said list.
-    :return mod_list: The list of modules in the project directory
+
+    :return list mod_list: The list of modules in the project directory
     """
 
     current_dir = getcwd()
@@ -87,10 +86,16 @@ def retrieve_module_list():
 
 
 class Benchmark():
+    """ The primary benchmark class of the application, which manages the whole
+    process from start to finish.  After collecting user options, the
+    appropriate module is loaded and then the benchmarks are executed with the
+    user's desired options.  Then this data is analyzed and collected into a
+    comprehensive benchmark report.
+    """
 
     def __init__(self):
-        """
-
+        """ __init__() prepares for benchmarking by collecting the user's
+        runtime options and then managing the process.
         """
 
         if options.get('--list'):
@@ -176,6 +181,8 @@ class Benchmark():
 
     def feaux_run(self):
         """ This function generates fake data to be used for testing purposes.
+        The distribution is random so that analysis can still be performed and
+        plots can be drawn.
         """
 
         self.number_of_nodes = 'n/a'
@@ -192,14 +199,11 @@ class Benchmark():
             pass
 
     def random_entry(self):
-        """ This function generates a random string or random number depending
-        on the arguments passed in.  The string is generated from all ascii
-        letters and the number is generated from numbers 0-9.
+        """ This function generates a random sdata entry consisting of two
+        fields - a string and an integer.  The string is generated from all
+        ascii letters and the number is generated from numbers 0-9.
 
-        :param entry_type: the specified type of random entry, either 'string'
-                    or 'number'
-
-        :return: the random string or number that was just generated
+        :return dict entry: the random data entry that was generated
         """
 
         entry = dict()
@@ -222,10 +226,9 @@ class Benchmark():
         return entry
 
     def run(self):
-        """ This function will keep track of and call the read/ write functions
+        """ This function keeps track of and calls the read/ write functions
         for benchmarking.  For each iteration, a new DB entry will be created,
-        written to the DB,  and then read back from it.
-
+        written to the DB, and then read back from it.
         """
 
         if self.random:
@@ -279,13 +282,11 @@ class Benchmark():
                 time.sleep(1/20)
 
     def write(self, entry):
-        """ This function handles all DB write commands, and times that action
-        as well.  It takes a single parameter ('entry'), which is the data to
+        """ This function handles all DB write commands and times that action.
+        It takes a single parameter ('entry'), which is the data to
         be written to the DB.
 
-        :param entry: The entry to be recorded to the DB
-
-        :return: True, if all operations successfully completed
+        :param dict entry: The entry to be recorded to the DB
         """
 
         write_start_time = time.time()
@@ -305,13 +306,11 @@ class Benchmark():
             print(write_msg)
 
     def read(self, index):
-        """ This function handles all DB read commands, and times that action
-        as well.  It takes a single parameter, which is the index of an entry
+        """ This function handles all DB read commands, and times that action.
+        It takes a single parameter, which is the index of an entry
         to retrieve from the DB.
 
-        :param index: The index of the item to be retrieved from the DB
-
-        :return: True, if all operations successfully completed
+        :param int index: The index of the item to be retrieved from the DB
         """
 
         read_start_time = time.time()
@@ -342,8 +341,7 @@ class Benchmark():
         said data.  Without altering functionality, a report will be generated
         upon completion of analysis.
 
-        :return compiled_data: All of the data needed to generate a full
-                    benchmarking report
+        :return dict compiled_data: dict containing all read and w
         """
 
         w = pd.DataFrame({'data': self.write_times})
@@ -382,18 +380,21 @@ class Benchmark():
             'read_metrics': read_metrics,
             'n_stdev': self.n_stdev,
             'rolling_avg_range': rolling_avg_range,
-            }
+        }
 
         return compiled_data
 
     def __compute_rolling_avg(self, dataframe, rolling_range=None):
-        """ Given a dataframe object, this function will compute a running
+        """ Given a dataframe object, this function will compute a rolling
         average and return it as a separate dataframe object
-        :param dataframe: a dataframe with which to compute a running average
-        :param range: the range over which the rolling average should be
-                    computed
-        :return rolling_avg: a dataframe object with .data containing the
-                    running average data
+
+        :param DataFrame dataframe: a dataframe with which to compute a running
+                    average
+        :param int rolling_range: the range over which the rolling average
+                    should be computed
+
+        :return rolling_avg: a dataframe object with containing the running
+                    average data
         """
 
         if not rolling_range:
@@ -406,13 +407,9 @@ class Benchmark():
 
         return rolling_avg
 
-
-
     def __generate_csv(self):
-        """
-
-        :param dataframe:
-        :return:
+        """ This function creates a new DataFrame object with the raw read and
+        write times and then writes it to a CSV file
         """
 
         raw_data = pd.DataFrame({
@@ -425,10 +422,17 @@ class Benchmark():
         ))
 
     def __normalize_data(self, dataframe, average, stdev):
+        """ This function takes a dataframe object and normalizes the data
+        within, by removing outliers, which allows the plots to look a lot
+        nicer
+
+        :param DataFrame dataframe: the dataframe to be normalized
+        :param float average: the average value from the dataframe
+        :param float stdev: the standard deviation of the datframe
+
+        :return DataFrame dataframe: the normalized dataframe
         """
 
-        :return:
-        """
         df = dataframe
 
         n_stdev = 3
@@ -451,8 +455,8 @@ class Benchmark():
         return dataframe
 
     def generate_report_data(self, compiled_data):
-        """ This function generates all of the actual tabular data that is
-        displayed in the report.
+        """ This function prepares all of the actual tabular data for the
+        report before it's written to the file.
 
         :param compiled_data: The post-analysis data from the benchmarks
 
@@ -540,18 +544,19 @@ class Benchmark():
 
                     outfile.write(report)
 
-    def generate_plot(self, data_frame, name, plot_type='line', **kwargs):
-        """ This function take several parameters and generates a plot based
-        on them.
+    def generate_plot(self, dataframe, name, plot_type='line', **kwargs):
+        """ This function takes a DataFrame
 
-        :param name: The name of the plot, which is important for saving
-        :param data_frame: The data to be plotted
-        :param plot_type: The type of plot to generate
+        :param DataFrame dataframe: The data to be plotted
+        :param str name: The name of the plot for saving
+        :param str plot_type='line': The type of plot to generate
+        :param **kwargs: the other options for controlling the look of each
+                    plot
         """
 
         plt.figure()
 
-        ax = data_frame.plot(
+        ax = dataframe.plot(
             title=kwargs.get('title'),
             grid=kwargs.get('grid'),
             legend=True,
@@ -576,9 +581,12 @@ class Benchmark():
         plt.savefig(current_name)
 
     def __generate_all_plots(self, compiled_data):
-        """
+        """ This function coordinates the creation of all benchmarking plots
+        and then returns them
 
-        :return:
+        :param dict compiled_data: all of the compiled data from benchmarks
+
+        :return dict plots: the path for each plot created
         """
 
         cd = compiled_data
@@ -639,9 +647,15 @@ class Benchmark():
         return plots
 
     def __generate_parameter_tables(self, compiled_data):
-        """
+        """ This function takes compiled data and gnerates the parameter table
+        for the report.
 
-        :return:
+        :param dict compiled_data: the compiled benchmark data
+
+        :return tabulate_obj param_table: a tabulate object for display in the
+                    console
+        :return tabulate_obj param_table_md: a tabulate object for the markdown
+                    report
         """
 
         cd = compiled_data
@@ -680,10 +694,13 @@ class Benchmark():
 
     @staticmethod
     def __compute_descriptive_stats(dataframe):
-        """
+        """ A static method that computes the descriptive statistics of a given
+        dataframe
 
-        :param dataframe:
-        :return:
+        :param DataFrame dataframe: the dataframe with which to compute the
+                    descriptive stats
+
+        :return dict metrics: a dict of the descriptive statistics
         """
 
         df = dataframe
@@ -702,10 +719,13 @@ class Benchmark():
 
     @staticmethod
     def __generate_data_tables(compiled_data):
-        """
+        """ This function creates the data tables for the report.
 
-        :param compiled_data:
-        :return:
+        :param dict compiled_data: the compiled data from benchmarking
+
+        :return tabulate_obj data_table: the table for viewing in the terminal
+        :return tabulate_obj data_table_md: the table for viewing in the
+                    markdown report
         """
 
         cd = compiled_data
@@ -765,6 +785,9 @@ class Benchmark():
 
     @staticmethod
     def __print_module_list():
+        """ Static method that prints the list of available modules to the
+        console
+        """
 
         mod_list = retrieve_module_list()
 
@@ -778,13 +801,12 @@ class Benchmark():
 
     def __register_module(self, db_module):
         """ This function begins the process of registering a module for
-        benchmarking.  The first step is to check to see if the module exists,
-        and if it does, it will call `import_db_mod` to attempt the import.
+        benchmarking.  It checks to see if the module exists, and if it does,
+        it will attempt the import.
 
-        :param db_mod: The module to register
+        :param str db_module: The module to register
 
-        :return mod_class: `mod_class` will ONLY BE RETURNED IF `import_db_mod`
-                    runs successfully!
+        :return tup module: a tuple with the main and local parts of the module
         """
 
         module_list = retrieve_module_list()
@@ -805,14 +827,12 @@ class Benchmark():
 
     @staticmethod
     def __import_db_mod(module):
-        """ This function will do the actual import of the database-specific
-        module.  The `try/except` format is meant to be able to attempt the
-        import, but fail gracefully if for some reason the package can't be
-        imported.
+        """ This function does the actual import of the database-specific
+        module.
 
-        :param module: The module to be imported
+        :param str module: The module to be imported
 
-        :return module:
+        :return tup module: a tuple with the main and local parts of the module
         """
 
         try:
