@@ -25,8 +25,7 @@ a markdown file to keep a record of.
         -r --random         Activates random mode, where reads are taken
                                 randomly from the DB instead of sequentially
         -l --list           Outputs a list of available DB modules
-        --csv               Records unaltered read and write data to a CSV file
-                                for your own analysis
+        --no-csv            App will not generate a CSV file with the raw data
         --no-report         Option to disable the creation of the report file
         --no-split          Alternate between reads and writes instead of all
                                 writes before reads
@@ -93,28 +92,38 @@ class Benchmark():
     comprehensive benchmark report.
     """
 
-    def __init__(self):
+    def __init__(self, setup=False, options=None):
         """ __init__() prepares for benchmarking by collecting the user's
         runtime options and then managing the process.
         """
+        if not options:
+            options = {}
 
-        if options.get('--list'):
+        self.options = options
+
+        if self.options.get('--list'):
 
             self.__print_module_list()
 
         self.collection = 'test'
 
-        # Retrieve command line options
-        self.verbose = options.get('-v')
-        self.really_verbose = options.get('-V')
-        self.entry_length = int(options.get('--length'))
-        self.trials = int(options.get('--trials'))
-        self.no_report = options.get('--no-report')
-        self.random = options.get('--random')
-        self.csv = options.get('--csv')
-        self.report_title = options.get('<report_title>')
+        # Retrieve command line self.options
+        self.verbose = self.options.get('-v')
+        self.really_verbose = self.options.get('-V')
+        self.no_report = self.options.get('--no-report')
+        self.random = self.options.get('--random')
+        self.csv = not self.options.get('--no-csv')
+        self.report_title = self.options.get('<report_title>')
 
-        if options.get('--no-split'):
+        if not options.get('--length'):
+            options['--length'] = 10
+        self.entry_length = int(options.get('--length'))
+
+        if not options.get('--trials'):
+            options['--trials'] = 1000
+        self.trials = int(options.get('--trials'))
+
+        if self.options.get('--no-split'):
 
             self.split = False
 
@@ -128,13 +137,22 @@ class Benchmark():
         self.time_and_date = time.strftime("%a, %d %b, %Y at %H:%M:%S")
         self.report_date = time.strftime("%b%d-%Y--%H-%M")
 
-        if options.get('--debug'):
+        if setup:
+            self.setup()
+
+    def setup(self):
+        """ This function runs all of the setup commands for benchmarking. By
+        separating this from __init__(), many of the functions from the
+        Benchmark() class can be used outside of the application for testing.
+        """
+
+        if self.options.get('--debug'):
 
             self.feaux_run()
 
         else:
 
-            self.db_name = options.get('<database>')
+            self.db_name = self.options.get('<database>')
 
             self.module = self.__register_module(self.db_name)
             self.database_client = self.module[0].Benchmark(
@@ -161,6 +179,7 @@ class Benchmark():
                 db=self.db_name,
                 date=self.report_date,
             )
+
         self.reports_dir = 'generated_reports/{title}'.format(
             title=self.report_title,
         )
@@ -246,7 +265,7 @@ class Benchmark():
             if self.random:
                 index = random.randint(0, index)
 
-            if options.get('-s'):
+            if self.options.get('-s'):
                 time.sleep(1/20)
 
             self.read(index)
@@ -266,7 +285,7 @@ class Benchmark():
 
             self.write(entry)
 
-            if options.get('-s'):
+            if self.options.get('-s'):
                 time.sleep(1/20)
 
         print('\nRead progress:\n')
@@ -278,7 +297,7 @@ class Benchmark():
 
             self.read(index)
 
-            if options.get('-s'):
+            if self.options.get('-s'):
                 time.sleep(1/20)
 
     def write(self, entry):
@@ -437,7 +456,7 @@ class Benchmark():
 
         n_stdev = 3
 
-        if options.get('--debug'):
+        if self.options.get('--debug'):
             stdev = 15
 
         if stdev > 3 * average:
@@ -673,8 +692,8 @@ class Benchmark():
             ['# of StDev\'s Displayed in Graphs', str(cd.get('n_stdev'))],
             ['Range of Rolling Average in Graphs', str(cd.get('rolling_avg_range'))],
             ['Split Reads and Writes', str(self.split)],
-            ['Debug Mode', str(options.get('--debug'))],
-            ['Random Mode (Random Reads)', str(options.get('--random'))],
+            ['Debug Mode', str(self.options.get('--debug'))],
+            ['Random Mode (Random Reads)', str(self.options.get('--random'))],
         ]
 
 
@@ -854,6 +873,6 @@ class Benchmark():
 
 if __name__ == '__main__':
 
-    options = docopt(__doc__)
+    doc_opt= docopt(__doc__)
 
-    Benchmark()
+    Benchmark(setup=True, options=doc_opt)
