@@ -40,6 +40,7 @@ a markdown file to keep a record of.
 from __future__ import absolute_import
 from __future__ import print_function
 
+import os
 import time
 import string
 import random
@@ -181,12 +182,14 @@ class Benchmark():
         )
 
         # TODO - fix a bug where 2 reports cannot be made in the same minute,
-        # because the naming convention used here doesn't account for
-        # seconds anymore
+        # TODO - because the naming convention used here doesn't account for
+        # TODO - seconds anymore
         makedirs(self.reports_dir)
 
         self.images_dir = self.reports_dir + '/images'
         makedirs(self.images_dir)
+
+        self.package_dir = os.path.dirname(os.path.realpath(__file__))
 
         data = self.compile_data()
 
@@ -541,7 +544,10 @@ class Benchmark():
                 date=self.report_date,
             )
 
-        with open('report_template.md', 'r') as infile:
+        report_template_path = '{base_dir}/report_template.md'.format(
+            base_dir=self.package_dir
+        )
+        with open(report_template_path, 'r') as infile:
 
             template = infile.read()
 
