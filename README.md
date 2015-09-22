@@ -2,7 +2,8 @@
 
 Benchmark database performance!  
 
-Develop:![travis](https://travis-ci.org/kmjungersen/BenchmarkDB.svg?branch=develop)
+Master: [![Build Status](https://travis-ci.org/kmjungersen/BenchmarkDB.svg?branch=master)](https://travis-ci.org/kmjungersen/BenchmarkDB)
+Develop: [![Build Status](https://travis-ci.org/kmjungersen/BenchmarkDB.svg?branch=develop)](https://travis-ci.org/kmjungersen/BenchmarkDB)
 
 The following database modules are currently operational:
 * Riak 1.x DB
