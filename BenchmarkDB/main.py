@@ -40,11 +40,6 @@ a markdown file to keep a record of.
 from __future__ import absolute_import
 from __future__ import print_function
 
-# TODO [x] - add a progress bar for non-verbose output
-# TODO [x] - add some better data analysis
-# TODO [x] - add python 3.x support
-# TODO [x] - remove outlier table from report and add system parameter table
-
 import time
 import string
 import random
@@ -62,7 +57,6 @@ from tabulate import tabulate
 from docopt import docopt
 from clint.textui import progress
 import six
-from six.moves import range
 
 
 def retrieve_module_list():
