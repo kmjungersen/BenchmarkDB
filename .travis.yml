@@ -36,7 +36,7 @@ before_install:
 
 install:
   - conda update --yes conda
-  - conda create --name testenv --yes $DEPS pip nose setuptools python=$TRAVIS_PYTHON_VERSION
+  - conda create --name testenv --yes numpy scipy matplotlib pandas seaborn pip nose setuptools python=$TRAVIS_PYTHON_VERSION
   - source activate testenv
   - pip install coveralls
   - pip install .
