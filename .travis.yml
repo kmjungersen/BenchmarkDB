@@ -13,7 +13,7 @@ python:
 
 branches:
   only:
-    - dev
+    - develop
 
 
 
