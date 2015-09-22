@@ -1,0 +1,22 @@
+---
+- name: Install vim
+  yum: name=vim state=present
+
+- name: Fetch Riak Package
+  yum: name="http://s3.amazonaws.com/downloads.basho.com/riak/2.0/2.0.0/rhel/6/riak-2.0.0-1.el6.x86_64.rpm" state=present
+
+#- name: Install the rpm package
+#  command: "sudo rpm -Uvh riak-2.0.0-1.el6.x86_64.rpm"
+
+- name: Install some dependencies
+  yum: name=libselinux-python state=present
+
+- name: Configure riak
+  template: src="riak.conf.j2" dest="/etc/riak/riak.conf"
+
+- name: Raise the ulimit of the file system
+  copy: src="limits.conf" dest="/etc/security/limits.conf"
+
+- name: Start riak
+  service: name=riak state=started
+
